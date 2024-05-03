@@ -1,0 +1,23 @@
+import Logo from "@/components/icons/logo";
+
+import Link from "next/link";
+import Navigate from "./Navigate";
+import Options from "./Options";
+const Header = () => {
+    return (
+        <header className="w-full h-[74px] flex justify-center  backdrop-blur-xl fixed top-0 left-0 z-50 bg-[hsl(var(--background)/87%)]">
+            <div className="flex items-center justify-between max-w-[1230px] w-full">
+                <div className="w-[74px] h-[74px] p-4">
+                    <Link scroll={false} href={"/"} className="">
+                        <Logo color="hsl(var(--foreground))" style="w-full h-full" />
+                    </Link>
+                </div>
+
+                <Navigate />
+                <Options />
+            </div>
+        </header>
+    );
+};
+
+export default Header;
