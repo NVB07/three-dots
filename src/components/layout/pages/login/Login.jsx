@@ -40,7 +40,6 @@ const Login = () => {
     const handleFacebookSignUp = async () => {
         alert("chức năng đang được phát triển");
     };
-
     return (
         <div className="w-full h-screen flex items-center justify-center">
             <div className="W-full max-w-[500px] p-4 pb-6 flex flex-col items-center rounded-2xl ">

@@ -2,7 +2,20 @@
 import Link from "next/link";
 import { useState, Fragment, useCallback } from "react";
 import Image from "next/image";
-import { Heart, MessageCircleMore, Send } from "lucide-react";
+import { Heart, MessageCircleMore, Send, Ellipsis } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { deleteDocument, handleReact } from "@/firebase/services";
 
 const Blog = ({
@@ -66,38 +79,61 @@ const Blog = ({
             </div>
             <div className="flex-1 ">
                 <div className="w-full flex justify-between h-5 mb-1.5">
-                    <Link href={useURL} className="font-semibold hover:underline">
-                        {username}
-                    </Link>
+                    <div className=" flex items-end">
+                        <Link href={useURL} className="font-semibold hover:underline">
+                            {username}
+                        </Link>
+                        <div className="text-[#acacac] text-base ml-4">{postTime}</div>
+                    </div>
                     <div className="flex items-center">
-                        <div className="tetx-#[acacac] text-sm">{postTime}</div>
                         <>
                             {isAuthor ? (
-                                <>my post</>
-                            ) : // <Popover placement="bottom-end" isOpen={isPopoverOpen} onOpenChange={setPopoverOpen}>
-                            //     <PopoverTrigger>
-                            //         <Button variant="light" size="sm" radius="full" isIconOnly>
-                            //             <SlOptions color="#444444" />
-                            //         </Button>
-                            //     </PopoverTrigger>
-                            //     <PopoverContent>
-                            //         <div className="px-1 py-2 flex flex-col items-start">
-                            //             <Button onClick={handleEdit} className="w-full flex justify-start px-2 hover:!bg-transparent " variant="light">
-                            //                 Edit post
-                            //             </Button>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="rounded-full w-7 h-7">
+                                            <Ellipsis width={20} height={20} />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full flex flex-col p-0">
+                                        <Button variant="ghost" className="border-b border-solid border-[#8a8a8a3f] rounded-b-none">
+                                            Xem bài viết
+                                        </Button>
 
-                            //             <Button
-                            //                 onClick={() => setPopoverOpen(false)}
-                            //                 onPress={onOpen}
-                            //                 className="w-full flex justify-start px-2 hover:!bg-transparent text-red-600"
-                            //                 variant="light"
-                            //             >
-                            //                 Delete post
-                            //             </Button>
-                            //         </div>
-                            //     </PopoverContent>
-                            // </Popover>
-                            null}
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" className="text-[#f14b5c] hover:text-[#f14b5c] rounded-t-none">
+                                                    Xóa bài viết
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>bạn có muốn xóa bài viết này ?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Việc xóa bài viết sẽ không thể khôi phục trong tương lai.<br></br> Hãy cân nhắc trước khi xác nhận xóa.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={handleDelete}>Xóa</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </PopoverContent>
+                                </Popover>
+                            ) : (
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="rounded-full w-7 h-7">
+                                            <Ellipsis width={20} height={20} />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full flex flex-col p-0">
+                                        <Button variant="ghost" className="">
+                                            Xem bài viết
+                                        </Button>
+                                    </PopoverContent>
+                                </Popover>
+                            )}
                         </>
                     </div>
                 </div>

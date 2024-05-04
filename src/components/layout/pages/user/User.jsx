@@ -95,7 +95,9 @@ const User = ({ param }) => {
                     <h2 className="text-sm italic mt-2">{userData?.data.email}</h2>
                 </div>
                 <div className="w-1/2 flex justify-end">
-                    <Image width={80} height={80} className="rounded-full" src={userData?.data.photoURL} alt="avt" />
+                    {userData && (
+                        <Image width={80} height={80} className="rounded-full" placeholder="blur" blurDataURL="/next.svg" src={userData.data.photoURL} alt="avt" />
+                    )}
                 </div>
             </div>
             <Button variant="outline" color={!isMyAccount ? "primary" : "warning"} className="w-full font-bold">

@@ -15,11 +15,14 @@ const HomePage = () => {
             const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
 
             const year = date.getFullYear();
-            const month = date.getMonth() + 1;
+            const month = date.getMonth();
             const day = date.getDate();
             const hours = date.getHours();
             const minutes = date.getMinutes();
-            const time = `${hours}:${minutes} | ${day}/${month}/${year}`;
+
+            const time = `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes} | ${day < 10 ? "0" + day : day}/${
+                month < 10 ? "0" + month : month
+            }/${year}`;
 
             return time;
         }
@@ -51,7 +54,7 @@ const HomePage = () => {
     }, []);
 
     return (
-        <main className="pt-[90px] w-full flex justify-center">
+        <main className=" w-full flex justify-center">
             <div className="w-full max-w-[620px] px-6">
                 {posts.map((post) => {
                     return (

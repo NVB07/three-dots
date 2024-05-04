@@ -6,12 +6,13 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import { AuthContext } from "@/auth/AuthProvider";
+import NewBlog from "../newBlog/NewBlog";
 const Navigate = () => {
     const data = useContext(AuthContext);
     const urlPath = usePathname();
     const router = useRouter();
     return (
-        <div className="h-[66px]">
+        <div className="h-[66px] flex items-center">
             <Button className="w-[92px] h-[66px] mx-[3px]" variant="ghost" onClick={() => router.push("/")}>
                 <Home strokeWidth={2} width={32} height={32} style={urlPath === "/" ? { opacity: 1 } : { opacity: 0.4 }} />
             </Button>
@@ -20,9 +21,7 @@ const Navigate = () => {
                     <Search strokeWidth={2.5} width={32} height={32} style={urlPath.includes("search") ? { opacity: 1 } : { opacity: 0.4 }} />
                 </Link>
             </Button>
-            <Button className="w-[92px] h-[66px] mx-[3px]" variant="ghost">
-                <SquarePen strokeWidth={2} width={32} height={32} style={{ opacity: 0.4 }} />
-            </Button>
+            <NewBlog />
             <Button className="w-[92px] h-[66px] p-0" variant="ghost">
                 <Link href={"/chat"} className="flex items-center justify-center w-full h-full">
                     <MessageSquareMore strokeWidth={2} width={32} height={32} style={urlPath.includes("chat") ? { opacity: 1 } : { opacity: 0.4 }} />
