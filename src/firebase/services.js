@@ -28,11 +28,23 @@ export const deleteDocument = async (collectionName, documentID, pathImage) => {
     }
 };
 
+export const updateContent = async (documentId, newContent) => {
+    const docRef = doc(fireStore, "blogs", documentId);
+
+    try {
+        await updateDoc(docRef, {
+            "post.content": newContent,
+        });
+        console.log("Content updated successfully!");
+    } catch (error) {
+        console.error("Error updating content: ", error);
+    }
+};
+
 export const handleReact = async (documentId, userInformation, comment = "") => {
     const docRef = doc(fireStore, "blogs", documentId);
 
     try {
-        // Lấy dữ liệu hiện tại của tài liệu từ Firestore
         const docSnap = await getDoc(docRef);
         const postDataReaction = docSnap.data().post.reaction;
 
@@ -46,7 +58,6 @@ export const handleReact = async (documentId, userInformation, comment = "") => 
                     comments: updatedComments,
                     liked: calculateTotalLiked(postDataReaction.comments),
                 };
-                // Nếu 'uid' đã tồn tại, chuyển 'liked' thành 'false'
                 await updateDoc(docRef, {
                     "post.reaction": updatedReaction,
                 });

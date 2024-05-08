@@ -1,22 +1,27 @@
 "use client";
-import { useContext, useState, useRef, useCallback } from "react";
-import { Dialog, DialogContent, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { SquarePen, ImagePlus, ImageOff } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
+import { useContext, useState, useRef, useCallback } from "react";
+
+import { Dialog, DialogContent, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AuthContext } from "@/auth/AuthProvider";
 import { Textarea } from "@/components/ui/textarea";
-import { addDocument, addFileToStorage } from "@/firebase/services";
-const NewBlog = () => {
+
+import { AuthContext } from "@/auth/AuthProvider";
+import { addDocument, addFileToStorage, updateContent } from "@/firebase/services";
+
+import ImageAddIcon from "@/components/icons/ImageAddIcon";
+import CloseIcon from "@/components/icons/CloseIcon";
+import CheckIcon from "@/components/icons/CheckIcon";
+
+const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onClick }) => {
     const data = useContext(AuthContext);
     const inputImageRef = useRef();
     const imagePreviewRef = useRef();
-
-    const [dialogNewBlog, setDialogNewBlog] = useState(false);
+    const [dialogNewBlog, setDialogNewBlog] = useState();
     const [previewImageState, setPreviewImageState] = useState(false);
     const [imageFile, setImageFile] = useState();
-    const [postContent, setPostContent] = useState("");
+    const [postContent, setPostContent] = useState(blogid ? contentBlog : "");
     const [loading, setLoading] = useState(false);
 
     const handleSelectImage = useCallback(() => {
@@ -30,13 +35,19 @@ const NewBlog = () => {
         }
     }, []);
 
-    const handleCloseModal = useCallback((isOpen) => {
+    const handleCloseModal = () => {
+        setDialogNewBlog();
+        handleRemoveImage();
+        setImageFile(null);
+        setPreviewImageState(false);
+    };
+    const handleRefresh = () => {
         setDialogNewBlog();
         setPostContent("");
         handleRemoveImage();
         setImageFile(null);
         setPreviewImageState(false);
-    });
+    };
 
     const previewImage = (event) => {
         const file = event.target.files[0];
@@ -54,9 +65,27 @@ const NewBlog = () => {
         }
     };
 
+    const handleEditPostContent = async () => {
+        setLoading(true);
+        const formattedContent = postContent.trim().replace(/\n/g, "|~n|");
+        await updateContent(blogid, formattedContent).then(() => {
+            setLoading(false);
+            onClick();
+            setDialogNewBlog(false);
+            toast("Đã sửa bài viết", {
+                description: postContent.trim().length < 40 ? `${postContent.trim()}` : `${postContent.trim().slice(0, 40)}...`,
+                cancel: {
+                    label: <CloseIcon />,
+                    onClick: () => {},
+                },
+                icon: <CheckIcon />,
+            });
+        });
+    };
+
     const handleNewPost = async () => {
         setLoading(true);
-        const formattedContent = postContent.replace(/\n/g, "|~n|");
+        const formattedContent = postContent.trim().replace(/\n/g, "|~n|");
         await addDocument("blogs", {
             author: {
                 displayName: data?.displayName,
@@ -79,16 +108,34 @@ const NewBlog = () => {
                     ],
                 },
             },
-        }).then(() => {
-            setLoading(false);
-            setDialogNewBlog(false);
-        });
+        })
+            .then(() => {
+                setLoading(false);
+                setDialogNewBlog(false);
+                toast("Đã đăng bài viết", {
+                    description: postContent.trim().length < 40 ? `${postContent.trim()}` : `${postContent.trim().slice(0, 40)}...`,
+                    cancel: {
+                        label: <CloseIcon />,
+                        onClick: () => {},
+                    },
+                    icon: <CheckIcon />,
+                });
+            })
+            .catch(() => {
+                toast.error("Lỗi !", {
+                    description: postContent.trim().length < 40 ? `${postContent.trim()}` : `${postContent.trim().slice(0, 40)}...`,
+                    cancel: {
+                        label: <CloseIcon />,
+                        onClick: () => {},
+                    },
+                });
+            });
     };
     return (
-        <Dialog onOpenChange={handleCloseModal} open={dialogNewBlog}>
+        <Dialog onOpenChange={!blogid ? handleRefresh : handleCloseModal} open={dialogNewBlog}>
             <DialogTrigger asChild>
-                <Button onClick={() => setDialogNewBlog(true)} className="w-[92px] h-[66px] mx-[3px]" variant="ghost">
-                    <SquarePen strokeWidth={2} width={32} height={32} style={{ opacity: 0.4 }} />
+                <Button onClick={() => setDialogNewBlog(true)} className={styleButton} variant="ghost">
+                    {buttonTitle}
                 </Button>
             </DialogTrigger>
             <DialogContent className="min-w-80 max-w-[550px] w-full">
@@ -108,28 +155,36 @@ const NewBlog = () => {
                         <p className="text-base font-semibold">{data?.displayName}</p>
                         <div style={{ scrollbarWidth: "none" }} className="max-h-[400px] overflow-auto p-2">
                             <Textarea
-                                onChange={(e) => setPostContent(e.target.value.trim())}
+                                value={postContent}
+                                onChange={(e) => setPostContent(e.target.value)}
                                 className="outline-none min-h-20 max-h-96 text-base bg-[hsl(var(--foreground)/5%)]"
-                                placeholder="Bắt đầu bài viết."
+                                placeholder={blogid ? "Sửa bài viết" : "Bắt đầu bài viết."}
                             />
                             {previewImageState ? (
                                 <div className="w-[300px] pt-3 pr-3 relative">
                                     <Button onClick={handleRemoveImage} variant="secondary" className="rounded-full w-8 h-8 p-1.5 mt-2 absolute top-0 right-0">
-                                        <ImageOff />
+                                        <CloseIcon />
                                     </Button>
                                     <img className="w-full h-auto rounded" src="#" alt="preview-image" ref={imagePreviewRef} />
                                 </div>
                             ) : null}
-                            <Button onClick={handleSelectImage} variant="ghost" className="rounded-full w-8 h-8 p-1.5 mt-2">
-                                <ImagePlus />
-                            </Button>
+                            {!blogid && (
+                                <Button onClick={handleSelectImage} variant="ghost" className="rounded-full w-8 h-8 p-1.5 mt-2">
+                                    <ImageAddIcon />
+                                </Button>
+                            )}
                             <input ref={inputImageRef} type="file" accept="image/*" hidden onChange={previewImage} />
                         </div>
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button onClick={handleNewPost} disabled={loading} className="select-none" type="submit">
-                        {loading ? "Chờ..." : "Đăng"}
+                    <Button
+                        onClick={!blogid ? handleNewPost : handleEditPostContent}
+                        disabled={loading || (!postContent.trim() && !imageFile)}
+                        className="select-none"
+                        type="submit"
+                    >
+                        {loading ? "Chờ..." : blogid ? "Sửa" : "Đăng"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

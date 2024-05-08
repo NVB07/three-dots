@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useState, Fragment, useCallback } from "react";
+import { toast } from "sonner";
 import Image from "next/image";
-import { Heart, MessageCircleMore, Send, Ellipsis } from "lucide-react";
+import { Heart, MessageCircleMore, Send, Ellipsis, X, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { deleteDocument, handleReact } from "@/firebase/services";
+import NewBlog from "../newBlog/NewBlog";
 
 const Blog = ({
     blogid,
@@ -33,6 +35,8 @@ const Blog = ({
 }) => {
     const isAuthor = currentUserData?.uid === authorid;
     const [likePost, setLikePost] = useState(liked);
+
+    const [openOption, setOpenOption] = useState();
 
     const getPathImage = useCallback(() => {
         if (imageSrc) {
@@ -62,9 +66,28 @@ const Blog = ({
     const handleEdit = useCallback(() => {}, []);
 
     const handleDelete = async () => {
-        await deleteDocument("blogs", blogid, getPathImage()).then(() => {});
+        await deleteDocument("blogs", blogid, getPathImage())
+            .then(() => {
+                toast("Đã xóa bài viết", {
+                    cancel: {
+                        label: <X />,
+                        onClick: () => {},
+                    },
+                    icon: <Trash2 />,
+                });
+            })
+            .catch(() => {
+                toast.error("Lỗi khi xóa bài", {
+                    action: {
+                        label: "X",
+                        onClick: () => {},
+                    },
+                });
+            });
     };
-
+    const closeOption = () => {
+        setOpenOption(false);
+    };
     return (
         <div className="p-3  border-t border-solid border-[#8a8a8a3f] flex">
             <div className="min-w-12 w-12 max-w-12 flex flex-col">
@@ -88,7 +111,7 @@ const Blog = ({
                     <div className="flex items-center">
                         <>
                             {isAuthor ? (
-                                <Popover>
+                                <Popover onOpenChange={setOpenOption} open={openOption}>
                                     <PopoverTrigger asChild>
                                         <Button variant="ghost" size="icon" className="rounded-full w-7 h-7">
                                             <Ellipsis width={20} height={20} />
@@ -98,6 +121,14 @@ const Blog = ({
                                         <Button variant="ghost" className="border-b border-solid border-[#8a8a8a3f] rounded-b-none">
                                             Xem bài viết
                                         </Button>
+                                        {/* //edit post */}
+                                        <NewBlog
+                                            onClick={closeOption}
+                                            blogid={blogid}
+                                            contentBlog={content.replace(/\|~n\|/g, "\n")}
+                                            buttonTitle={"Sửa bài viết"}
+                                            styleButton="w-full rounded-none border-b border-solid border-[#8a8a8a3f]"
+                                        />
 
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -137,11 +168,21 @@ const Blog = ({
                         </>
                     </div>
                 </div>
-                <div className="mb-2 font-normal">{elements}</div>
+                <div className="mb-2 text-[15px] ">{elements}</div>
                 <div className="w-full">
                     {imageSrc ? (
                         // <ViewPhoto photoURL={imageSrc}>
-                        <Image priority style={{ width: "100%", height: "auto" }} src={imageSrc} width={600} height={300} alt="image" placeholder="empty" />
+                        <Image
+                            priority
+                            style={{ width: "100%", height: "auto" }}
+                            src={imageSrc}
+                            width={600}
+                            height={300}
+                            alt="image"
+                            blurDataURL="/next.svg"
+                            placeholder="blur"
+                            className="rounded"
+                        />
                     ) : // </ViewPhoto>
                     null}
                 </div>
