@@ -1,6 +1,15 @@
-const WriteBlogIcon = ({ width, height, color = "currentColor" }) => {
+const WriteBlogIcon = ({ width, height, color = "currentColor", style = "" }) => {
     return (
-        <svg fill={color} opacity={0.6} viewBox="-2 -2 24 24" width={width} height={height} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin">
+        <svg
+            fill={color}
+            className={style}
+            opacity={0.6}
+            viewBox="-2 -2 24 24"
+            width={width}
+            height={height}
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="xMinYMin"
+        >
             <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
             <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
             <g id="SVGRepo_iconCarrier">

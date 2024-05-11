@@ -141,14 +141,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
             <DialogContent className="min-w-80 max-w-[550px] w-full">
                 <div className="flex">
                     <div className="w-10 mr-3 flex flex-col items-center">
-                        <Image
-                            src={data?.photoURL}
-                            width={40}
-                            height={40}
-                            alt="avatar"
-                            quality={60}
-                            className="rounded-full border border-solid border-[hsl(var(--foreground))]"
-                        />
+                        <Image src={data?.photoURL} width={40} height={40} alt="avatar" quality={60} className="rounded-full border-border border border-solid " />
                         <div className="w-[1px] h-full bg-[#8a8a8a3f] relative after:absolute after:rounded-full after:left-1/2 after:-translate-x-1/2 after:w-[11px] after:h-[11px] after:bg-[#8a8a8a3f] after:top-full"></div>
                     </div>
                     <div className="flex-1">

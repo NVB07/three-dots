@@ -1,5 +1,11 @@
+import Chat from "@/components/layout/pages/chat/Chat";
+
 const ChatPage = () => {
-    return <div>chat page</div>;
+    return (
+        <main>
+            <Chat />
+        </main>
+    );
 };
 
 export default ChatPage;

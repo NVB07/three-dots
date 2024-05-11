@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useState, Fragment, useCallback } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
-import { Heart, MessageCircleMore, Send, Ellipsis, X, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +17,15 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { deleteDocument, handleReact } from "@/firebase/services";
+
 import NewBlog from "../newBlog/NewBlog";
+
+import HeartIcon from "@/components/icons/HeartIcon";
+import CloseIcon from "@/components/icons/CloseIcon";
+import CommentIcon from "@/components/icons/CommentIcon";
+import ShareIcon from "@/components/icons/ShareIcon";
+import OptionIcon from "@/components/icons/OptionIcon";
+import TrashIcon from "@/components/icons/TrashIcon";
 
 const Blog = ({
     blogid,
@@ -35,7 +42,6 @@ const Blog = ({
 }) => {
     const isAuthor = currentUserData?.uid === authorid;
     const [likePost, setLikePost] = useState(liked);
-
     const [openOption, setOpenOption] = useState();
 
     const getPathImage = useCallback(() => {
@@ -49,7 +55,6 @@ const Blog = ({
         return null;
     }, []);
 
-    // get path image
     const parts = content.split("|~n|");
     const elements = parts.map((part, index) => (
         <Fragment key={index}>
@@ -70,16 +75,16 @@ const Blog = ({
             .then(() => {
                 toast("Đã xóa bài viết", {
                     cancel: {
-                        label: <X />,
+                        label: <CloseIcon />,
                         onClick: () => {},
                     },
-                    icon: <Trash2 />,
+                    icon: <TrashIcon />,
                 });
             })
             .catch(() => {
                 toast.error("Lỗi khi xóa bài", {
                     action: {
-                        label: "X",
+                        label: <CloseIcon />,
                         onClick: () => {},
                     },
                 });
@@ -114,7 +119,7 @@ const Blog = ({
                                 <Popover onOpenChange={setOpenOption} open={openOption}>
                                     <PopoverTrigger asChild>
                                         <Button variant="ghost" size="icon" className="rounded-full w-7 h-7">
-                                            <Ellipsis width={20} height={20} />
+                                            <OptionIcon width={20} height={20} />
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-full flex flex-col p-0">
@@ -155,7 +160,7 @@ const Blog = ({
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button variant="ghost" size="icon" className="rounded-full w-7 h-7">
-                                            <Ellipsis width={20} height={20} />
+                                            <OptionIcon width={20} height={20} />
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-full flex flex-col p-0">
@@ -171,7 +176,6 @@ const Blog = ({
                 <div className="mb-2 text-[15px] ">{elements}</div>
                 <div className="w-full">
                     {imageSrc ? (
-                        // <ViewPhoto photoURL={imageSrc}>
                         <Image
                             priority
                             style={{ width: "100%", height: "auto" }}
@@ -183,24 +187,28 @@ const Blog = ({
                             placeholder="blur"
                             className="rounded"
                         />
-                    ) : // </ViewPhoto>
-                    null}
+                    ) : null}
                 </div>
                 <div className="mt-2.5 flex items-center">
                     <div className="w-9 h-9 mr-1">
-                        <button className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl" onClick={handleLikePost}>
-                            {likePost ? <Heart fill="red" color="red" /> : <Heart />}
-                        </button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1.5"
+                            onClick={handleLikePost}
+                        >
+                            {likePost ? <HeartIcon solidColor="red" /> : <HeartIcon />}
+                        </Button>
                     </div>
                     <div className="w-9 h-9 mr-1">
-                        <button className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl">
-                            <MessageCircleMore />
-                        </button>
+                        <Button variant="ghost" size="icon" className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1.5">
+                            <CommentIcon width={22} height={22} />
+                        </Button>
                     </div>
                     <div className="w-9 h-9 mr-1">
-                        <button className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl">
-                            <Send />
-                        </button>
+                        <Button variant="ghost" size="icon" className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1">
+                            <ShareIcon />
+                        </Button>
                     </div>
                 </div>
                 <div className="mt-2.5 text-[#acacac] text-sm">{likedCount} lượt thích</div>
