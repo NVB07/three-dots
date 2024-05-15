@@ -89,22 +89,24 @@ const User = ({ param }) => {
     }
     return (
         <div className="w-full ">
-            <div className="full flex items-start mb-6">
-                <div className="w-1/2">
-                    <h3 className="text-xl font-bold">{userData?.data.displayName}</h3>
-                    <h2 className="text-sm italic mt-2">{userData?.data.email}</h2>
+            <div className="px-3 sm:px-0">
+                <div className="full flex items-start mb-6">
+                    <div className="w-1/2">
+                        <h3 className="text-xl font-bold">{userData?.data.displayName}</h3>
+                        <h2 className="text-sm italic mt-2">{userData?.data.email}</h2>
+                    </div>
+                    <div className="w-1/2 flex justify-end">
+                        {userData && (
+                            <Image width={80} height={80} className="rounded-full" placeholder="blur" blurDataURL="/next.svg" src={userData.data.photoURL} alt="avt" />
+                        )}
+                    </div>
                 </div>
-                <div className="w-1/2 flex justify-end">
-                    {userData && (
-                        <Image width={80} height={80} className="rounded-full" placeholder="blur" blurDataURL="/next.svg" src={userData.data.photoURL} alt="avt" />
-                    )}
-                </div>
+                <Button variant={!isMyAccount ? "" : "secondary"} className="w-full font-bold">
+                    {isMyAccount ? "Sửa thông tin" : "Nhắn tin"}
+                </Button>
+                <div className="w-full mt-5  p-1 font-semibold">{isMyAccount ? "Bài viết của tôi" : "Bài viết của " + userData?.data.displayName}</div>
             </div>
-            <Button variant="outline" color={!isMyAccount ? "primary" : "warning"} className="w-full font-bold">
-                {isMyAccount ? "Edit profile" : "Chat now"}
-            </Button>
-            <div className="w-full mt-5  p-1 font-semibold">{isMyAccount ? "My blogs" : userData?.data.displayName + "'s blog"}</div>
-            <div className="mt-5">
+            <div className="mt-2">
                 {posts.map((post) => {
                     return (
                         <MemoizedBlogs

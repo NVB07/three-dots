@@ -18,8 +18,8 @@ const AuthProvider = ({ children }) => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 const { displayName, email, uid, photoURL } = user;
-                setUserData({ displayName, email, uid, photoURL });
                 setIsLoading(false);
+                setUserData({ displayName, email, uid, photoURL });
             } else {
                 setIsLoading(false);
                 setUserData(null);
@@ -36,9 +36,8 @@ const AuthProvider = ({ children }) => {
             ) : userData ? (
                 children
             ) : (
-                // <Loading />
+                //
                 <Login />
-                // <Loading />
             )}
         </AuthContext.Provider>
     );

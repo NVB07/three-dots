@@ -138,7 +138,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                     {buttonTitle}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="min-w-80 max-w-[550px] w-full">
+            <DialogContent className="min-w-80 max-w-[550px] w-full top-0 translate-y-0 sm:translate-y-[-50%] sm:top-[50%] ">
                 <div className="flex">
                     <div className="w-10 mr-3 flex flex-col items-center">
                         <Image src={data?.photoURL} width={40} height={40} alt="avatar" quality={60} className="rounded-full border-border border border-solid " />
@@ -146,11 +146,11 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                     </div>
                     <div className="flex-1">
                         <p className="text-base font-semibold">{data?.displayName}</p>
-                        <div style={{ scrollbarWidth: "none" }} className="max-h-[400px] overflow-auto p-2">
+                        <div style={{ scrollbarWidth: "none" }} className="sm:max-h-[400px] overflow-auto p-2">
                             <Textarea
                                 value={postContent}
                                 onChange={(e) => setPostContent(e.target.value)}
-                                className="outline-none min-h-20 max-h-96 text-base bg-[hsl(var(--foreground)/5%)]"
+                                className="outline-none min-h-52 sm:min-h-20 max-h-96 text-base bg-[hsl(var(--foreground)/5%)]"
                                 placeholder={blogid ? "Sửa bài viết" : "Bắt đầu bài viết."}
                             />
                             {previewImageState ? (

@@ -1,4 +1,4 @@
-const WriteBlogIcon = ({ width, height, color = "currentColor", style = "" }) => {
+const WriteBlogIcon = ({ width = 24, height = 24, color = "currentColor", style = "" }) => {
     return (
         <svg
             fill={color}

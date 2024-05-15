@@ -1,4 +1,4 @@
-const Moon = ({ width, height, color = "currentColor", style = "" }) => {
+const Moon = ({ width = 24, height = 24, color = "currentColor", style = "" }) => {
     return (
         <svg viewBox="0 0 24 24" className={style} width={width} height={height} fill="none" xmlns="http://www.w3.org/2000/svg">
             <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -16,7 +16,7 @@ const Moon = ({ width, height, color = "currentColor", style = "" }) => {
     );
 };
 
-const Sun = ({ width, height, color = "currentColor", style = "" }) => {
+const Sun = ({ width = 24, height = 24, color = "currentColor", style = "" }) => {
     return (
         <svg viewBox="0 0 24 24" width={width} className={style} height={height} fill="none" xmlns="http://www.w3.org/2000/svg">
             <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -33,7 +33,7 @@ const Sun = ({ width, height, color = "currentColor", style = "" }) => {
         </svg>
     );
 };
-const Auto = ({ width, height, color = "currentColor", style = "" }) => {
+const Auto = ({ width = 24, height = 24, color = "currentColor", style = "" }) => {
     return (
         <svg viewBox="0 0 24 24" width={width} className={style} height={height} fill="none" xmlns="http://www.w3.org/2000/svg">
             <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>

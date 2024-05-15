@@ -1,4 +1,4 @@
-const HeartIcon = ({ width, height, color = "currentColor", solidColor = "none" }) => {
+const HeartIcon = ({ width = 24, height = 24, color = "currentColor", solidColor = "none" }) => {
     return (
         <svg
             viewBox="0 0 24 24"

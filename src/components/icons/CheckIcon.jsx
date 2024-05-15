@@ -1,4 +1,4 @@
-const CheckIcon = ({ width, height, color = "currentColor" }) => {
+const CheckIcon = ({ width = 24, height = 24, color = "currentColor" }) => {
     return (
         <svg width={width} height={height} viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="none">
             <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>

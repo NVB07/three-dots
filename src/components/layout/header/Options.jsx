@@ -21,7 +21,7 @@ const Options = () => {
         <div>
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="hover:bg-transparent active:scale-95 transition-transform *:hover:opacity-100 *:transition-all">
+                    <Button variant="ghost" size="icon" className=" sm:hover:bg-transparent active:scale-95 transition-transform *:hover:opacity-100 *:transition-all">
                         <MenuLineIcon width={32} height={32} />
                     </Button>
                 </PopoverTrigger>

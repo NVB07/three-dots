@@ -16,23 +16,26 @@ const Navigate = () => {
     const urlPath = usePathname();
     const router = useRouter();
     return (
-        <div className="h-[66px] flex items-center">
-            <Button className="w-[92px] h-[66px] mx-[3px] active:scale-95 transition-transform" variant="ghost" onClick={() => router.push("/")}>
+        <div className="h-[66px] flex items-center justify-evenly w-full">
+            <Button className="sm:w-[92px] w-10 h-10 p-0  sm:h-[66px]  mx-[3px] active:scale-95 transition-transform" variant="ghost" onClick={() => router.push("/")}>
                 <HomeIcon width={32} height={32} solid={urlPath === "/"} />
             </Button>
-            <Button className="w-[92px] h-[66px] p-0 active:scale-95 transition-transform" variant="ghost">
+            <Button className="sm:w-[92px] w-10 h-10 p-0 sm:h-[66px] mx-[3px] active:scale-95 transition-transform" variant="ghost">
                 <Link href={"/search"} className="flex items-center justify-center w-full h-full">
                     <SearchIcon width={32} height={32} solid={urlPath.includes("search")} />
                 </Link>
             </Button>
 
-            <NewBlog styleButton="w-[92px] h-[66px] mx-[3px] active:scale-95 transition-transform" buttonTitle={<WriteBlogIcon width={32} height={32} />} />
-            <Button className="w-[92px] h-[66px] p-0 active:scale-95 transition-transform" variant="ghost">
+            <NewBlog
+                styleButton="sm:w-[92px] w-10 h-10 p-0  sm:h-[66px] mx-[3px] active:scale-95 transition-transform"
+                buttonTitle={<WriteBlogIcon width={32} height={32} />}
+            />
+            <Button className="sm:w-[92px] w-10 h-10 p-0 sm:h-[66px] mx-[3px] active:scale-95 transition-transform" variant="ghost">
                 <Link href={"/chat"} className="flex items-center justify-center w-full h-full ">
                     <ChatIcon width={32} height={32} solid={urlPath.includes("chat")} />
                 </Link>
             </Button>
-            <Button className="w-[92px] h-[66px] p-0 active:scale-95 transition-transform" variant="ghost">
+            <Button className="sm:w-[92px] w-10 h-10 p-0 sm:h-[66px] mx-[3px] active:scale-95 transition-transform" variant="ghost">
                 <Link href={"/user/@" + data?.uid} className="flex items-center justify-center w-full h-full">
                     <UserIcon width={32} height={32} solid={urlPath.includes("user")} />
                 </Link>

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/layout/header/Header";
 import AuthProvider from "@/auth/AuthProvider";
+import Navigate from "@/components/layout/header/Navigate";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,9 @@ export default function RootLayout({ children }) {
                         <Toaster />
                         <Header />
                         {children}
+                        <div className="backdrop-blur-md bg-[hsl(var(--background)/87%)] sticky w-full flex justify-center bottom-0 z-50 left-0 sm:hidden">
+                            <Navigate />
+                        </div>
                     </AuthProvider>
                 </ThemeProvider>
             </body>

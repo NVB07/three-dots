@@ -111,7 +111,7 @@ const Blog = ({
                         <Link href={useURL} className="font-semibold hover:underline">
                             {username}
                         </Link>
-                        <div className="text-[#acacac] text-base ml-4">{postTime}</div>
+                        <div className="text-[#acacac] text-sm sm:text-base ml-4">{postTime}</div>
                     </div>
                     <div className="flex items-center">
                         <>

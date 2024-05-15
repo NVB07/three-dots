@@ -55,7 +55,7 @@ const HomePage = () => {
 
     return (
         <main className=" w-full flex justify-center">
-            <div className="w-full max-w-[620px] px-6">
+            <div className="w-full max-w-[620px] px-0 sm:px-6">
                 {posts.map((post) => {
                     return (
                         <MemoizedBlogs
