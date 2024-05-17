@@ -9,7 +9,11 @@ const Message = ({ message = "", myMessage = false }) => {
                     <AvatarFallback>TD</AvatarFallback>
                 </Avatar>
             ) : null}
-            <p className={`ml-1.5 max-w-[75%] ${myMessage ? "bg-[#3797f0] text-white content-end " : "bg-accent"}   py-1 px-2.5 rounded-2xl text-sm`}>{message}</p>
+            <div className={`ml-1.5 max-w-[75%] ${myMessage ? "bg-[#3797f0] text-white content-end " : "bg-accent"}   py-1 px-2.5 rounded-2xl `}>
+                <p style={{ wordBreak: "break-word" }} className=" break-words   max-w-full text-sm">
+                    {message}
+                </p>
+            </div>
         </div>
     );
 };

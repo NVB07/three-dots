@@ -1,13 +1,15 @@
 "use client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useContext } from "react";
 import ToggleTheme from "./ToggleTheme";
 import { Button } from "@/components/ui/button";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/config";
-import MenuLineIcon from "@/components/icons/MenuLineIcon";
-
+import { AuthContext } from "@/auth/AuthProvider";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const Options = () => {
+    const currentUserData = useContext(AuthContext);
     const router = useRouter();
     const handleSignOut = async () => {
         try {
@@ -21,8 +23,15 @@ const Options = () => {
         <div>
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className=" sm:hover:bg-transparent active:scale-95 transition-transform *:hover:opacity-100 *:transition-all">
-                        <MenuLineIcon width={32} height={32} />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className=" sm:hover:bg-transparent active:scale-95 transition-transform rounded-full *:hover:opacity-100 *:transition-all"
+                    >
+                        <Avatar className="w-8 h-8">
+                            <AvatarImage src={currentUserData?.photoURL} alt="@shadcn" />
+                            <AvatarFallback>?</AvatarFallback>
+                        </Avatar>
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-full flex flex-col p-0">

@@ -1,4 +1,8 @@
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+"use client";
+import { useEffect, useState, useCallback, useContext, memo } from "react";
+import { collection, query, onSnapshot, orderBy, doc, getDocs } from "firebase/firestore";
+import { fireStore } from "@/firebase/config";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -17,7 +21,29 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import OptionIcon from "@/components/icons/OptionIcon";
 import Message from "./Message";
 import ChatInput from "./ChatInput";
+import { AuthContext } from "@/auth/AuthProvider";
+
 const ChatContent = () => {
+    const currentUserData = useContext(AuthContext);
+    // const [listRoomChat, setListRoomChat] = useState([]);
+
+    // useEffect(() => {
+    //     const unsubscribe = onSnapshot(collection(fireStore, "roomsChat"), (snapshot) => {
+    //         const docsArray = [];
+    //         snapshot.forEach((doc) => {
+    //             docsArray.push({
+    //                 id: doc.id,
+    //                 ...doc.data(),
+    //             });
+    //         });
+    //         console.log(docsArray);
+    //         setListRoomChat(docsArray);
+    //     });
+
+    //     // Cleanup function để unsubscribe khi component bị unmount
+    //     return () => unsubscribe();
+    // }, []);
+
     return (
         <>
             <div className="flex justify-between sticky top-0 h-14 z-10 bg-background border-b pt-2 px-3">
@@ -46,36 +72,10 @@ const ChatContent = () => {
                     </Popover>
                 </div>
             </div>
-            <ScrollArea className="h-[calc(100vh-194px)] w-full rounded-md mt-2 pl-3 pb-3">
-                <Message message="chao may" />
-                <Message message="chao may" />
-                <Message message="chao may" />
-                <Message message="chao may ml-1 bg-accent py-1 px-2 rounded-3xl chao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xl" />
-                <Message message="chao may ml-1 bg-accent py-1 px-2 rounded-3xl chao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xl" />
-                <Message message="chao may ml-1 bg-accent py-1 px-2 rounded-3xl chao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xl" />
-                <Message message="chao may ml-1 bg-accent py-1 px-2 rounded-3xl chao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xl" />
-                <Message message="chao may ml-1 bg-accent py-1 px-2 rounded-3xl chao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xl" />
-                <Message message="chao may ml-1 bg-accent py-1 px-2 rounded-3xl chao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xl" />
-                <Message message="chao may ml-1 bg-accent py-1 px-2 rounded-3xl chao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xl" />
-                <Message message="chao may ml-1 bg-accent py-1 px-2 rounded-3xl chao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xl" />
-                <Message message="chao may ml-1 bg-accent py-1 px-2 rounded-3xl chao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xl" />
-                <Message
-                    myMessage
-                    message="chao may ml-1 bg-accent py-1 px-2 rounded-3xl chao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xlchao may ml-1 bg-accent py-1 px-2 rounded-3xl"
-                />
-                <Message message="chao may" />
-                <Message message="chao may" />
-                <Message message="chao may" />
-                <Message
-                    myMessage
-                    message="Chúng ta đã định nghĩa một tiện ích tùy chỉnh line-clamp-2 trong phần @layer utilities của TailwindCSS để thiết lập các thuộc tính CSS cần thiế"
-                />
-                <Message myMessage message="😜🎉😍😢😎" />
-                <Message myMessage message="chao may 😜" />
-            </ScrollArea>
+            <ScrollArea className="sm:h-[calc(100vh-194px)] h-[calc(100vh-260px)] w-full rounded-md  pl-3 "></ScrollArea>
             <ChatInput />
         </>
     );
 };
-
+const MemoizedMessage = memo(Message);
 export default ChatContent;

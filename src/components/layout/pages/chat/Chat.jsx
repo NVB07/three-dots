@@ -14,8 +14,8 @@ const Chat = () => {
     const authUserData = useContext(AuthContext);
     return (
         <div className="w-full h-auto flex items-start px-4">
-            <div className="w-80  h-[calc(100vh-74px)] overflow-y-hidden border-r border-border ">
-                <div className="flex justify-between sticky top-0 h-12 z-10 bg-background pt-2 px-3">
+            <div className="lg:w-80 md:w-64 sm:w-60 w-fit  h-[calc(100vh-140px)] sm:h-[calc(100vh-74px)] overflow-y-hidden border-r border-border ">
+                <div className=" sm:flex hidden justify-between sticky top-0 h-12 z-10 bg-background pt-2 px-3">
                     <div className="text-xl font-bold">{authUserData?.displayName}</div>
                     <div>
                         <TooltipProvider>
@@ -38,7 +38,7 @@ const Chat = () => {
                 </div>
                 <ListRoomChat />
             </div>
-            <div className="flex-1 h-[calc(100vh-74px)] overflow-y-hidden">
+            <div className="flex-1 h-[calc(100vh-140px)] sm:h-[calc(100vh-74px)] overflow-y-hidden">
                 <ChatContent />
             </div>
         </div>
