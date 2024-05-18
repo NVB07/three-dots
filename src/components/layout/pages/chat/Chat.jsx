@@ -7,10 +7,9 @@ import WriteBlogIcon from "@/components/icons/WriteBlogIcon";
 
 import { AuthContext } from "@/auth/AuthProvider";
 
-import ChatContent from "./ChatContent";
 import ListRoomChat from "./ListRoomChat";
 
-const Chat = () => {
+const Chat = ({ children }) => {
     const authUserData = useContext(AuthContext);
     return (
         <div className="w-full h-auto flex items-start px-4">
@@ -38,9 +37,7 @@ const Chat = () => {
                 </div>
                 <ListRoomChat />
             </div>
-            <div className="flex-1 h-[calc(100vh-140px)] sm:h-[calc(100vh-74px)] overflow-y-hidden">
-                <ChatContent />
-            </div>
+            <div className="flex-1 h-[calc(100vh-140px)] sm:h-[calc(100vh-74px)] overflow-y-hidden">{children}</div>
         </div>
     );
 };

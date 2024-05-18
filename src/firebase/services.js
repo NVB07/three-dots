@@ -4,10 +4,24 @@ import { fireStore, storage } from "./config";
 
 export const addDocument = async (collectionName, data) => {
     try {
-        await addDoc(collection(fireStore, collectionName), {
+        const docRef = await addDoc(collection(fireStore, collectionName), {
             ...data,
             createAt: serverTimestamp(),
         });
+
+        return docRef.id; // Trả về documentID để sử dụng nếu cần
+    } catch (error) {
+        console.error("Error add document:", error);
+    }
+};
+export const addSubDocument = async (collectionName, documentID, subcolection, data) => {
+    try {
+        const docRef = await addDoc(collection(fireStore, collectionName, documentID, subcolection), {
+            ...data,
+            sendTime: serverTimestamp(),
+        });
+
+        return docRef.id; // Trả về documentID để sử dụng nếu cần
     } catch (error) {
         console.error("Error add document:", error);
     }

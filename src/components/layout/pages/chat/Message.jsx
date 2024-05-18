@@ -1,11 +1,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const Message = ({ message = "", myMessage = false }) => {
+const Message = ({ message = "", myMessage = false, photoURL }) => {
     return (
         <div className={`flex items-end my-3 mr-4 ${myMessage ? "flex-row-reverse" : "justify-start"}`}>
             {!myMessage ? (
                 <Avatar className="w-7 h-7">
-                    <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                    <AvatarImage src={photoURL} alt="@shadcn" />
                     <AvatarFallback>TD</AvatarFallback>
                 </Avatar>
             ) : null}

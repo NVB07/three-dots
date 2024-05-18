@@ -1,7 +1,8 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
 import { useContext, useEffect, useState, memo, useCallback } from "react";
-import { collection, query, onSnapshot, orderBy, where } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, where, doc, getDoc } from "firebase/firestore";
+import { addDocument } from "@/firebase/services";
 import { fireStore } from "@/firebase/config";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,54 @@ const User = ({ param }) => {
 
         return () => unsubscribe();
     }, []);
+
+    const handleChat = () => {
+        if (authUserData && userData) {
+            onSnapshot(collection(fireStore, "roomsChat"), (snapshot) => {
+                const docsArray = [];
+                snapshot.forEach((doc) => {
+                    docsArray.push({
+                        id: doc.id,
+                        ...doc.data(),
+                    });
+                });
+                console.log(docsArray);
+                const resultId = docsArray.find((item) => {
+                    const uids = item.user.map((user) => user.uid);
+                    return uids.includes(userData.data.uid) && uids.includes(authUserData.uid);
+                });
+
+                if (resultId) {
+                    router.push("/chat/" + resultId.id);
+                } else {
+                    try {
+                        const addChat = async () => {
+                            const documentID = await addDocument("roomsChat", {
+                                user: [
+                                    {
+                                        name: authUserData.displayName || "",
+                                        uid: authUserData.uid || "",
+                                        photoURL: authUserData.photoURL || "",
+                                    },
+                                    {
+                                        name: userData.data.displayName || "",
+                                        uid: userData.data.uid || "",
+                                        photoURL: userData.data.photoURL || "",
+                                    },
+                                ],
+                            });
+                            router.push("/chat/" + documentID);
+                        };
+                        addChat();
+                    } catch (error) {
+                        console.error("Error adding document:", error);
+                    }
+                }
+            });
+        } else {
+            console.error("authUserData or userData is undefined");
+        }
+    };
 
     const handleConvertDate = useCallback((timestamp) => {
         if (timestamp) {
@@ -101,9 +150,15 @@ const User = ({ param }) => {
                         )}
                     </div>
                 </div>
-                <Button variant={!isMyAccount ? "" : "secondary"} className="w-full font-bold">
-                    {isMyAccount ? "Sửa thông tin" : "Nhắn tin"}
-                </Button>
+                {isMyAccount ? (
+                    <Button variant="secondary" className="w-full font-bold">
+                        Sửa thông tin
+                    </Button>
+                ) : (
+                    <Button onClick={handleChat} variant="" className="w-full font-bold">
+                        Nhắn tin
+                    </Button>
+                )}
                 <div className="w-full mt-5  p-1 font-semibold">{isMyAccount ? "Bài viết của tôi" : "Bài viết của " + userData?.data.displayName}</div>
             </div>
             <div className="mt-2">

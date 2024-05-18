@@ -20,20 +20,20 @@ const ListRoomChat = () => {
                 });
             });
 
-            setListRoomChat(docsArray);
-        });
+            const resultId = docsArray.filter((item) => item.user.some((user) => user.uid === currentUserData.uid));
 
+            resultId ? setListRoomChat(resultId) : null;
+        });
         return () => unsubscribe();
     }, []);
     return (
         <ScrollArea className="h-[calc(100vh-140px)] w-full rounded-md  sm:pl-3">
             {listRoomChat.map((room) => {
-                const friendData = room.chat.find(function (e) {
+                const friendData = room.user.find(function (e) {
                     return e.uid !== currentUserData.uid;
                 });
 
-                return <RoomChat key={room.id} name={friendData.name} avatarSRC={friendData.photoURL} />;
-                // return
+                return <RoomChat uid={room.id} key={room.id} name={friendData.name} avatarSRC={friendData.photoURL} />;
             })}
         </ScrollArea>
     );
