@@ -1,4 +1,4 @@
-import User from "@/components/layout/pages/user/User";
+import User from "@/components/pages/user/User";
 // import Header from "@/components/header/Header";
 import { getDocs, collection } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";

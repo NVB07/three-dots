@@ -3,8 +3,8 @@ import { auth } from "@/firebase/config";
 import { useState, useEffect, createContext } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import Login from "@/components/layout/pages/login/Login";
-import Loading from "@/components/layout/pages/loading/Loading";
+import Login from "@/components/pages/login/Login";
+import Loading from "@/components/pages/loading/Loading";
 
 export const AuthContext = createContext();
 

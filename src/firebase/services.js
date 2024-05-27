@@ -1,6 +1,16 @@
-import { addDoc, collection, serverTimestamp, deleteDoc, doc, updateDoc, getDoc } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, deleteDoc, doc, updateDoc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
 import { fireStore, storage } from "./config";
+
+export const snapshotDocument = (collectionName, docId, subcollectionName, callback) => {
+    const docRef = doc(fireStore, collectionName, docId);
+    const subcollectionRef = collection(docRef, subcollectionName);
+
+    return onSnapshot(subcollectionRef, (snapshot) => {
+        const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        callback(data);
+    });
+};
 
 export const addDocument = async (collectionName, data) => {
     try {
@@ -126,4 +136,53 @@ export const addFileToStorage = async (file64, folder, fileName) => {
             console.error("Error:", error);
         });
     return url;
+};
+
+export const createInteractDocument = async (uid, collectionName, docId, subcollectionName, comment = "") => {
+    try {
+        const docRef = doc(fireStore, collectionName, docId);
+        const subcollectionRef = collection(docRef, subcollectionName);
+
+        await addDoc(subcollectionRef, { createdAt: new Date(), uid, comment });
+        console.log("Document created successfully");
+    } catch (error) {
+        console.error("Error creating interact document:", error);
+    }
+};
+
+export const handleLikeReact = async (uid, blogId, like) => {
+    try {
+        const blogRef = doc(fireStore, "blogs", blogId);
+
+        // Lấy dữ liệu của bài viết
+        const blogSnap = await getDoc(blogRef);
+
+        if (!blogSnap.exists()) {
+            throw new Error("Blog does not exist");
+        }
+
+        const blogData = blogSnap.data();
+        let updatedLiked = [];
+
+        // Kiểm tra xem UID của người dùng đã có trong mảng liked chưa
+        if (blogData.liked && Array.isArray(blogData.liked)) {
+            updatedLiked = [...blogData.liked]; // Sao chép mảng để không ảnh hưởng đến dữ liệu gốc
+
+            if (like && !updatedLiked.includes(uid)) {
+                updatedLiked.push(uid); // Thêm UID vào mảng nếu like và UID chưa tồn tại
+            } else if (!like && updatedLiked.includes(uid)) {
+                updatedLiked = updatedLiked.filter((id) => id !== uid); // Xóa UID khỏi mảng nếu unlike và UID tồn tại
+            }
+        } else {
+            if (like) {
+                updatedLiked.push(uid); // Tạo mảng mới và thêm UID vào nếu mảng liked chưa tồn tại và là lần like đầu tiên
+            }
+        }
+
+        // Cập nhật trường liked của bài viết
+        await updateDoc(blogRef, { liked: updatedLiked });
+        return updatedLiked.length;
+    } catch (error) {
+        console.error("Error handling like/unlike post:", error);
+    }
 };

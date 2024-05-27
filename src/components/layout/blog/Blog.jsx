@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useState, Fragment, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useState, Fragment, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -16,7 +17,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteDocument, handleReact } from "@/firebase/services";
+import { deleteDocument, handleLikeReact, createInteractDocument } from "@/firebase/services";
 
 import NewBlog from "../newBlog/NewBlog";
 
@@ -28,22 +29,27 @@ import OptionIcon from "@/components/icons/OptionIcon";
 import TrashIcon from "@/components/icons/TrashIcon";
 
 const Blog = ({
+    blogDetails = false,
     blogid,
     authorid,
     currentUserData,
     liked,
-    useURL = "/",
+    userURL = "/",
     imageSrc,
-    avatar = "/default_avt.jpg",
+    avatar = "/defaultUserAvatar.svg",
     username = "null?",
     postTime = "",
     content = "",
     likedCount = 0,
 }) => {
     const isAuthor = currentUserData?.uid === authorid;
-    const [likePost, setLikePost] = useState(liked);
+    const [likePost, setLikePost] = useState(liked ? true : false);
     const [openOption, setOpenOption] = useState();
+    const router = useRouter();
 
+    useEffect(() => {
+        setLikePost(liked ? true : false);
+    }, [liked]);
     const getPathImage = useCallback(() => {
         if (imageSrc) {
             const startIndex = imageSrc.lastIndexOf("/") + 1;
@@ -64,11 +70,11 @@ const Blog = ({
     ));
 
     const handleLikePost = () => {
-        handleReact(blogid, { displayName: currentUserData.displayName, uid: currentUserData.uid, photoURL: currentUserData.photoURL });
+        handleLikeReact(currentUserData.uid, blogid, !likePost);
+
+        // createInteractDocument(currentUserData.uid, "blogs", blogid, "interact", "hayqua");
         setLikePost((prev) => !prev);
     };
-
-    const handleEdit = useCallback(() => {}, []);
 
     const handleDelete = async () => {
         await deleteDocument("blogs", blogid, getPathImage())
@@ -93,10 +99,19 @@ const Blog = ({
     const closeOption = () => {
         setOpenOption(false);
     };
+
+    const viewBlog = () => {
+        router.push("/blog/" + blogid);
+    };
+
+    const imageLoader = ({ src, width, quality }) => {
+        return `/_next/image?url=${encodeURIComponent(imageSrc)}&w=${width}&q=${quality || 75}`;
+    };
+
     return (
         <div className="p-3  border-t border-solid border-[#8a8a8a3f] flex">
             <div className="min-w-12 w-12 max-w-12 flex flex-col">
-                <Link href={useURL}>
+                <Link href={userURL}>
                     <div className="{style.modalCard}">
                         <Image src={avatar} width={36} height={36} alt="user" className="rounded-full w-9 h-9 object-cover cursor-pointer" />
                     </div>
@@ -108,7 +123,7 @@ const Blog = ({
             <div className="flex-1 ">
                 <div className="w-full flex justify-between h-5 mb-1.5">
                     <div className=" flex items-end">
-                        <Link href={useURL} className="font-semibold hover:underline">
+                        <Link href={userURL} className="font-semibold hover:underline">
                             {username}
                         </Link>
                         <div className="text-[#acacac] text-sm sm:text-base ml-4">{postTime}</div>
@@ -123,9 +138,11 @@ const Blog = ({
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-full flex flex-col p-0">
-                                        <Button variant="ghost" className="border-b border-solid border-[#8a8a8a3f] rounded-b-none">
-                                            Xem bài viết
-                                        </Button>
+                                        {!blogDetails ? (
+                                            <Button onClick={viewBlog} variant="ghost" className="border-b border-solid border-[#8a8a8a3f] rounded-b-none">
+                                                Xem bài viết
+                                            </Button>
+                                        ) : null}
                                         {/* //edit post */}
                                         <NewBlog
                                             onClick={closeOption}
@@ -156,7 +173,7 @@ const Blog = ({
                                         </AlertDialog>
                                     </PopoverContent>
                                 </Popover>
-                            ) : (
+                            ) : !blogDetails ? (
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button variant="ghost" size="icon" className="rounded-full w-7 h-7">
@@ -164,21 +181,22 @@ const Blog = ({
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-full flex flex-col p-0">
-                                        <Button variant="ghost" className="">
+                                        <Button onClick={viewBlog} variant="ghost" className="">
                                             Xem bài viết
                                         </Button>
                                     </PopoverContent>
                                 </Popover>
-                            )}
+                            ) : null}
                         </>
                     </div>
                 </div>
                 <div className="mb-2 text-[15px] ">{elements}</div>
-                <div className="w-full">
+                <div className="w-fit">
                     {imageSrc ? (
                         <Image
+                            loader={imageLoader}
                             priority
-                            style={{ width: "100%", height: "auto" }}
+                            style={{ width: "auto", height: "auto" }}
                             src={imageSrc}
                             width={600}
                             height={300}
@@ -200,11 +218,18 @@ const Blog = ({
                             {likePost ? <HeartIcon solidColor="red" /> : <HeartIcon />}
                         </Button>
                     </div>
-                    <div className="w-9 h-9 mr-1">
-                        <Button variant="ghost" size="icon" className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1.5">
-                            <CommentIcon width={22} height={22} />
-                        </Button>
-                    </div>
+                    {!blogDetails && (
+                        <div className="w-9 h-9 mr-1">
+                            <Button
+                                onClick={viewBlog}
+                                variant="ghost"
+                                size="icon"
+                                className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1.5"
+                            >
+                                <CommentIcon width={22} height={22} />
+                            </Button>
+                        </div>
+                    )}
                     <div className="w-9 h-9 mr-1">
                         <Button variant="ghost" size="icon" className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1">
                             <ShareIcon />

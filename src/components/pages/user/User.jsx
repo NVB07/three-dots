@@ -6,7 +6,7 @@ import { addDocument } from "@/firebase/services";
 import { fireStore } from "@/firebase/config";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import Blog from "../../blog/Blog";
+import Blog from "../../layout/blog/Blog";
 import { AuthContext } from "@/auth/AuthProvider";
 
 const User = ({ param }) => {
@@ -169,18 +169,16 @@ const User = ({ param }) => {
                             currentUserData={authUserData}
                             blogid={post.id}
                             authorid={post?.data.author.uid}
-                            liked={
-                                post?.data.post.reaction.comments.findIndex((item) => {
-                                    return item.uid === authUserData?.uid && item.liked === true;
-                                }) !== -1
-                            }
+                            liked={post?.data.liked?.find((uid) => {
+                                return uid === authUserData?.uid;
+                            })}
                             useURL={"/user/@" + post?.data.author.uid}
                             avatar={post?.data.author.photoURL}
                             username={post?.data.author.displayName}
                             postTime={handleConvertDate(post?.data.createAt)}
                             content={post?.data.post.content}
                             imageSrc={post?.data.post.imageURL}
-                            likedCount={post?.data.post.reaction.liked}
+                            likedCount={post?.data.liked?.length}
                         />
                     );
                 })}

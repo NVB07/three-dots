@@ -9,7 +9,7 @@ import GoogleIcon from "@/components/icons/GoogleIcon";
 import Logo from "@/components/icons/Logo";
 import GithubIcon from "@/components/icons/GithubIcon";
 import FacebookIcon from "@/components/icons/FacebookIcon";
-import ToggleTheme from "../../header/ToggleTheme";
+import ToggleTheme from "../../layout/header/ToggleTheme";
 
 const Login = () => {
     const data = useContext(AuthContext);

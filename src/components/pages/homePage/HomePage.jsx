@@ -1,14 +1,16 @@
 "use client";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import { snapshotDocument } from "@/firebase/services";
 import { fireStore } from "@/firebase/config";
 import { useEffect, useState, useCallback, useContext, memo } from "react";
-import Blog from "../../blog/Blog";
+import Blog from "../../layout/blog/Blog";
 import { AuthContext } from "@/auth/AuthProvider";
 
 const HomePage = () => {
     const currentUserData = useContext(AuthContext);
 
     const [posts, setPosts] = useState([]);
+    const [react, setReact] = useState();
 
     const handleConvertDate = useCallback((timestamp) => {
         if (timestamp) {
@@ -35,6 +37,7 @@ const HomePage = () => {
             querySnapshot.docChanges().forEach((change) => {
                 const doc = change.doc;
                 const blogData = { data: doc.data(), id: doc.id };
+
                 switch (change.type) {
                     case "added":
                         setPosts((prevPosts) => [blogData, ...prevPosts]);
@@ -63,18 +66,16 @@ const HomePage = () => {
                             currentUserData={currentUserData}
                             blogid={post.id}
                             authorid={post?.data.author.uid}
-                            liked={
-                                post?.data.post.reaction.comments.findIndex((item) => {
-                                    return item.uid === currentUserData?.uid && item.liked === true;
-                                }) !== -1
-                            }
-                            useURL={"/user/@" + post?.data.author.uid}
+                            liked={post?.data.liked?.find((uid) => {
+                                return uid === currentUserData?.uid;
+                            })}
+                            userURL={"/user/@" + post?.data.author.uid}
                             avatar={post?.data.author.photoURL}
                             username={post?.data.author.displayName}
                             postTime={handleConvertDate(post?.data.createAt)}
                             content={post?.data.post.content}
                             imageSrc={post?.data.post.imageURL}
-                            likedCount={post?.data.post.reaction.liked}
+                            likedCount={post?.data.liked?.length}
                         />
                     );
                 })}

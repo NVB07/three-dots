@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useEffect, useState, memo } from "react";
-import { collection, query, onSnapshot, orderBy, doc, getDoc } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, doc } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

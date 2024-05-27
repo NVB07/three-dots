@@ -1,5 +1,5 @@
 "use client";
-import ChatContent from "@/components/layout/pages/chat/ChatContent";
+import ChatContent from "@/components/pages/chat/ChatContent";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
 import { fireStore } from "@/firebase/config";
@@ -12,7 +12,7 @@ const ChatPage = ({ params }) => {
         setLoading(true);
         const unsub = onSnapshot(doc(fireStore, "roomsChat", params.chatid), (doc) => {
             console.log("Current data: ", doc.data());
-            const myPermissions = doc.data().user.find((e) => {
+            const myPermissions = doc.data()?.user.find((e) => {
                 return e.uid === currentUserData.uid;
             });
             setPermissions(myPermissions);
