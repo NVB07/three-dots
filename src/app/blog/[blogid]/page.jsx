@@ -61,7 +61,7 @@ const BlogPage = ({ params }) => {
                     likedCount={blogData?.liked?.length}
                 />
                 <div className="w-auto h-[1px] bg-[#8a8a8a3f] "></div>
-                <Comment currentUser={currentUserData} />
+                <Comment currentUser={currentUserData} blogId={params.blogid} />
             </div>
         </main>
     );

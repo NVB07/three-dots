@@ -35,20 +35,18 @@ const Sun = ({ width = 24, height = 24, color = "currentColor", style = "" }) =>
 };
 const Auto = ({ width = 24, height = 24, color = "currentColor", style = "" }) => {
     return (
-        <svg viewBox="0 0 24 24" width={width} className={style} height={height} fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-            <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-            <g id="SVGRepo_iconCarrier">
-                <g id="Arrow / Arrow_Reload_02">
-                    <path
-                        id="Vector"
-                        d="M14 16H19V21M10 8H5V3M19.4176 9.0034C18.8569 7.61566 17.9181 6.41304 16.708 5.53223C15.4979 4.65141 14.0652 4.12752 12.5723 4.02051C11.0794 3.9135 9.58606 4.2274 8.2627 4.92661C6.93933 5.62582 5.83882 6.68254 5.08594 7.97612M4.58203 14.9971C5.14272 16.3848 6.08146 17.5874 7.29157 18.4682C8.50169 19.3491 9.93588 19.8723 11.4288 19.9793C12.9217 20.0863 14.4138 19.7725 15.7371 19.0732C17.0605 18.374 18.1603 17.3175 18.9131 16.0239"
-                        stroke={color}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    ></path>
-                </g>
+        <svg x="0" y="0" viewBox="0 0 57.376 57.376" width={width} className={style} height={height} xmlns="http://www.w3.org/2000/svg" version="1.1">
+            <g>
+                <path
+                    d="M28.689 0C12.87 0 0 12.869 0 28.688c0 15.818 12.87 28.688 28.689 28.688 15.817 0 28.686-12.869 28.686-28.688S44.507 0 28.689 0zm0 54.375C14.524 54.375 3 42.852 3 28.687 3 14.523 14.524 2.999 28.689 2.999c14.163 0 25.686 11.523 25.686 25.688S42.853 54.375 28.689 54.375z"
+                    fill={color}
+                    opacity="1"
+                ></path>
+                <path
+                    d="M31.341 14.779c-.221-.506-.848-.916-1.399-.916h-2.575c-.553 0-1.178.41-1.396.918L15.912 38.053c-.219.506.051.918.604.918h4.099c.553 0 1.164-.418 1.366-.932l1.36-3.459c.202-.514.813-.93 1.366-.93h7.751c.554 0 1.17.414 1.377.926l1.41 3.467c.207.512.824.928 1.377.928h4.24c.553 0 .821-.41.602-.918L31.341 14.779zm-.762 14.192h-4.135c-.553 0-.837-.418-.636-.932l2.321-5.939c.201-.516.529-.516.733-.002l2.35 5.943c.201.514-.08.93-.633.93z"
+                    fill={color}
+                    opacity="1"
+                ></path>
             </g>
         </svg>
     );

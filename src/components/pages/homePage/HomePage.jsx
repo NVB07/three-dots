@@ -1,6 +1,5 @@
 "use client";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
-import { snapshotDocument } from "@/firebase/services";
 import { fireStore } from "@/firebase/config";
 import { useEffect, useState, useCallback, useContext, memo } from "react";
 import Blog from "../../layout/blog/Blog";
@@ -10,7 +9,6 @@ const HomePage = () => {
     const currentUserData = useContext(AuthContext);
 
     const [posts, setPosts] = useState([]);
-    const [react, setReact] = useState();
 
     const handleConvertDate = useCallback((timestamp) => {
         if (timestamp) {

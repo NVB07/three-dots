@@ -1,19 +1,89 @@
 "use client";
-import { useRef, useState } from "react";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import { fireStore } from "@/firebase/config";
+import { addSubDocument } from "@/firebase/services";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CommentItem from "./CommentItem";
 
-const Comment = ({ currentUser }) => {
+const Comment = ({ currentUser, blogId }) => {
     const [commentValue, setCommentValue] = useState("");
     const [commentArray, setCommentArray] = useState([]);
     const textareaRef = useRef(null);
+
+    const handleConvertDate = useCallback((timestamp) => {
+        if (timestamp) {
+            const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const day = date.getDate();
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+
+            const time = `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes} | ${day < 10 ? "0" + day : day}/${
+                month < 10 ? "0" + month : month
+            }/${year}`;
+
+            return time;
+        }
+        return null;
+    }, []);
 
     const handleInputText = (e) => {
         e.target.style.height = "auto";
         e.target.style.height = e.target.scrollHeight + "px";
         setCommentValue(e.target.value);
     };
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (commentValue.trim()) {
+                handleSendComment();
+            }
+        }
+    };
+
+    const handleSendComment = () => {
+        const formattedComment = commentValue.trim().replace(/\n/g, "|~n|");
+        addSubDocument("blogs", blogId, "interact", {
+            comment: formattedComment,
+            uid: currentUser?.uid,
+            displayName: currentUser.displayName,
+            photoURL: currentUser.photoURL,
+        });
+        setCommentValue("");
+        textareaRef.current.style.height = "40px";
+    };
+
+    useEffect(() => {
+        const q = query(collection(fireStore, "blogs", blogId, "interact"), orderBy("sendTime", "asc"));
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            querySnapshot.docChanges().forEach((change) => {
+                const doc = change.doc;
+                const commentData = { data: doc.data(), id: doc.id };
+
+                switch (change.type) {
+                    case "added":
+                        setCommentArray((prev) => [commentData, ...prev]);
+                        break;
+                    case "modified":
+                        setCommentArray((prev) => prev.map((post) => (post.id === doc.id ? commentData : post)));
+                        break;
+                    case "removed":
+                        setCommentArray((prev) => prev.filter((post) => post.id !== doc.id));
+                        break;
+                    default:
+                        break;
+                }
+            });
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     return (
         <div className="w-full pt-2">
             <div className="w-full flex items-start px-3 pb-3">
@@ -28,12 +98,24 @@ const Comment = ({ currentUser }) => {
                     ref={textareaRef}
                     value={commentValue}
                     onChange={handleInputText}
+                    onKeyDown={handleKeyDown}
                     placeholder="Bình luận"
                     className="outline-none rounded-2xl resize-none h-10 min-h-10 max-h-64 text-base bg-[hsl(var(--foreground)/5%)]"
                 />
             </div>
-            <div>
-                <CommentItem />
+            <div className="w-full h-fit">
+                {commentArray.map((data) => {
+                    return (
+                        <CommentItem
+                            key={data.id}
+                            content={data?.data.comment}
+                            displayName={data?.data.displayName}
+                            time={handleConvertDate(data?.data.sendTime)}
+                            photoURL={data?.data.photoURL}
+                            uid={data?.data.uid}
+                        />
+                    );
+                })}
             </div>
         </div>
     );

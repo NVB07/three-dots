@@ -1,4 +1,4 @@
-import { addDoc, collection, serverTimestamp, deleteDoc, doc, updateDoc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, deleteDoc, doc, updateDoc, getDoc, onSnapshot } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
 import { fireStore, storage } from "./config";
 
@@ -65,53 +65,6 @@ export const updateContent = async (documentId, newContent) => {
     }
 };
 
-export const handleReact = async (documentId, userInformation, comment = "") => {
-    const docRef = doc(fireStore, "blogs", documentId);
-
-    try {
-        const docSnap = await getDoc(docRef);
-        const postDataReaction = docSnap.data().post.reaction;
-
-        if (postDataReaction.comments) {
-            const updatedComments = [...postDataReaction.comments];
-
-            const commentIndex = postDataReaction.comments.findIndex((comment) => comment.uid === userInformation.uid);
-            if (commentIndex !== -1) {
-                updatedComments[commentIndex].liked = !updatedComments[commentIndex].liked;
-                const updatedReaction = {
-                    comments: updatedComments,
-                    liked: calculateTotalLiked(postDataReaction.comments),
-                };
-                await updateDoc(docRef, {
-                    "post.reaction": updatedReaction,
-                });
-            } else {
-                updatedComments.push({
-                    displayName: userInformation.displayName,
-                    uid: userInformation.uid,
-                    photoURL: userInformation.photoURL,
-                    comment: "",
-                    liked: true,
-                });
-                const updatedReaction = {
-                    comments: updatedComments,
-                    liked: calculateTotalLiked(updatedComments),
-                };
-                await updateDoc(docRef, {
-                    "post.reaction": updatedReaction,
-                });
-            }
-        }
-    } catch (error) {
-        console.error("Error updating liked field: ", error);
-    }
-};
-
-// Hàm tính tổng số liked từ mảng comments
-const calculateTotalLiked = (comments) => {
-    return comments.filter((comment) => comment.liked).length;
-};
-
 export const addFileToStorage = async (file64, folder, fileName) => {
     const uniqueFileName = fileName + "_" + Date.now();
     const storageRef = ref(storage, folder + uniqueFileName);
@@ -138,17 +91,17 @@ export const addFileToStorage = async (file64, folder, fileName) => {
     return url;
 };
 
-export const createInteractDocument = async (uid, collectionName, docId, subcollectionName, comment = "") => {
-    try {
-        const docRef = doc(fireStore, collectionName, docId);
-        const subcollectionRef = collection(docRef, subcollectionName);
+// export const createInteractDocument = async (uid, collectionName, docId, subcollectionName, comment = "") => {
+//     try {
+//         const docRef = doc(fireStore, collectionName, docId);
+//         const subcollectionRef = collection(docRef, subcollectionName);
 
-        await addDoc(subcollectionRef, { createdAt: new Date(), uid, comment });
-        console.log("Document created successfully");
-    } catch (error) {
-        console.error("Error creating interact document:", error);
-    }
-};
+//         await addDoc(subcollectionRef, { createdAt: new Date(), uid, comment });
+//         console.log("Document created successfully");
+//     } catch (error) {
+//         console.error("Error creating interact document:", error);
+//     }
+// };
 
 export const handleLikeReact = async (uid, blogId, like) => {
     try {

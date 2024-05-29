@@ -17,7 +17,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteDocument, handleLikeReact, createInteractDocument } from "@/firebase/services";
+import { deleteDocument, handleLikeReact, countDocumentsInCollection } from "@/firebase/services";
 
 import NewBlog from "../newBlog/NewBlog";
 
@@ -27,6 +27,7 @@ import CommentIcon from "@/components/icons/CommentIcon";
 import ShareIcon from "@/components/icons/ShareIcon";
 import OptionIcon from "@/components/icons/OptionIcon";
 import TrashIcon from "@/components/icons/TrashIcon";
+import CountReact from "./CountReact";
 
 const Blog = ({
     blogDetails = false,
@@ -50,6 +51,7 @@ const Blog = ({
     useEffect(() => {
         setLikePost(liked ? true : false);
     }, [liked]);
+
     const getPathImage = useCallback(() => {
         if (imageSrc) {
             const startIndex = imageSrc.lastIndexOf("/") + 1;
@@ -71,8 +73,6 @@ const Blog = ({
 
     const handleLikePost = () => {
         handleLikeReact(currentUserData.uid, blogid, !likePost);
-
-        // createInteractDocument(currentUserData.uid, "blogs", blogid, "interact", "hayqua");
         setLikePost((prev) => !prev);
     };
 
@@ -96,6 +96,19 @@ const Blog = ({
                 });
             });
     };
+    const handleCopyLink = () => {
+        const currentUrl = new URL(window.location.href);
+        const baseUrl = currentUrl.origin;
+        navigator.clipboard
+            .writeText(baseUrl + "/blog/" + blogid)
+            .then(() => {
+                console.log("Link gốc đã được sao chép");
+            })
+            .catch((err) => {
+                console.error("Có lỗi xảy ra khi sao chép link: ", err);
+            });
+    };
+
     const closeOption = () => {
         setOpenOption(false);
     };
@@ -231,12 +244,17 @@ const Blog = ({
                         </div>
                     )}
                     <div className="w-9 h-9 mr-1">
-                        <Button variant="ghost" size="icon" className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1">
+                        <Button
+                            variant="ghost"
+                            onClick={handleCopyLink}
+                            size="icon"
+                            className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1"
+                        >
                             <ShareIcon />
                         </Button>
                     </div>
                 </div>
-                <div className="mt-2.5 text-[#acacac] text-sm">{likedCount} lượt thích</div>
+                <CountReact blogid={blogid} like={likedCount} />
             </div>
         </div>
     );
