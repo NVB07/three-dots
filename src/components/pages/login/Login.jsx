@@ -2,14 +2,13 @@
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useContext } from "react";
 import { auth } from "@/firebase/config";
-import { addDocument } from "@/firebase/services";
+import { addUser } from "@/firebase/services";
 
 import { AuthContext } from "@/auth/AuthProvider";
 import GoogleIcon from "@/components/icons/GoogleIcon";
 import Logo from "@/components/icons/Logo";
 import GithubIcon from "@/components/icons/GithubIcon";
 import FacebookIcon from "@/components/icons/FacebookIcon";
-import ToggleTheme from "../../layout/header/ToggleTheme";
 
 const Login = () => {
     const data = useContext(AuthContext);
@@ -20,7 +19,7 @@ const Login = () => {
             const userCredential = await signInWithPopup(auth, provider);
             // Thực hiện các hành động sau khi đăng ký bằng Google thành công, ví dụ: chuyển hướng, hiển thị thông báo thành công, vv.
             if (userCredential._tokenResponse?.isNewUser) {
-                await addDocument("users", {
+                await addUser("users", userCredential.user.uid, {
                     displayName: userCredential.user.displayName,
                     email: userCredential.user.email,
                     photoURL: userCredential.user.photoURL,

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, Fragment, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,14 +18,14 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteDocument, handleLikeReact, countDocumentsInCollection } from "@/firebase/services";
+import { deleteDocument, handleLikeReact, getUser } from "@/firebase/services";
 
 import NewBlog from "../newBlog/NewBlog";
 
 import HeartIcon from "@/components/icons/HeartIcon";
-import CloseIcon from "@/components/icons/CloseIcon";
 import CommentIcon from "@/components/icons/CommentIcon";
 import ShareIcon from "@/components/icons/ShareIcon";
+import CloseIcon from "@/components/icons/CloseIcon";
 import OptionIcon from "@/components/icons/OptionIcon";
 import TrashIcon from "@/components/icons/TrashIcon";
 import CountReact from "./CountReact";
@@ -37,20 +38,33 @@ const Blog = ({
     liked,
     userURL = "/",
     imageSrc,
-    avatar = "/defaultUserAvatar.svg",
-    username = "null?",
     postTime = "",
     content = "",
     likedCount = 0,
+    authorUserData,
 }) => {
     const isAuthor = currentUserData?.uid === authorid;
     const [likePost, setLikePost] = useState(liked ? true : false);
     const [openOption, setOpenOption] = useState();
+    const [author, setAuthor] = useState();
     const router = useRouter();
 
     useEffect(() => {
         setLikePost(liked ? true : false);
     }, [liked]);
+
+    useEffect(() => {
+        if (authorUserData) {
+            setAuthor(authorUserData);
+            return;
+        }
+
+        const getUserData = async () => {
+            const user = await getUser(authorid);
+            setAuthor(user);
+        };
+        authorid && getUserData();
+    }, [authorid]);
 
     const getPathImage = useCallback(() => {
         if (imageSrc) {
@@ -102,10 +116,21 @@ const Blog = ({
         navigator.clipboard
             .writeText(baseUrl + "/blog/" + blogid)
             .then(() => {
-                console.log("Link gốc đã được sao chép");
+                toast("Đã sao chép liên kết bài viết", {
+                    cancel: {
+                        label: <CloseIcon />,
+                        onClick: () => {},
+                    },
+                    icon: <TrashIcon />,
+                });
             })
             .catch((err) => {
-                console.error("Có lỗi xảy ra khi sao chép link: ", err);
+                toast.error("Lỗi khi sao chép liên kết", {
+                    action: {
+                        label: <CloseIcon />,
+                        onClick: () => {},
+                    },
+                });
             });
     };
 
@@ -126,7 +151,9 @@ const Blog = ({
             <div className="min-w-12 w-12 max-w-12 flex flex-col">
                 <Link href={userURL}>
                     <div className="{style.modalCard}">
-                        <Image src={avatar} width={36} height={36} alt="user" className="rounded-full w-9 h-9 object-cover cursor-pointer" />
+                        {author?.photoURL && (
+                            <Image src={author.photoURL} width={36} height={36} alt="user" className="rounded-full w-9 h-9 object-cover cursor-pointer" />
+                        )}
                     </div>
                 </Link>
                 <div className="pt-2 w-9 flex justify-center h-full">
@@ -137,7 +164,7 @@ const Blog = ({
                 <div className="w-full flex justify-between h-5 mb-1.5">
                     <div className=" flex items-end">
                         <Link href={userURL} className="font-semibold hover:underline">
-                            {username}
+                            {author?.displayName ? author.displayName : "username"}
                         </Link>
                         <div className="text-[#acacac] text-sm sm:text-base ml-4">{postTime}</div>
                     </div>

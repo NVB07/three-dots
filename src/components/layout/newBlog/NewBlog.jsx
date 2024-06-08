@@ -103,9 +103,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
         const formattedContent = postContent.trim().replace(/\n/g, "|~n|");
         await addDocument("blogs", {
             author: {
-                displayName: data?.displayName,
                 uid: data?.uid,
-                photoURL: data?.photoURL,
             },
             post: {
                 content: formattedContent,

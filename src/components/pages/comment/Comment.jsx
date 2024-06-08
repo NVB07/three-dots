@@ -5,6 +5,8 @@ import { addSubDocument } from "@/firebase/services";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import ShareIcon from "@/components/icons/ShareIcon";
 import CommentItem from "./CommentItem";
 
 const Comment = ({ currentUser, blogId }) => {
@@ -93,21 +95,36 @@ const Comment = ({ currentUser, blogId }) => {
                         <AvatarFallback>TD</AvatarFallback>
                     </Avatar>
                 </div>
-                <Textarea
-                    rows={1}
-                    ref={textareaRef}
-                    value={commentValue}
-                    onChange={handleInputText}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Bình luận"
-                    className="outline-none rounded-2xl resize-none h-10 min-h-10 max-h-64 text-base bg-[hsl(var(--foreground)/5%)]"
-                />
+                <div className="flex relative flex-1 rounded-2xl bg-[hsl(var(--foreground)/5%)]">
+                    <Textarea
+                        rows={1}
+                        ref={textareaRef}
+                        value={commentValue}
+                        onChange={handleInputText}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Bình luận"
+                        className="outline-none rounded-2xl resize-none h-10 min-h-10 max-h-64 text-base bg-transparent pr-10"
+                    />
+                    {commentValue.trim() ? (
+                        <button
+                            onClick={handleSendComment}
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full w-7 h-7 hover:bg-transparent absolute right-2 bottom-1/2 translate-y-1/2 rotate-[25deg]"
+                        >
+                            <ShareIcon color="#0095f6" />
+                        </button>
+                    ) : null}
+                </div>
             </div>
             <div className="w-full h-fit">
                 {commentArray.map((data) => {
                     return (
                         <CommentItem
+                            currentUser={currentUser}
                             key={data.id}
+                            commentId={data?.id}
+                            blogId={blogId}
                             content={data?.data.comment}
                             displayName={data?.data.displayName}
                             time={handleConvertDate(data?.data.sendTime)}

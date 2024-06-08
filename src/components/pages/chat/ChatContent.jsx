@@ -1,19 +1,34 @@
 "use client";
 import { useContext, useEffect, useState, memo } from "react";
+import { useRouter } from "next/navigation";
 import { collection, query, onSnapshot, orderBy, doc } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import OptionIcon from "@/components/icons/OptionIcon";
 import Message from "./Message";
 import ChatInput from "./ChatInput";
+import OptionIcon from "@/components/icons/OptionIcon";
+import CloseIcon from "@/components/icons/CloseIcon";
+import TrashIcon from "@/components/icons/TrashIcon";
 import { AuthContext } from "@/auth/AuthProvider";
 
 const ChatContent = ({ param }) => {
+    const router = useRouter();
     const currentUserData = useContext(AuthContext);
     const [messageData, setMessageData] = useState([]);
     const [friendData, setFriendData] = useState();
@@ -43,14 +58,20 @@ const ChatContent = ({ param }) => {
     }, []);
     useEffect(() => {
         const unsub = onSnapshot(doc(fireStore, "roomsChat", param), (doc) => {
-            console.log("Current data: ", doc.data());
-            const frientData = doc.data().user.find((e) => {
-                return e.uid !== currentUserData.uid;
-            });
-            setFriendData(frientData);
+            if (doc && doc.data()) {
+                const frientData = doc.data().user.find((e) => {
+                    return e.uid !== currentUserData.uid;
+                });
+                setFriendData(frientData);
+            }
+            return null;
         });
         return () => unsub();
     }, []);
+
+    const viewProfile = () => {
+        router.push("/user/@" + friendData?.uid);
+    };
 
     return (
         <>
@@ -70,12 +91,28 @@ const ChatContent = ({ param }) => {
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-full  flex flex-col p-0">
-                            <Button variant="ghost" className=" rounded-b-none">
+                            <Button onClick={viewProfile} variant="ghost" className=" rounded-b-none">
                                 Xem trang cá nhân
                             </Button>
-                            <Button variant="ghost" className="rounded-t-none flex justify-start text-[#f14b5c] hover:text-[#f14b5c]">
-                                Xóa đoạn chat
-                            </Button>
+                            {/* <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" className="text-[#f14b5c] hover:text-[#f14b5c] rounded-t-none text-left">
+                                        <span className="w-full block text-base">Xóa đoạn chat</span>
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>bạn có muốn xóa đoạn chat này ?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Việc xóa đoạn chat sẽ không thể khôi phục trong tương lai.<br></br> Hãy cân nhắc trước khi xác nhận xóa.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleDelete}>Xóa</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog> */}
                         </PopoverContent>
                     </Popover>
                 </div>

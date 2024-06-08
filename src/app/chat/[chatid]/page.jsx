@@ -11,14 +11,13 @@ const ChatPage = ({ params }) => {
     useEffect(() => {
         setLoading(true);
         const unsub = onSnapshot(doc(fireStore, "roomsChat", params.chatid), (doc) => {
-            console.log("Current data: ", doc.data());
             const myPermissions = doc.data()?.user.find((e) => {
                 return e.uid === currentUserData.uid;
             });
             setPermissions(myPermissions);
         });
         setLoading(false);
-        console.log("loaded");
+
         return () => unsub();
     }, [params.chatid]);
 

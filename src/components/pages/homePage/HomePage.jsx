@@ -68,8 +68,8 @@ const HomePage = () => {
                                 return uid === currentUserData?.uid;
                             })}
                             userURL={"/user/@" + post?.data.author.uid}
-                            avatar={post?.data.author.photoURL}
-                            username={post?.data.author.displayName}
+                            // avatar={post?.data.author.photoURL}
+                            // username={post?.data.author.displayName}
                             postTime={handleConvertDate(post?.data.createAt)}
                             content={post?.data.post.content}
                             imageSrc={post?.data.post.imageURL}

@@ -53,8 +53,6 @@ const BlogPage = ({ params }) => {
                         return uid === currentUserData?.uid;
                     })}
                     userURL={"/user/@" + blogData?.author.uid}
-                    avatar={blogData?.author.photoURL}
-                    username={blogData?.author.displayName}
                     postTime={handleConvertDate(blogData?.createAt)}
                     content={blogData?.post.content}
                     imageSrc={blogData?.post.imageURL}

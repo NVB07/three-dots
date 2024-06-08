@@ -1,6 +1,7 @@
-import { addDoc, collection, serverTimestamp, deleteDoc, doc, updateDoc, getDoc, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, deleteDoc, doc, updateDoc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
-import { fireStore, storage } from "./config";
+import { fireStore, storage, auth } from "./config";
+import { updateProfile, updateEmail } from "firebase/auth";
 
 export const snapshotDocument = (collectionName, docId, subcollectionName, callback) => {
     const docRef = doc(fireStore, collectionName, docId);
@@ -10,6 +11,22 @@ export const snapshotDocument = (collectionName, docId, subcollectionName, callb
         const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         callback(data);
     });
+};
+
+export const addUser = async (collectionName, documentId, data) => {
+    try {
+        const docRef = doc(fireStore, collectionName, documentId);
+
+        await setDoc(docRef, {
+            ...data,
+
+            createAt: serverTimestamp(),
+        });
+
+        console.log(`Document added with ID: ${documentId}`);
+    } catch (error) {
+        console.error("Error adding document:", error);
+    }
 };
 
 export const addDocument = async (collectionName, data) => {
@@ -47,6 +64,14 @@ export const deleteDocument = async (collectionName, documentID, pathImage) => {
                     console.error("Error delete img:", error);
                 });
         }
+    } catch (error) {
+        console.error("Error delete document:", error);
+    }
+};
+
+export const deleteSubDocument = async (collectionName, documentID, subcolection, subDocumentID) => {
+    try {
+        await deleteDoc(doc(fireStore, collectionName, documentID, subcolection, subDocumentID));
     } catch (error) {
         console.error("Error delete document:", error);
     }
@@ -91,18 +116,6 @@ export const addFileToStorage = async (file64, folder, fileName) => {
     return url;
 };
 
-// export const createInteractDocument = async (uid, collectionName, docId, subcollectionName, comment = "") => {
-//     try {
-//         const docRef = doc(fireStore, collectionName, docId);
-//         const subcollectionRef = collection(docRef, subcollectionName);
-
-//         await addDoc(subcollectionRef, { createdAt: new Date(), uid, comment });
-//         console.log("Document created successfully");
-//     } catch (error) {
-//         console.error("Error creating interact document:", error);
-//     }
-// };
-
 export const handleLikeReact = async (uid, blogId, like) => {
     try {
         const blogRef = doc(fireStore, "blogs", blogId);
@@ -137,5 +150,62 @@ export const handleLikeReact = async (uid, blogId, like) => {
         return updatedLiked.length;
     } catch (error) {
         console.error("Error handling like/unlike post:", error);
+    }
+};
+export const getUser = async (uid, option = null) => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/user?uid=${uid}`, option);
+        if (!response.ok) {
+            throw new Error("Network response was not ok " + response.statusText);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.log("Error fetching user data:", error);
+        return null;
+    }
+};
+export const updateUserProfile = async (displayName, photo) => {
+    let dataUpdated = {};
+    if (photo) {
+        const url = await addFileToStorage(photo.reader?.result, "imagePostBlogs/", photo.name);
+        dataUpdated = {
+            displayName: displayName,
+            photoURL: url,
+        };
+    } else dataUpdated = { displayName: displayName };
+
+    const basicProfile = updateProfile(auth.currentUser, dataUpdated)
+        .then(() => {
+            return true;
+        })
+        .catch((error) => {
+            console.error("Error update basic information :", error);
+            return false;
+        });
+    // const updateEmailAddress = updateEmail(auth.currentUser, Email)
+    //     .then(() => {
+    //         return true;
+    //     })
+    //     .catch((error) => {
+    //         console.error("Error update basic information :", error);
+    //         return false;
+    //     });
+    if (basicProfile) {
+        return true;
+    }
+};
+export const updateInformation = async (documentId, name, email, photoURL) => {
+    const docRef = doc(fireStore, "users", documentId);
+
+    try {
+        await updateDoc(docRef, {
+            displayName: name,
+            email: email,
+            photoURL: photoURL,
+        });
+        console.log("Content updated successfully!");
+    } catch (error) {
+        console.error("Error updating content: ", error);
     }
 };
