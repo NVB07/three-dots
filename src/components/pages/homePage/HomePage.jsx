@@ -1,82 +1,68 @@
 "use client";
-import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, limit, getCountFromServer } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
-import { useEffect, useState, useCallback, useContext, memo } from "react";
-import Blog from "../../layout/blog/Blog";
-import { AuthContext } from "@/auth/AuthProvider";
+import { useEffect, useState, memo } from "react";
+import Blog from "../../blog/Blog";
+import LoadMore from "@/components/loadMore/LoadMore";
 
 const HomePage = () => {
-    const currentUserData = useContext(AuthContext);
+    const [initialPosts, setInitialPosts] = useState([]);
+    const [additionalPosts, setAdditionalPosts] = useState([]);
+    const [lastVisible, setLastVisible] = useState(null);
+    const [countDocument, setCountDocument] = useState(null);
 
-    const [posts, setPosts] = useState([]);
+    useEffect(() => {
+        const coll = collection(fireStore, "blogs");
 
-    const handleConvertDate = useCallback((timestamp) => {
-        if (timestamp) {
-            const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
-
-            const year = date.getFullYear();
-            const month = date.getMonth();
-            const day = date.getDate();
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-
-            const time = `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes} | ${day < 10 ? "0" + day : day}/${
-                month < 10 ? "0" + month : month
-            }/${year}`;
-
-            return time;
-        }
-        return "?";
+        const unsubscribeCount = onSnapshot(coll, async () => {
+            const snapshot = await getCountFromServer(coll);
+            setCountDocument(snapshot.data().count);
+        });
+        return () => unsubscribeCount();
     }, []);
 
     useEffect(() => {
-        const q = query(collection(fireStore, "blogs"), orderBy("createAt", "asc"));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            querySnapshot.docChanges().forEach((change) => {
-                const doc = change.doc;
-                const blogData = { data: doc.data(), id: doc.id };
+        const initialQuery = query(collection(fireStore, "blogs"), orderBy("createAt", "desc"), limit(20));
 
-                switch (change.type) {
-                    case "added":
-                        setPosts((prevPosts) => [blogData, ...prevPosts]);
-                        break;
-                    case "modified":
-                        setPosts((prevPosts) => prevPosts.map((post) => (post.id === doc.id ? blogData : post)));
-                        break;
-                    case "removed":
-                        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== doc.id));
-                        break;
-                    default:
-                        break;
-                }
+        const unsubscribe = onSnapshot(initialQuery, (querySnapshot) => {
+            const initialDocs = [];
+            let lastVisibleDoc = null;
+            querySnapshot.forEach((doc) => {
+                initialDocs.push({ data: doc.data(), id: doc.id });
+
+                lastVisibleDoc = doc;
             });
+
+            setInitialPosts(initialDocs);
+            setLastVisible(lastVisibleDoc);
         });
+
         return () => unsubscribe();
     }, []);
 
+    const uniquePostsMap = new Map();
+    [...initialPosts, ...additionalPosts].forEach((post) => {
+        uniquePostsMap.set(post.id, post);
+    });
+    const allPosts = Array.from(uniquePostsMap.values());
+
     return (
-        <main className=" w-full flex justify-center">
+        <main className="w-full flex justify-center">
             <div className="w-full max-w-[620px] px-0 sm:px-6">
-                {posts.map((post) => {
-                    return (
-                        <MemoizedBlogs
-                            key={post.id}
-                            currentUserData={currentUserData}
-                            blogid={post.id}
-                            authorid={post?.data.author.uid}
-                            liked={post?.data.liked?.find((uid) => {
-                                return uid === currentUserData?.uid;
-                            })}
-                            userURL={"/user/@" + post?.data.author.uid}
-                            // avatar={post?.data.author.photoURL}
-                            // username={post?.data.author.displayName}
-                            postTime={handleConvertDate(post?.data.createAt)}
-                            content={post?.data.post.content}
-                            imageSrc={post?.data.post.imageURL}
-                            likedCount={post?.data.liked?.length}
+                {allPosts.map((post) => (
+                    <MemoizedBlogs key={post.id} blogid={post.id} authorid={post?.data.author.uid} />
+                ))}
+                <div className="w-full flex justify-center py-10">
+                    {allPosts.length < countDocument ? (
+                        <LoadMore
+                            lastVisible={lastVisible}
+                            setAdditionalPosts={setAdditionalPosts}
+                            setLastVisible={setLastVisible}
+                            collectionName={"blogs"}
+                            queryParam={[orderBy("createAt", "desc")]}
                         />
-                    );
-                })}
+                    ) : null}
+                </div>
             </div>
         </main>
     );

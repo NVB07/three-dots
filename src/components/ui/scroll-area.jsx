@@ -7,9 +7,11 @@ import { cn } from "@/lib/utils";
 
 const ScrollArea = React.forwardRef(({ className, children, ...props }, ref) => {
     const viewportRef = React.useRef(null);
+    // const firstLoad = React.useRef(true);
     React.useEffect(() => {
         if (viewportRef.current) {
             viewportRef.current.scrollTop = viewportRef.current.scrollHeight;
+            // firstLoad.current = false;
         }
     }, [children]);
 

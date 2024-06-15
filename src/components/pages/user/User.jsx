@@ -1,47 +1,46 @@
 "use client";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState, memo, useCallback } from "react";
-import { collection, query, onSnapshot, orderBy, where } from "firebase/firestore";
-import { addDocument, updateUserProfile, getUser } from "@/firebase/services";
+import { collection, query, onSnapshot, orderBy, where, getCountFromServer, limit } from "firebase/firestore";
+import { addDocument, snapshotDoc } from "@/firebase/services";
 import { fireStore } from "@/firebase/config";
 import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { toast } from "sonner";
-import CloseIcon from "@/components/icons/CloseIcon";
-import CheckIcon from "@/components/icons/CheckIcon";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Blog from "../../layout/blog/Blog";
+
+import Blog from "../../blog/Blog";
 import { AuthContext } from "@/auth/AuthProvider";
+import EditProfile from "./EditProfile";
+import LoadMore from "@/components/loadMore/LoadMore";
 
 const User = ({ param }) => {
-    const [userData, setUserData] = useState();
-    const authUserData = useContext(AuthContext);
+    const { authUserData, setAuthUserData } = useContext(AuthContext);
 
+    const [userData, setUserData] = useState();
     const [isMyAccount, setIsMyAccount] = useState(false);
-    const [posts, setPosts] = useState([]);
-    const [newName, setNewName] = useState(authUserData?.displayName);
-    const [newAvatar, setNewAvatar] = useState();
-    const [openOption, setOpenOption] = useState();
+    const [initialPosts, setInitialPosts] = useState([]);
+    const [additionalPosts, setAdditionalPosts] = useState([]);
+    const [lastVisible, setLastVisible] = useState(null);
 
     const router = useRouter();
-    const pathname = usePathname();
+
     useEffect(() => {
-        if (pathname !== "/user/@" + authUserData.uid) {
-            setIsMyAccount(false);
-        } else {
-            setIsMyAccount(true);
-        }
+        snapshotDoc("users", param.replace("%40", ""), (data) => {
+            setIsMyAccount(data.uid === authUserData.uid);
+            setUserData(data);
+        });
     }, []);
 
-    useEffect(() => {
-        const unsubscribe = async () => {
-            const data = await getUser(param.replace("%40", ""));
-            setUserData(data);
-        };
+    const [countDocument, setCountDocument] = useState(null);
 
-        unsubscribe();
+    useEffect(() => {
+        const coll = collection(fireStore, "blogs");
+        const q = query(coll, where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "asc"));
+        const unsubscribeCount = onSnapshot(q, async () => {
+            const snapshot = await getCountFromServer(q);
+            setCountDocument(snapshot.data().count);
+        });
+        return () => unsubscribeCount();
     }, []);
 
     const handleChat = async () => {
@@ -108,69 +107,60 @@ const User = ({ param }) => {
         return "?";
     }, []);
 
+    // useEffect(() => {
+    //     const q = query(collection(fireStore, "blogs"), where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "asc"));
+    //     const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    //         querySnapshot.docChanges().forEach((change) => {
+    //             const doc = change.doc;
+    //             const blogData = { data: doc.data(), id: doc.id };
+    //             switch (change.type) {
+    //                 case "added":
+    //                     setPosts((prevPosts) => [blogData, ...prevPosts]);
+    //                     break;
+    //                 case "modified":
+    //                     setPosts((prevPosts) => prevPosts.map((post) => (post.id === doc.id ? blogData : post)));
+    //                     break;
+    //                 case "removed":
+    //                     setPosts((prevPosts) => prevPosts.filter((post) => post.id !== doc.id));
+    //                     break;
+    //                 default:
+    //                     break;
+    //             }
+    //         });
+    //     });
+    //     return () => unsubscribe();
+    // }, []);
+
     useEffect(() => {
-        const q = query(collection(fireStore, "blogs"), where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "asc"));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            querySnapshot.docChanges().forEach((change) => {
-                const doc = change.doc;
-                const blogData = { data: doc.data(), id: doc.id };
-                switch (change.type) {
-                    case "added":
-                        setPosts((prevPosts) => [blogData, ...prevPosts]);
-                        break;
-                    case "modified":
-                        setPosts((prevPosts) => prevPosts.map((post) => (post.id === doc.id ? blogData : post)));
-                        break;
-                    case "removed":
-                        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== doc.id));
-                        break;
-                    default:
-                        break;
-                }
+        const initialQuery = query(collection(fireStore, "blogs"), where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "asc"), limit(20));
+
+        const unsubscribe = onSnapshot(initialQuery, (querySnapshot) => {
+            const initialDocs = [];
+            let lastVisibleDoc = null;
+            querySnapshot.forEach((doc) => {
+                initialDocs.push({ data: doc.data(), id: doc.id });
+
+                lastVisibleDoc = doc;
             });
+
+            setInitialPosts(initialDocs);
+            setLastVisible(lastVisibleDoc);
         });
+
         return () => unsubscribe();
     }, []);
+
+    const uniquePostsMap = new Map();
+    [...initialPosts, ...additionalPosts].forEach((post) => {
+        uniquePostsMap.set(post.id, post);
+    });
+    const allPosts = Array.from(uniquePostsMap.values());
+
     if (!authUserData) {
         router.push("/login");
         return;
     }
 
-    const selectImage = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            setNewAvatar({ reader: reader, name: file.name });
-            reader.readAsDataURL(file);
-        }
-    };
-    const handleCloseModal = () => {
-        setNewName(authUserData?.displayName);
-        setNewAvatar();
-        setOpenOption();
-    };
-
-    const saveInformation = async () => {
-        setOpenOption();
-        const update = await updateUserProfile(newName, newAvatar);
-        if (update) {
-            toast("Đã sửa thông tin", {
-                cancel: {
-                    label: <CloseIcon />,
-                    onClick: () => {},
-                },
-                icon: <CheckIcon />,
-            });
-            window.location.reload();
-        } else {
-            toast.error("Đã xảy ra lỗi !", {
-                action: {
-                    label: <CloseIcon />,
-                    onClick: () => {},
-                },
-            });
-        }
-    };
     return (
         <div className="w-full ">
             <div className="px-3 sm:px-0">
@@ -181,58 +171,20 @@ const User = ({ param }) => {
                     </div>
                     <div className="w-1/2 flex justify-end">
                         {userData && (
-                            <Image width={80} height={80} className="rounded-full" placeholder="blur" blurDataURL="/next.svg" src={userData?.photoURL} alt="avt" />
+                            <Image
+                                width={80}
+                                height={80}
+                                className="rounded-full min-w-20 min-h-20 max-h-20 max-w-20 object-cover"
+                                placeholder="blur"
+                                blurDataURL="/blur.png"
+                                src={userData?.photoURL}
+                                alt="avt"
+                            />
                         )}
                     </div>
                 </div>
                 {isMyAccount ? (
-                    // <Button variant="secondary" onClick={editInfomation} className="w-full font-bold">
-                    //     Sửa thông tin
-                    // </Button>
-                    <Dialog onOpenChange={handleCloseModal} open={openOption}>
-                        <DialogTrigger asChild>
-                            <Button variant="secondary" onClick={() => setOpenOption(true)} className="w-full font-bold">
-                                Sửa thông tin
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>Sửa thông tin</DialogTitle>
-                                {/* <DialogDescription>Make changes to your profile here. Click save when you're done.</DialogDescription> */}
-                            </DialogHeader>
-                            <div className="flex flex-col py-4">
-                                <div className="grid grid-cols-4 items-center gap-4 mb-4">
-                                    <Label htmlFor="name" className="text-right">
-                                        Tên
-                                    </Label>
-                                    <Input onChange={(e) => setNewName(e.target.value)} id="name" defaultValue={newName} className="col-span-3 text-base" />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4 mb-4">
-                                    <Label className="text-right">Avatar</Label>
-                                    <input onChange={selectImage} type="file" id="avatar" placeholder="file" className="col-span-3" />
-                                </div>
-
-                                {/* <div className="grid grid-cols-4 items-center gap-4 mb-4">
-                                    <Label htmlFor="email" className="text-right">
-                                        Email
-                                    </Label>
-                                    <Input onChange={(e) => setNewEmail(e.target.value)} id="email" defaultValue={newEmail} className="col-span-3 text-base" />
-                                </div> */}
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    disabled={
-                                        (newName !== userData?.displayName && newAvatar) || (newName.trim() !== "" && newName !== userData?.displayName) || newAvatar
-                                            ? false
-                                            : true
-                                    }
-                                    onClick={saveInformation}
-                                >
-                                    Lưu thay đổi
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                    <EditProfile authUserData={authUserData} setAuthUserData={setAuthUserData} />
                 ) : (
                     <Button onClick={handleChat} variant="" className="w-full font-bold">
                         Nhắn tin
@@ -241,7 +193,7 @@ const User = ({ param }) => {
                 <div className="w-full mt-5  p-1 font-semibold">{isMyAccount ? "Bài viết của tôi" : "Bài viết của " + userData?.displayName}</div>
             </div>
             <div className="mt-2">
-                {posts.map((post) => {
+                {allPosts.map((post) => {
                     return (
                         <MemoizedBlogs
                             key={post.id}
@@ -262,6 +214,17 @@ const User = ({ param }) => {
                         />
                     );
                 })}
+                <div className="w-full flex justify-center py-10">
+                    {allPosts.length < countDocument ? (
+                        <LoadMore
+                            lastVisible={lastVisible}
+                            setAdditionalPosts={setAdditionalPosts}
+                            setLastVisible={setLastVisible}
+                            collectionName={"blogs"}
+                            queryParam={[where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "asc")]}
+                        />
+                    ) : null}
+                </div>
             </div>
         </div>
     );

@@ -7,9 +7,10 @@ import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/config";
 import { AuthContext } from "@/auth/AuthProvider";
+import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const Options = () => {
-    const currentUserData = useContext(AuthContext);
+    const { authUserData } = useContext(AuthContext);
     const router = useRouter();
     const handleSignOut = async () => {
         try {
@@ -28,10 +29,7 @@ const Options = () => {
                         size="icon"
                         className=" sm:hover:bg-transparent active:scale-95 transition-transform rounded-full *:hover:opacity-100 *:transition-all relative after:absolute after:content-[''] after:bottom-1 after:text-white after:right-0.5 after:w-3 after:h-3 after:flex after:items-center after:justify-center after:rotate-90 after:rounded-full after:bg-red-600"
                     >
-                        <Avatar className="w-8 h-8">
-                            <AvatarImage src={currentUserData?.photoURL} alt="@shadcn" />
-                            <AvatarFallback>?</AvatarFallback>
-                        </Avatar>
+                        <Image src={authUserData?.photoURL} width={32} height={32} className="rounded-full max-w-8 max-h-8" alt="user" />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-full flex flex-col p-0">

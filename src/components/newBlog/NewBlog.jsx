@@ -6,6 +6,7 @@ import { useContext, useState, useRef, useCallback, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { AuthContext } from "@/auth/AuthProvider";
 import { addDocument, addFileToStorage, updateContent } from "@/firebase/services";
@@ -15,7 +16,7 @@ import CloseIcon from "@/components/icons/CloseIcon";
 import CheckIcon from "@/components/icons/CheckIcon";
 
 const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onClick }) => {
-    const data = useContext(AuthContext);
+    const { authUserData } = useContext(AuthContext);
     const inputImageRef = useRef();
     const imagePreviewRef = useRef();
     const [dialogNewBlog, setDialogNewBlog] = useState();
@@ -103,7 +104,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
         const formattedContent = postContent.trim().replace(/\n/g, "|~n|");
         await addDocument("blogs", {
             author: {
-                uid: data?.uid,
+                uid: authUserData?.uid,
             },
             post: {
                 content: formattedContent,
@@ -154,11 +155,22 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
             <DialogContent onOpenAutoFocus={openTextArea} className="min-w-80 max-w-[550px] w-full top-0 translate-y-0 sm:translate-y-[-50%] sm:top-[50%] ">
                 <div className="flex">
                     <div className="w-10 mr-3 flex flex-col items-center">
-                        <Image src={data?.photoURL} width={40} height={40} alt="avatar" quality={60} className="rounded-full border-border border border-solid " />
+                        {authUserData?.photoURL ? (
+                            <Image
+                                src={authUserData?.photoURL}
+                                width={40}
+                                height={40}
+                                alt="avatar"
+                                quality={60}
+                                className="rounded-full border-border border border-solid "
+                            />
+                        ) : (
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                        )}
                         <div className="w-[1px] h-full bg-[#8a8a8a3f] relative after:absolute after:rounded-full after:left-1/2 after:-translate-x-1/2 after:w-[11px] after:h-[11px] after:bg-[#8a8a8a3f] after:top-full"></div>
                     </div>
                     <div className="flex-1">
-                        <p className="text-base font-semibold">{data?.displayName}</p>
+                        <p className="text-base font-semibold">{authUserData?.displayName}</p>
                         <div className="sm:max-h-[400px] max-h-[300px] overflow-auto p-2">
                             <Textarea
                                 ref={textareaRef}

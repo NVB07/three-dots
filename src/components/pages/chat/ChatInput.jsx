@@ -30,6 +30,7 @@ const ChatInput = ({ documentId, currentUserData }) => {
             uid: currentUserData.uid,
         });
         setMessage("");
+
         textareaRef.current.style.height = "40px";
     };
     return (

@@ -13,8 +13,12 @@ const CountReact = ({ blogid, like }) => {
     }, []);
     return (
         <div className="w-full mt-2.5 flex ">
-            <div className=" text-[#acacac] text-sm mr-1">{like} lượt thích, </div>
-            <div className=" text-[#acacac] text-sm"> {countComment} bình luận</div>
+            <div className=" text-[#acacac] text-sm ">{like} lượt thích </div>
+            {countComment === 0 ? null : (
+                <div className=" text-[#acacac] text-sm">
+                    <span className="mr-1">,</span> {countComment} bình luận
+                </div>
+            )}
         </div>
     );
 };

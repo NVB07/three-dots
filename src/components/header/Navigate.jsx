@@ -12,7 +12,7 @@ import ChatIcon from "@/components/icons/ChatIcon";
 import UserIcon from "@/components/icons/UserIcon";
 import WriteBlogIcon from "@/components/icons/WriteBlogIcon";
 const Navigate = () => {
-    const data = useContext(AuthContext);
+    const { authUserData } = useContext(AuthContext);
     const urlPath = usePathname();
     const router = useRouter();
     return (
@@ -36,7 +36,7 @@ const Navigate = () => {
                 </Link>
             </Button>
             <Button className="sm:w-[92px] w-10 h-10 p-0 sm:h-[66px] mx-[3px] active:scale-95 transition-transform" variant="ghost">
-                <Link href={"/user/@" + data?.uid} className="flex items-center justify-center w-full h-full">
+                <Link href={"/user/@" + authUserData?.uid} className="flex items-center justify-center w-full h-full">
                     <UserIcon width={32} height={32} solid={urlPath.includes("user")} />
                 </Link>
             </Button>

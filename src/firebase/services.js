@@ -13,6 +13,14 @@ export const snapshotDocument = (collectionName, docId, subcollectionName, callb
     });
 };
 
+export const snapshotDoc = (collectionName, docId, callback) => {
+    const unsub = onSnapshot(doc(fireStore, collectionName, docId), (doc) => {
+        const data = doc.data();
+        callback(data);
+    });
+    return unsub;
+};
+
 export const addUser = async (collectionName, documentId, data) => {
     try {
         const docRef = doc(fireStore, collectionName, documentId);
@@ -195,17 +203,41 @@ export const updateUserProfile = async (displayName, photo) => {
         return true;
     }
 };
-export const updateInformation = async (documentId, name, email, photoURL) => {
-    const docRef = doc(fireStore, "users", documentId);
-
+export const updateInformation = async (documentId, name, email, newPhoto, currentPhotoURL) => {
     try {
-        await updateDoc(docRef, {
-            displayName: name,
-            email: email,
-            photoURL: photoURL,
-        });
+        const docRef = doc(fireStore, "users", documentId);
+        let dataUpdated = {};
+        if (newPhoto) {
+            const pathImage = getPathImage(currentPhotoURL);
+            if (pathImage.includes("photoUsers/")) deleteObject(ref(storage, pathImage));
+            const url = await addFileToStorage(newPhoto.reader?.result, "photoUsers/", newPhoto.name);
+            dataUpdated = {
+                displayName: name,
+                email: email,
+                photoURL: url,
+                uid: documentId,
+            };
+        } else {
+            dataUpdated = {
+                displayName: name,
+                email: email,
+                photoURL: currentPhotoURL,
+                uid: documentId,
+            };
+        }
+
+        await updateDoc(docRef, dataUpdated);
+
         console.log("Content updated successfully!");
+        return dataUpdated;
     } catch (error) {
         console.error("Error updating content: ", error);
     }
+};
+
+const getPathImage = (photoURL) => {
+    const startIndex = photoURL.lastIndexOf("/") + 1;
+    const endIndex = photoURL.indexOf("?alt=");
+    const encodedImagePath = photoURL.substring(startIndex, endIndex);
+    return decodeURIComponent(encodedImagePath);
 };

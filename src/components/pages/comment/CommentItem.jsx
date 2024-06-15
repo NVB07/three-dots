@@ -13,7 +13,7 @@ import { deleteSubDocument } from "@/firebase/services";
 import { AuthContext } from "@/auth/AuthProvider";
 
 const CommentItem = ({ content = "", displayName = "", photoURL = "", uid = "", time = "", commentId = "", blogId = "", currentUser }) => {
-    const authUserData = useContext(AuthContext);
+    const { authUserData } = useContext(AuthContext);
 
     const parts = content.split("|~n|");
     const elements = parts.map((part, index) => (

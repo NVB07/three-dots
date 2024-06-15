@@ -7,7 +7,7 @@ import RoomChat from "./RoomChat";
 import { AuthContext } from "@/auth/AuthProvider";
 
 const ListRoomChat = () => {
-    const currentUserData = useContext(AuthContext);
+    const { authUserData } = useContext(AuthContext);
     const [listRoomChat, setListRoomChat] = useState([]);
 
     useEffect(() => {
@@ -20,7 +20,7 @@ const ListRoomChat = () => {
                 });
             });
 
-            const resultId = docsArray.filter((item) => item.user.some((user) => user.uid === currentUserData.uid));
+            const resultId = docsArray.filter((item) => item.user.some((user) => user.uid === authUserData.uid));
 
             resultId ? setListRoomChat(resultId) : null;
         });
@@ -30,7 +30,7 @@ const ListRoomChat = () => {
         <ScrollArea className="h-[calc(100vh-140px)] w-full rounded-md  sm:pl-3">
             {listRoomChat.map((room) => {
                 const friendData = room.user.find(function (e) {
-                    return e.uid !== currentUserData.uid;
+                    return e.uid !== authUserData.uid;
                 });
 
                 return <RoomChat uid={room.id} key={room.id} name={friendData.name} avatarSRC={friendData.photoURL} />;

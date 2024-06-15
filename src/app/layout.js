@@ -3,9 +3,9 @@ import "./globals.css";
 
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import Header from "@/components/layout/header/Header";
+import Header from "@/components/header/Header";
 import AuthProvider from "@/auth/AuthProvider";
-import Navigate from "@/components/layout/header/Navigate";
+import Navigate from "@/components/header/Navigate";
 
 const inter = Inter({ subsets: ["latin"] });
 

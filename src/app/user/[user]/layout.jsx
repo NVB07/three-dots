@@ -2,7 +2,6 @@ import { getUser } from "@/firebase/services";
 export async function generateMetadata({ params }) {
     try {
         const UserData = await getUser(params.user.replace("%40", ""), { cache: "no-store" });
-        console.log(UserData);
 
         return { title: UserData.displayName };
     } catch (error) {

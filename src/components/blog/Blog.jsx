@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, Fragment, useCallback, useEffect } from "react";
+import { useState, Fragment, useCallback, useEffect, useContext } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +18,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteDocument, handleLikeReact, getUser } from "@/firebase/services";
+import { deleteDocument, handleLikeReact } from "@/firebase/services";
 
 import NewBlog from "../newBlog/NewBlog";
 
@@ -30,66 +30,88 @@ import OptionIcon from "@/components/icons/OptionIcon";
 import TrashIcon from "@/components/icons/TrashIcon";
 import CountReact from "./CountReact";
 
-const Blog = ({
-    blogDetails = false,
-    blogid,
-    authorid,
-    currentUserData,
-    liked,
-    userURL = "/",
-    imageSrc,
-    postTime = "",
-    content = "",
-    likedCount = 0,
-    authorUserData,
-}) => {
-    const isAuthor = currentUserData?.uid === authorid;
-    const [likePost, setLikePost] = useState(liked ? true : false);
-    const [openOption, setOpenOption] = useState();
-    const [author, setAuthor] = useState();
+import { fireStore } from "@/firebase/config";
+import { onSnapshot, doc } from "firebase/firestore";
+import { AuthContext } from "@/auth/AuthProvider";
+
+const Blog = ({ blogDetails = false, blogid, authorid }) => {
+    const { authUserData } = useContext(AuthContext);
+    const [openOption, setOpenOption] = useState(); // Mở đóng dialog
+    const [authorData, setAuthorData] = useState(); // dữ liệu cá nhân tác giả
+
+    const [thisBlogData, setThisBlogData] = useState(); // dữ liệu blog
+    const [likePost, setLikePost] = useState(false); // trạng thái like của người dùng hiện tại
+
     const router = useRouter();
 
-    useEffect(() => {
-        setLikePost(liked ? true : false);
-    }, [liked]);
+    // định dạng thời gian
+    const handleConvertDate = useCallback((timestamp) => {
+        if (timestamp) {
+            const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
 
-    useEffect(() => {
-        if (authorUserData) {
-            setAuthor(authorUserData);
-            return;
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+
+            const time = `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes} | ${day < 10 ? "0" + day : day}/${
+                month < 10 ? "0" + month : month
+            }/${year}`;
+
+            return time;
         }
+        return "?";
+    }, []);
 
-        const getUserData = async () => {
-            const user = await getUser(authorid);
-            setAuthor(user);
-        };
-        authorid && getUserData();
+    // real time dữ liệu document(blog)
+    useEffect(() => {
+        if (blogid) {
+            const unsub = onSnapshot(doc(fireStore, "blogs", blogid), (doc) => {
+                const blogData = doc.data();
+                setThisBlogData(blogData);
+                setLikePost(
+                    blogData?.liked?.find((uid) => {
+                        return uid === authUserData.uid;
+                    })
+                );
+            });
+
+            return () => unsub();
+        }
+    }, [blogid]);
+
+    // real time dữ liệu tác giả
+    useEffect(() => {
+        if (authorid) {
+            const unsub = onSnapshot(doc(fireStore, "users", authorid), (doc) => {
+                const data = doc.data();
+                setAuthorData(data);
+            });
+
+            return () => unsub();
+        }
     }, [authorid]);
 
+    // lấy đường dẫn ảnh của blog
     const getPathImage = useCallback(() => {
-        if (imageSrc) {
-            const startIndex = imageSrc.lastIndexOf("/") + 1;
-            const endIndex = imageSrc.indexOf("?alt=");
-            const encodedImagePath = imageSrc.substring(startIndex, endIndex);
+        if (thisBlogData?.post.imageURL) {
+            const startIndex = thisBlogData?.post.imageURL.lastIndexOf("/") + 1;
+            const endIndex = thisBlogData?.post.imageURL.indexOf("?alt=");
+            const encodedImagePath = thisBlogData?.post.imageURL.substring(startIndex, endIndex);
 
             return decodeURIComponent(encodedImagePath);
         }
         return null;
     }, []);
 
-    const parts = content.split("|~n|");
-    const elements = parts.map((part, index) => (
-        <Fragment key={index}>
-            {part}
-            {index < parts.length - 1 && <br />}
-        </Fragment>
-    ));
-
+    // xử lí like/unlike
     const handleLikePost = () => {
-        handleLikeReact(currentUserData.uid, blogid, !likePost);
+        handleLikeReact(authUserData.uid, blogid, !likePost);
         setLikePost((prev) => !prev);
     };
 
+    // xử lí xóa blog
     const handleDelete = async () => {
         await deleteDocument("blogs", blogid, getPathImage())
             .then(() => {
@@ -100,6 +122,7 @@ const Blog = ({
                     },
                     icon: <TrashIcon />,
                 });
+                blogDetails && router.push("/");
             })
             .catch(() => {
                 toast.error("Lỗi khi xóa bài", {
@@ -110,6 +133,8 @@ const Blog = ({
                 });
             });
     };
+
+    // xử lí sao chép liên kết blog
     const handleCopyLink = () => {
         const currentUrl = new URL(window.location.href);
         const baseUrl = currentUrl.origin;
@@ -134,43 +159,55 @@ const Blog = ({
             });
     };
 
+    // đóng dialog
     const closeOption = () => {
         setOpenOption(false);
     };
 
+    // xem chi tiết blog (cmt)
     const viewBlog = () => {
+        console.log(thisBlogData);
         router.push("/blog/" + blogid);
     };
 
+    // tối ưu ảnh blog
     const imageLoader = ({ src, width, quality }) => {
-        return `/_next/image?url=${encodeURIComponent(imageSrc)}&w=${width}&q=${quality || 75}`;
+        return `/_next/image?url=${encodeURIComponent(thisBlogData?.post.imageURL)}&w=${width}&q=${quality || 75}`;
     };
 
     return (
         <div className="p-3  border-t border-solid border-[#8a8a8a3f] flex">
             <div className="min-w-12 w-12 max-w-12 flex flex-col">
-                <Link href={userURL}>
+                <Link href={"/user/@" + authorData?.uid}>
                     <div className="{style.modalCard}">
-                        {author?.photoURL && (
-                            <Image src={author.photoURL} width={36} height={36} alt="user" className="rounded-full w-9 h-9 object-cover cursor-pointer" />
+                        {authorData?.photoURL ? (
+                            <Image
+                                src={authorData?.photoURL}
+                                width={36}
+                                height={36}
+                                alt={"Ảnh đại diện của " + authorData?.displayName}
+                                className="w-9 h-9 rounded-full "
+                            />
+                        ) : (
+                            <Skeleton className="h-9 w-9 rounded-full" />
                         )}
                     </div>
                 </Link>
-                <div className="pt-2 w-9 flex justify-center h-full">
+                <div className=" w-9 flex justify-center h-full">
                     <div className="w-[1px] h-[calc(100%-12px)] bg-[#8a8a8a3f] relative after:absolute after:w-3 after:h-3 after:bg-[#8a8a8a3f] after:rounded-full after:top-full after:left-1/2 after:-translate-x-1/2"></div>
                 </div>
             </div>
             <div className="flex-1 ">
                 <div className="w-full flex justify-between h-5 mb-1.5">
                     <div className=" flex items-end">
-                        <Link href={userURL} className="font-semibold hover:underline">
-                            {author?.displayName ? author.displayName : "username"}
+                        <Link href={"/user/@" + authorData?.uid} className="font-semibold hover:underline">
+                            {authorData?.displayName ? authorData?.displayName : "username"}
                         </Link>
-                        <div className="text-[#acacac] text-sm sm:text-base ml-4">{postTime}</div>
+                        <div className="text-[#acacac] text-sm sm:text-base ml-4">{thisBlogData?.createAt ? handleConvertDate(thisBlogData?.createAt) : "..."}</div>
                     </div>
                     <div className="flex items-center">
                         <>
-                            {isAuthor ? (
+                            {thisBlogData?.author.uid === authUserData.uid ? (
                                 <Popover onOpenChange={setOpenOption} open={openOption}>
                                     <PopoverTrigger asChild>
                                         <Button variant="ghost" size="icon" className="rounded-full w-7 h-7">
@@ -187,7 +224,7 @@ const Blog = ({
                                         <NewBlog
                                             onClick={closeOption}
                                             blogid={blogid}
-                                            contentBlog={content.replace(/\|~n\|/g, "\n")}
+                                            contentBlog={thisBlogData?.post.content.replace(/\|~n\|/g, "\n")}
                                             buttonTitle={"Sửa bài viết"}
                                             styleButton="w-full rounded-none border-b border-solid border-[#8a8a8a3f]"
                                         />
@@ -230,18 +267,25 @@ const Blog = ({
                         </>
                     </div>
                 </div>
-                <div className="mb-2 text-[15px] ">{elements}</div>
+                <div className="mb-2 text-[15px] ">
+                    {thisBlogData?.post.content.split("|~n|").map((part, index) => (
+                        <Fragment key={index}>
+                            {part}
+                            {index < thisBlogData?.post.content.split("|~n|").length - 1 && <br />}
+                        </Fragment>
+                    ))}
+                </div>
                 <div className="w-fit">
-                    {imageSrc ? (
+                    {thisBlogData?.post.imageURL ? (
                         <Image
                             loader={imageLoader}
                             priority
                             style={{ width: "auto", height: "auto" }}
-                            src={imageSrc}
+                            src={thisBlogData?.post.imageURL}
                             width={600}
                             height={300}
                             alt="image"
-                            blurDataURL="/next.svg"
+                            blurDataURL="/blur.png"
                             placeholder="blur"
                             className="rounded"
                         />
@@ -281,7 +325,7 @@ const Blog = ({
                         </Button>
                     </div>
                 </div>
-                <CountReact blogid={blogid} like={likedCount} />
+                <CountReact blogid={blogid} like={thisBlogData?.liked?.length || 0} />
             </div>
         </div>
     );

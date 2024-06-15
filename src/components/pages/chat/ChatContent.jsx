@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useState, memo } from "react";
+import { useContext, useEffect, useState, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
 import { collection, query, onSnapshot, orderBy, doc } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
@@ -29,7 +29,7 @@ import { AuthContext } from "@/auth/AuthProvider";
 
 const ChatContent = ({ param }) => {
     const router = useRouter();
-    const currentUserData = useContext(AuthContext);
+    const { authUserData } = useContext(AuthContext);
     const [messageData, setMessageData] = useState([]);
     const [friendData, setFriendData] = useState();
 
@@ -60,7 +60,7 @@ const ChatContent = ({ param }) => {
         const unsub = onSnapshot(doc(fireStore, "roomsChat", param), (doc) => {
             if (doc && doc.data()) {
                 const frientData = doc.data().user.find((e) => {
-                    return e.uid !== currentUserData.uid;
+                    return e.uid !== authUserData.uid;
                 });
                 setFriendData(frientData);
             }
@@ -123,16 +123,11 @@ const ChatContent = ({ param }) => {
                     .reverse()
                     .map((chat) => {
                         return (
-                            <MemoizedMessage
-                                key={chat.id}
-                                message={chat.data.content}
-                                myMessage={chat.data.uid === currentUserData.uid}
-                                photoURL={friendData?.photoURL}
-                            />
+                            <MemoizedMessage key={chat.id} message={chat.data.content} myMessage={chat.data.uid === authUserData.uid} photoURL={friendData?.photoURL} />
                         );
                     })}
             </ScrollArea>
-            <ChatInput documentId={param} currentUserData={currentUserData} />
+            <ChatInput documentId={param} currentUserData={authUserData} />
         </>
     );
 };

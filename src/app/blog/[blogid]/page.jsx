@@ -3,11 +3,11 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { useContext, useEffect, useState, memo, useCallback } from "react";
 import { fireStore } from "@/firebase/config";
 import { AuthContext } from "@/auth/AuthProvider";
-import Blog from "@/components/layout/blog/Blog";
+import Blog from "@/components/blog/Blog";
 import Comment from "@/components/pages/comment/Comment";
 
 const BlogPage = ({ params }) => {
-    const currentUserData = useContext(AuthContext);
+    const { authUserData } = useContext(AuthContext);
     const [blogData, setBlogData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -15,7 +15,7 @@ const BlogPage = ({ params }) => {
         setLoading(true);
         const unsub = onSnapshot(doc(fireStore, "blogs", params.blogid), (doc) => {
             const data = doc.data();
-            setBlogData(data || null);
+            setBlogData(data);
         });
         setLoading(false);
 
@@ -27,7 +27,7 @@ const BlogPage = ({ params }) => {
             const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
 
             const year = date.getFullYear();
-            const month = date.getMonth();
+            const month = date.getMonth() + 1;
             const day = date.getDate();
             const hours = date.getHours();
             const minutes = date.getMinutes();
@@ -46,11 +46,11 @@ const BlogPage = ({ params }) => {
             <div className="w-full max-w-[620px] px-0 sm:px-6">
                 <MemoizedBlogs
                     blogDetails
-                    currentUserData={currentUserData}
+                    currentUserData={authUserData}
                     blogid={params.blogid}
                     authorid={blogData?.author.uid}
                     liked={blogData?.liked?.find((uid) => {
-                        return uid === currentUserData?.uid;
+                        return uid === authUserData?.uid;
                     })}
                     userURL={"/user/@" + blogData?.author.uid}
                     postTime={handleConvertDate(blogData?.createAt)}
@@ -58,8 +58,9 @@ const BlogPage = ({ params }) => {
                     imageSrc={blogData?.post.imageURL}
                     likedCount={blogData?.liked?.length}
                 />
+
                 <div className="w-auto h-[1px] bg-[#8a8a8a3f] "></div>
-                <Comment currentUser={currentUserData} blogId={params.blogid} />
+                <Comment currentUser={authUserData} blogId={params.blogid} />
             </div>
         </main>
     );

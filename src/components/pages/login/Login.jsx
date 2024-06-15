@@ -11,7 +11,7 @@ import GithubIcon from "@/components/icons/GithubIcon";
 import FacebookIcon from "@/components/icons/FacebookIcon";
 
 const Login = () => {
-    const data = useContext(AuthContext);
+    const { authUserData } = useContext(AuthContext);
 
     const handleGoogleSignUp = async () => {
         try {

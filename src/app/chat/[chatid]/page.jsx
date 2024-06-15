@@ -5,14 +5,14 @@ import { useContext, useEffect, useState } from "react";
 import { fireStore } from "@/firebase/config";
 import { AuthContext } from "@/auth/AuthProvider";
 const ChatPage = ({ params }) => {
-    const currentUserData = useContext(AuthContext);
+    const { authUserData } = useContext(AuthContext);
     const [permissions, setPermissions] = useState(false);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         setLoading(true);
         const unsub = onSnapshot(doc(fireStore, "roomsChat", params.chatid), (doc) => {
             const myPermissions = doc.data()?.user.find((e) => {
-                return e.uid === currentUserData.uid;
+                return e.uid === authUserData.uid;
             });
             setPermissions(myPermissions);
         });
