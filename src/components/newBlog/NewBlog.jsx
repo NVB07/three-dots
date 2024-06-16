@@ -79,7 +79,11 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
     const handleEditPostContent = async () => {
         setLoading(true);
         const formattedContent = postContent.trim().replace(/\n/g, "|~n|");
-        await updateContent(blogid, formattedContent).then(() => {
+        const newSearchKeywords = postContent
+            .trim()
+            .toUpperCase()
+            .split(/[ \n]+/);
+        await updateContent(blogid, formattedContent, newSearchKeywords).then(() => {
             setLoading(false);
             onClick();
             setDialogNewBlog(false);
@@ -102,12 +106,17 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
     const handleNewPost = async () => {
         setLoading(true);
         const formattedContent = postContent.trim().replace(/\n/g, "|~n|");
+        const searchKeywords = postContent
+            .trim()
+            .toUpperCase()
+            .split(/[ \n]+/);
         await addDocument("blogs", {
             author: {
                 uid: authUserData?.uid,
             },
             post: {
                 content: formattedContent,
+                searchKeywords: searchKeywords,
                 imageURL: imageFile ? await addFileToStorage(imageFile.reader?.result, "imagePostBlogs/", imageFile.name) : "",
                 reaction: {
                     liked: 0,

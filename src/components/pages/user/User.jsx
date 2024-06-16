@@ -132,7 +132,7 @@ const User = ({ param }) => {
     // }, []);
 
     useEffect(() => {
-        const initialQuery = query(collection(fireStore, "blogs"), where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "asc"), limit(20));
+        const initialQuery = query(collection(fireStore, "blogs"), where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "desc"), limit(20));
 
         const unsubscribe = onSnapshot(initialQuery, (querySnapshot) => {
             const initialDocs = [];
@@ -221,7 +221,7 @@ const User = ({ param }) => {
                             setAdditionalPosts={setAdditionalPosts}
                             setLastVisible={setLastVisible}
                             collectionName={"blogs"}
-                            queryParam={[where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "asc")]}
+                            queryParam={[where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "desc")]}
                         />
                     ) : null}
                 </div>

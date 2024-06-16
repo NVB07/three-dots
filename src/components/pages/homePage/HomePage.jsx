@@ -47,7 +47,7 @@ const HomePage = () => {
     const allPosts = Array.from(uniquePostsMap.values());
 
     return (
-        <main className="w-full flex justify-center">
+        <div className="w-full flex justify-center">
             <div className="w-full max-w-[620px] px-0 sm:px-6">
                 {allPosts.map((post) => (
                     <MemoizedBlogs key={post.id} blogid={post.id} authorid={post?.data.author.uid} />
@@ -64,7 +64,7 @@ const HomePage = () => {
                     ) : null}
                 </div>
             </div>
-        </main>
+        </div>
     );
 };
 

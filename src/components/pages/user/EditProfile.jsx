@@ -96,7 +96,7 @@ const EditProfile = ({ authUserData, setAuthUserData }) => {
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4 mb-4">
                         <Label className="text-right">Avatar</Label>
-                        <input onChange={selectImage} type="file" id="avatar" placeholder="file" className="col-span-3" />
+                        <input onChange={selectImage} accept="image/*" type="file" id="avatar" placeholder="file" className="col-span-3" />
                     </div>
                 </div>
                 <DialogFooter>

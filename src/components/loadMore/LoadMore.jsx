@@ -4,6 +4,7 @@ import { query, collection, startAfter, limit, getDocs } from "firebase/firestor
 import { fireStore } from "@/firebase/config";
 import { Button } from "../ui/button";
 import LoadingIcon from "../icons/LoadingIcon";
+import ChevronRight from "../icons/ChevronRight";
 
 const LoadMore = ({ lastVisible, setAdditionalPosts, setLastVisible, collectionName, queryParam }) => {
     const [loading, setLoading] = useState(false);
@@ -27,8 +28,16 @@ const LoadMore = ({ lastVisible, setAdditionalPosts, setLastVisible, collectionN
     };
 
     return (
-        <Button variant="ghost" className="w-24" onClick={loadMore}>
-            {loading ? <LoadingIcon /> : <p className="underline">Xem thêm</p>}
+        <Button variant="link" className="w-10 h-10  border border-[] outline-none" onClick={loadMore}>
+            {loading ? (
+                <p className="">
+                    <LoadingIcon width={20} height={20} />
+                </p>
+            ) : (
+                <p className="underline  rotate-90">
+                    <ChevronRight width={20} height={20} />
+                </p>
+            )}
         </Button>
     );
 };

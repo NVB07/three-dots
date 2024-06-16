@@ -17,7 +17,9 @@ const Header = () => {
                 <div className="hidden sm:block">
                     <Navigate />
                 </div>
-                <Options />
+                <div className="w-[74px] flex items-center justify-center">
+                    <Options />
+                </div>
             </div>
         </header>
     );
