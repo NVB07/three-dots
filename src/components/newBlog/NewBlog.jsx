@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
 import { addDocument, addFileToStorage, updateContent } from "@/firebase/services";
 
 import ImageAddIcon from "@/components/icons/ImageAddIcon";

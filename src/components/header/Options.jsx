@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/config";
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const Options = () => {

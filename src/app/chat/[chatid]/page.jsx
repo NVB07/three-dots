@@ -3,18 +3,23 @@ import ChatContent from "@/components/pages/chat/ChatContent";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
 import { fireStore } from "@/firebase/config";
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
 const ChatPage = ({ params }) => {
     const { authUserData } = useContext(AuthContext);
     const [permissions, setPermissions] = useState(false);
+    const [users, setUsers] = useState(null);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         setLoading(true);
         const unsub = onSnapshot(doc(fireStore, "roomsChat", params.chatid), (doc) => {
-            const myPermissions = doc.data()?.user.find((e) => {
-                return e.uid === authUserData.uid;
-            });
-            setPermissions(myPermissions);
+            // const myPermissions = doc.data()?.user.find((e) => {
+            //     return e.uid === authUserData.uid;
+            // });
+            const data = doc.data();
+            if (data.user && data.user.includes(authUserData.uid)) {
+                setPermissions(true);
+                setUsers(data.user);
+            }
         });
         setLoading(false);
 
@@ -29,7 +34,7 @@ const ChatPage = ({ params }) => {
     }
     return (
         <>
-            <ChatContent param={params.chatid} />
+            <ChatContent param={params.chatid} users={users} />
         </>
     );
 };

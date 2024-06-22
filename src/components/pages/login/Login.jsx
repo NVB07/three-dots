@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { auth } from "@/firebase/config";
 import { addUser } from "@/firebase/services";
 
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
 import GoogleIcon from "@/components/icons/GoogleIcon";
 import Logo from "@/components/icons/Logo";
 import GithubIcon from "@/components/icons/GithubIcon";

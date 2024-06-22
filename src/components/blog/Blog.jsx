@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
+import { useRouter } from "next13-progressbar";
 import { useState, Fragment, useCallback, useEffect, useContext } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -32,7 +33,8 @@ import CountReact from "./CountReact";
 
 import { fireStore } from "@/firebase/config";
 import { onSnapshot, doc } from "firebase/firestore";
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
+import DialogComment from "./DialogComment";
 
 const Blog = ({ blogDetails = false, blogid, authorid }) => {
     const { authUserData } = useContext(AuthContext);
@@ -198,12 +200,14 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                 </div>
             </div>
             <div className="flex-1 ">
-                <div className="w-full flex justify-between h-5 mb-1.5">
-                    <div className=" flex items-end">
+                <div className="w-full flex justify-between  mb-1.5">
+                    <div className=" flex flex-col items-start">
                         <Link href={"/user/@" + authorData?.uid} className="font-semibold hover:underline">
-                            {authorData?.displayName ? authorData?.displayName : "username"}
+                            {authorData?.displayName ? authorData?.displayName : <Skeleton className="h-5 mb-1 w-32 rounded-lg" />}
                         </Link>
-                        <div className="text-[#acacac] text-sm sm:text-base ml-4">{thisBlogData?.createAt ? handleConvertDate(thisBlogData?.createAt) : "..."}</div>
+                        <div className="text-[#acacac] text-xs ">
+                            {thisBlogData?.createAt ? handleConvertDate(thisBlogData?.createAt) : <Skeleton className="h-4  w-28 rounded-lg" />}
+                        </div>
                     </div>
                     <div className="flex items-center">
                         <>
@@ -304,14 +308,17 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                     </div>
                     {!blogDetails && (
                         <div className="w-9 h-9 mr-1">
-                            <Button
-                                onClick={viewBlog}
-                                variant="ghost"
-                                size="icon"
-                                className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1.5"
-                            >
-                                <CommentIcon width={22} height={22} />
-                            </Button>
+                            <DialogComment
+                                thisBlogData={thisBlogData}
+                                authorData={authorData}
+                                handleConvertDate={handleConvertDate}
+                                handleCopyLink={handleCopyLink}
+                                handleLikePost={handleLikePost}
+                                blogid={blogid}
+                                imageLoader={imageLoader}
+                                likePost={likePost}
+                                authCurrentUser={authUserData}
+                            ></DialogComment>
                         </div>
                     )}
                     <div className="w-9 h-9 mr-1">

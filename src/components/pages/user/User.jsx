@@ -9,7 +9,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 import Blog from "../../blog/Blog";
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
 import EditProfile from "./EditProfile";
 import LoadMore from "@/components/loadMore/LoadMore";
 
@@ -65,18 +65,7 @@ const User = ({ param }) => {
                     try {
                         const addChat = async () => {
                             const documentID = await addDocument("roomsChat", {
-                                user: [
-                                    {
-                                        name: authUserData.displayName || "",
-                                        uid: authUserData.uid || "",
-                                        photoURL: authUserData.photoURL || "",
-                                    },
-                                    {
-                                        name: userData.displayName || "",
-                                        uid: userData.uid || "",
-                                        photoURL: userData.photoURL || "",
-                                    },
-                                ],
+                                user: [authUserData.uid, userData.uid],
                             });
                             router.push("/chat/" + documentID);
                         };

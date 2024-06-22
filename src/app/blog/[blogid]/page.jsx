@@ -2,7 +2,7 @@
 import { doc, onSnapshot } from "firebase/firestore";
 import { useContext, useEffect, useState, memo, useCallback } from "react";
 import { fireStore } from "@/firebase/config";
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
 import Blog from "@/components/blog/Blog";
 import Comment from "@/components/pages/comment/Comment";
 

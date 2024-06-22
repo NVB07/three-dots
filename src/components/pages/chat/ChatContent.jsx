@@ -1,7 +1,7 @@
 "use client";
 import { useContext, useEffect, useState, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
-import { collection, query, onSnapshot, orderBy, doc } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, doc, getDoc } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,9 +25,9 @@ import ChatInput from "./ChatInput";
 import OptionIcon from "@/components/icons/OptionIcon";
 import CloseIcon from "@/components/icons/CloseIcon";
 import TrashIcon from "@/components/icons/TrashIcon";
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
 
-const ChatContent = ({ param }) => {
+const ChatContent = ({ param, users }) => {
     const router = useRouter();
     const { authUserData } = useContext(AuthContext);
     const [messageData, setMessageData] = useState([]);
@@ -56,18 +56,31 @@ const ChatContent = ({ param }) => {
         });
         return () => unsubscribe();
     }, []);
+    // useEffect(() => {
+    //     const unsub = onSnapshot(doc(fireStore, "roomsChat", param), (doc) => {
+    //         if (doc && doc.data()) {
+    //             const frientData = doc.data().user.find((e) => {
+    //                 return e.uid !== authUserData.uid;
+    //             });
+    //             setFriendData(frientData);
+    //         }
+    //         return null;
+    //     });
+    //     return () => unsub();
+    // }, []);
     useEffect(() => {
-        const unsub = onSnapshot(doc(fireStore, "roomsChat", param), (doc) => {
-            if (doc && doc.data()) {
-                const frientData = doc.data().user.find((e) => {
-                    return e.uid !== authUserData.uid;
-                });
-                setFriendData(frientData);
+        const getFriend = async () => {
+            if (users) {
+                const uidFriend = users.filter((uid) => uid !== authUserData.uid);
+                const docRef = doc(fireStore, "users", uidFriend[0]);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    setFriendData(docSnap.data());
+                }
             }
-            return null;
-        });
-        return () => unsub();
-    }, []);
+        };
+        return () => getFriend();
+    }, [users]);
 
     const viewProfile = () => {
         router.push("/user/@" + friendData?.uid);
@@ -81,7 +94,7 @@ const ChatContent = ({ param }) => {
                         <AvatarImage src={friendData?.photoURL} alt="@shadcn" />
                         <AvatarFallback>IMG</AvatarFallback>
                     </Avatar>
-                    <div className="text-lg">{friendData?.name}</div>
+                    <div className="text-lg">{friendData?.displayName}</div>
                 </div>
                 <div>
                     <Popover>

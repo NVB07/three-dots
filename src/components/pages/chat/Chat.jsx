@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 import WriteBlogIcon from "@/components/icons/WriteBlogIcon";
 
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
 
 import ListRoomChat from "./ListRoomChat";
 

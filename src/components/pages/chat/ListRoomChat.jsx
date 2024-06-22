@@ -4,7 +4,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import RoomChat from "./RoomChat";
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
 
 const ListRoomChat = () => {
     const { authUserData } = useContext(AuthContext);
@@ -12,28 +12,26 @@ const ListRoomChat = () => {
 
     useEffect(() => {
         const unsubscribe = onSnapshot(collection(fireStore, "roomsChat"), (snapshot) => {
-            const docsArray = [];
+            const docsWithUserUid = [];
             snapshot.forEach((doc) => {
-                docsArray.push({
-                    id: doc.id,
-                    ...doc.data(),
-                });
+                const data = doc.data();
+                if (data.user && data.user.includes(authUserData.uid)) {
+                    docsWithUserUid.push({
+                        id: doc.id,
+                        user: data.user,
+                    });
+                }
             });
-
-            const resultId = docsArray.filter((item) => item.user.some((user) => user.uid === authUserData.uid));
-
-            resultId ? setListRoomChat(resultId) : null;
+            console.log(docsWithUserUid);
+            setListRoomChat(docsWithUserUid);
         });
         return () => unsubscribe();
     }, []);
+
     return (
         <ScrollArea className="h-[calc(100vh-140px)] w-full rounded-md  sm:pl-3">
             {listRoomChat.map((room) => {
-                const friendData = room.user.find(function (e) {
-                    return e.uid !== authUserData.uid;
-                });
-
-                return <RoomChat uid={room.id} key={room.id} name={friendData.name} avatarSRC={friendData.photoURL} />;
+                return <RoomChat room={room} key={room.id} authUserData={authUserData} />;
             })}
         </ScrollArea>
     );

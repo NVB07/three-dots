@@ -10,7 +10,7 @@ import CloseIcon from "@/components/icons/CloseIcon";
 import TrashIcon from "@/components/icons/TrashIcon";
 
 import { deleteSubDocument } from "@/firebase/services";
-import { AuthContext } from "@/auth/AuthProvider";
+import { AuthContext } from "@/context/AuthProvider";
 
 const CommentItem = ({ content = "", displayName = "", photoURL = "", uid = "", time = "", commentId = "", blogId = "", currentUser }) => {
     const { authUserData } = useContext(AuthContext);
