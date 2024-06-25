@@ -22,7 +22,6 @@ const ListRoomChat = () => {
                     });
                 }
             });
-            console.log(docsWithUserUid);
             setListRoomChat(docsWithUserUid);
         });
         return () => unsubscribe();

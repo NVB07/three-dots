@@ -41,6 +41,7 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
     const [openOption, setOpenOption] = useState(); // Mở đóng dialog
     const [authorData, setAuthorData] = useState(); // dữ liệu cá nhân tác giả
 
+    const [imageLoading, setImageLoading] = useState(true);
     const [thisBlogData, setThisBlogData] = useState(); // dữ liệu blog
     const [likePost, setLikePost] = useState(false); // trạng thái like của người dùng hiện tại
 
@@ -168,7 +169,6 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
 
     // xem chi tiết blog (cmt)
     const viewBlog = () => {
-        console.log(thisBlogData);
         router.push("/blog/" + blogid);
     };
 
@@ -189,6 +189,7 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                                 height={36}
                                 alt={"Ảnh đại diện của " + authorData?.displayName}
                                 className="w-9 h-9 rounded-full "
+                                quality={50}
                             />
                         ) : (
                             <Skeleton className="h-9 w-9 rounded-full" />
@@ -206,7 +207,7 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                             {authorData?.displayName ? authorData?.displayName : <Skeleton className="h-5 mb-1 w-32 rounded-lg" />}
                         </Link>
                         <div className="text-[#acacac] text-xs ">
-                            {thisBlogData?.createAt ? handleConvertDate(thisBlogData?.createAt) : <Skeleton className="h-4  w-28 rounded-lg" />}
+                            {authorData && thisBlogData?.createAt ? handleConvertDate(thisBlogData?.createAt) : <Skeleton className="h-4  w-28 rounded-lg" />}
                         </div>
                     </div>
                     <div className="flex items-center">
@@ -272,19 +273,22 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                     </div>
                 </div>
                 <div className="mb-2 text-[15px] ">
-                    {thisBlogData?.post.content.split("|~n|").map((part, index) => (
-                        <Fragment key={index}>
-                            {part}
-                            {index < thisBlogData?.post.content.split("|~n|").length - 1 && <br />}
-                        </Fragment>
-                    ))}
+                    {authorData && thisBlogData
+                        ? thisBlogData?.post.content.split("|~n|").map((part, index) => (
+                              <Fragment key={index}>
+                                  {part}
+                                  {index < thisBlogData?.post.content.split("|~n|").length - 1 && <br />}
+                              </Fragment>
+                          ))
+                        : thisBlogData?.post.content && <Skeleton className="w-full h-5" />}
                 </div>
-                <div className="w-fit">
-                    {thisBlogData?.post.imageURL ? (
+
+                <div className="w-full h-fit ">
+                    {authorData && thisBlogData?.post.imageURL ? (
                         <Image
                             loader={imageLoader}
                             priority
-                            style={{ width: "auto", height: "auto" }}
+                            style={{ width: "auto", height: "auto", maxHeight: "384px" }}
                             src={thisBlogData?.post.imageURL}
                             width={600}
                             height={300}
@@ -293,8 +297,11 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                             placeholder="blur"
                             className="rounded"
                         />
-                    ) : null}
+                    ) : (
+                        thisBlogData?.post.imageURL && <Skeleton className="w-full h-80 rounded" />
+                    )}
                 </div>
+
                 <div className="mt-2.5 flex items-center">
                     <div className="w-9 h-9 mr-1">
                         <Button

@@ -20,11 +20,11 @@ const Search = () => {
     const removeSearchValue = () => {
         setSearchValue("");
         inputRef.current.focus();
+        setSearchBlogResults([]);
     };
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && searchValue.trim()) {
             e.preventDefault();
-            console.log(searchValue);
             getSearchBlogs();
         }
     };
@@ -35,15 +35,13 @@ const Search = () => {
                 "post.searchKeywords",
                 "array-contains-any",
                 searchValue.split(" ").map((keyword) => keyword.toUpperCase())
-            ),
-            limit(5)
+            )
         );
         const querySnapshot = await getDocs(queryParam);
         const results = [];
         querySnapshot.forEach((doc) => {
             results.push({ id: doc.id, ...doc.data() });
         });
-        console.log(results);
         setSearchBlogResults(results);
     };
 
@@ -67,7 +65,7 @@ const Search = () => {
                     )}
                 </div>
                 {searchBlogResults.map((item, index) => {
-                    return <SearchResults key={index} content={item.post.content} />;
+                    return <SearchResults key={index} link={"/blog/" + item.id} authorId={item.author.uid} content={item.post.content} />;
                 })}
             </div>
         </div>

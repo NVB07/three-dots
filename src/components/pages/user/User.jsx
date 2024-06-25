@@ -1,7 +1,8 @@
 "use client";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
+import { useRouter } from "next13-progressbar";
 import { useContext, useEffect, useState, memo, useCallback } from "react";
-import { collection, query, onSnapshot, orderBy, where, getCountFromServer, limit } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, where, getCountFromServer, limit, getDocs } from "firebase/firestore";
 import { addDocument, snapshotDoc } from "@/firebase/services";
 import { fireStore } from "@/firebase/config";
 import Image from "next/image";
@@ -45,36 +46,33 @@ const User = ({ param }) => {
 
     const handleChat = async () => {
         if (authUserData && userData) {
-            onSnapshot(collection(fireStore, "roomsChat"), (snapshot) => {
-                const docsArray = [];
-                snapshot.forEach((doc) => {
-                    docsArray.push({
-                        id: doc.id,
-                        ...doc.data(),
-                    });
+            const querySnapshot = await getDocs(query(collection(fireStore, "roomsChat")));
+            const docsArray = [];
+            querySnapshot.forEach((doc) => {
+                docsArray.push({
+                    id: doc.id,
+                    ...doc.data(),
                 });
+            });
+            const resultId = docsArray.find((item) => {
+                if (item.user?.includes(authUserData.uid) && item.user?.includes(userData.uid)) return item.id;
+            });
 
-                const resultId = docsArray.find((item) => {
-                    const uids = item.user.map((user) => user.uid);
-                    return uids.includes(userData.uid) && uids.includes(authUserData.uid);
-                });
-
-                if (resultId) {
-                    router.push("/chat/" + resultId.id);
-                } else {
+            if (resultId) {
+                router.push("/chat/" + resultId.id);
+            } else {
+                const addChat = async () => {
                     try {
-                        const addChat = async () => {
-                            const documentID = await addDocument("roomsChat", {
-                                user: [authUserData.uid, userData.uid],
-                            });
-                            router.push("/chat/" + documentID);
-                        };
-                        addChat();
+                        const documentID = await addDocument("roomsChat", {
+                            user: [authUserData.uid, userData.uid],
+                        });
+                        router.push("/chat/" + documentID);
                     } catch (error) {
                         console.error("Error adding document:", error);
                     }
-                }
-            });
+                };
+                addChat();
+            }
         } else {
             console.error("authUserData or userData is undefined");
         }

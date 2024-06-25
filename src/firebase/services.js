@@ -1,7 +1,7 @@
 import { addDoc, collection, serverTimestamp, deleteDoc, doc, updateDoc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
 import { fireStore, storage, auth } from "./config";
-import { updateProfile, updateEmail } from "firebase/auth";
+import { updateProfile } from "firebase/auth";
 
 export const snapshotDocument = (collectionName, docId, subcollectionName, callback) => {
     const docRef = doc(fireStore, collectionName, docId);
@@ -241,4 +241,19 @@ const getPathImage = (photoURL) => {
     const endIndex = photoURL.indexOf("?alt=");
     const encodedImagePath = photoURL.substring(startIndex, endIndex);
     return decodeURIComponent(encodedImagePath);
+};
+
+export const getDocument = async (collectionName, docId) => {
+    try {
+        const docRef = doc(fireStore, collectionName, docId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap;
+        } else {
+            console.log("No such document!");
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+    }
 };

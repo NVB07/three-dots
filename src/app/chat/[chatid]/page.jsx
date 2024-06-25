@@ -12,11 +12,8 @@ const ChatPage = ({ params }) => {
     useEffect(() => {
         setLoading(true);
         const unsub = onSnapshot(doc(fireStore, "roomsChat", params.chatid), (doc) => {
-            // const myPermissions = doc.data()?.user.find((e) => {
-            //     return e.uid === authUserData.uid;
-            // });
             const data = doc.data();
-            if (data.user && data.user.includes(authUserData.uid)) {
+            if (data && data.user && data.user.includes(authUserData.uid)) {
                 setPermissions(true);
                 setUsers(data.user);
             }

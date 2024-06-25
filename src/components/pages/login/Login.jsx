@@ -1,6 +1,6 @@
 "use client";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { auth } from "@/firebase/config";
 import { addUser } from "@/firebase/services";
 
@@ -32,6 +32,10 @@ const Login = () => {
             console.error("Lỗi đăng ký bằng Google", error);
         }
     };
+
+    useEffect(() => {
+        document.title = "Three dots";
+    }, []);
     const handleGithubSignUp = async () => {
         alert("chức năng đang được phát triển");
     };

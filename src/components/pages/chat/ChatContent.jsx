@@ -1,7 +1,7 @@
 "use client";
 import { useContext, useEffect, useState, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
-import { collection, query, onSnapshot, orderBy, doc, getDoc } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,6 +26,8 @@ import OptionIcon from "@/components/icons/OptionIcon";
 import CloseIcon from "@/components/icons/CloseIcon";
 import TrashIcon from "@/components/icons/TrashIcon";
 import { AuthContext } from "@/context/AuthProvider";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getDocument } from "@/firebase/services";
 
 const ChatContent = ({ param, users }) => {
     const router = useRouter();
@@ -56,30 +58,19 @@ const ChatContent = ({ param, users }) => {
         });
         return () => unsubscribe();
     }, []);
-    // useEffect(() => {
-    //     const unsub = onSnapshot(doc(fireStore, "roomsChat", param), (doc) => {
-    //         if (doc && doc.data()) {
-    //             const frientData = doc.data().user.find((e) => {
-    //                 return e.uid !== authUserData.uid;
-    //             });
-    //             setFriendData(frientData);
-    //         }
-    //         return null;
-    //     });
-    //     return () => unsub();
-    // }, []);
+
     useEffect(() => {
         const getFriend = async () => {
             if (users) {
                 const uidFriend = users.filter((uid) => uid !== authUserData.uid);
-                const docRef = doc(fireStore, "users", uidFriend[0]);
-                const docSnap = await getDoc(docRef);
+                const docSnap = await getDocument("users", uidFriend[0]);
                 if (docSnap.exists()) {
                     setFriendData(docSnap.data());
+                    document.title = "Nhắn tin với " + docSnap.data().displayName;
                 }
             }
         };
-        return () => getFriend();
+        getFriend();
     }, [users]);
 
     const viewProfile = () => {
@@ -92,9 +83,9 @@ const ChatContent = ({ param, users }) => {
                 <div className="flex items-center h-fit">
                     <Avatar className="mr-2">
                         <AvatarImage src={friendData?.photoURL} alt="@shadcn" />
-                        <AvatarFallback>IMG</AvatarFallback>
+                        <AvatarFallback></AvatarFallback>
                     </Avatar>
-                    <div className="text-lg">{friendData?.displayName}</div>
+                    <div className="text-lg">{friendData?.displayName ? friendData?.displayName : <Skeleton className={"w-52 h-6 rounded-3xl"} />}</div>
                 </div>
                 <div>
                     <Popover>
