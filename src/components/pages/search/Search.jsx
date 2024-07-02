@@ -65,7 +65,7 @@ const Search = () => {
                     )}
                 </div>
                 {searchBlogResults.map((item, index) => {
-                    return <SearchResults key={index} link={"/blog/" + item.id} authorId={item.author.uid} content={item.post.content} />;
+                    return <SearchResults key={index} link={"/blog/" + item.id} authorId={item.author.uid} content={item.post.searchKeywords.join(" ")} />;
                 })}
             </div>
         </div>

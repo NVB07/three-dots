@@ -113,12 +113,11 @@ const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, im
                         </div>
                     </div>
                     <div className="mb-2 text-[15px] ">
-                        {thisBlogData?.post.content.split("|~n|").map((part, index) => (
-                            <Fragment key={index}>
-                                {part}
-                                {index < thisBlogData?.post.content.split("|~n|").length - 1 && <br />}
-                            </Fragment>
-                        ))}
+                        <div
+                            style={{ wordBreak: "break-word" }}
+                            className="break-words max-w-full list-custom-text"
+                            dangerouslySetInnerHTML={{ __html: thisBlogData?.post.content }}
+                        />
                     </div>
                     <div className="w-fit">
                         {thisBlogData?.post.imageURL ? (

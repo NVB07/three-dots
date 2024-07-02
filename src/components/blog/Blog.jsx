@@ -229,7 +229,7 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                                         <NewBlog
                                             onClick={closeOption}
                                             blogid={blogid}
-                                            contentBlog={thisBlogData?.post.content.replace(/\|~n\|/g, "\n")}
+                                            contentBlog={thisBlogData?.post.content}
                                             buttonTitle={"Sửa bài viết"}
                                             styleButton="w-full rounded-none border-b border-solid border-[#8a8a8a3f]"
                                         />
@@ -273,14 +273,15 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                     </div>
                 </div>
                 <div className="mb-2 text-[15px] ">
-                    {authorData && thisBlogData
-                        ? thisBlogData?.post.content.split("|~n|").map((part, index) => (
-                              <Fragment key={index}>
-                                  {part}
-                                  {index < thisBlogData?.post.content.split("|~n|").length - 1 && <br />}
-                              </Fragment>
-                          ))
-                        : thisBlogData?.post.content && <Skeleton className="w-full h-5" />}
+                    {authorData && thisBlogData ? (
+                        <div
+                            style={{ wordBreak: "break-word" }}
+                            className="break-words max-w-full list-custom-text"
+                            dangerouslySetInnerHTML={{ __html: thisBlogData?.post.content }}
+                        />
+                    ) : (
+                        thisBlogData?.post.content && <Skeleton className="w-full h-5" />
+                    )}
                 </div>
 
                 <div className="w-full h-fit ">

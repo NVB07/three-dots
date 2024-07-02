@@ -3,7 +3,7 @@ import { ref, uploadString, getDownloadURL, deleteObject } from "firebase/storag
 import { fireStore, storage, auth } from "./config";
 import { updateProfile } from "firebase/auth";
 
-export const snapshotDocument = (collectionName, docId, subcollectionName, callback) => {
+export const snapshotSubColection = (collectionName, docId, subcollectionName, callback) => {
     const docRef = doc(fireStore, collectionName, docId);
     const subcollectionRef = collection(docRef, subcollectionName);
 
@@ -13,7 +13,7 @@ export const snapshotDocument = (collectionName, docId, subcollectionName, callb
     });
 };
 
-export const snapshotDoc = (collectionName, docId, callback) => {
+export const snapshotColection = (collectionName, docId, callback) => {
     const unsub = onSnapshot(doc(fireStore, collectionName, docId), (doc) => {
         const data = doc.data();
         callback(data);
@@ -44,7 +44,7 @@ export const addDocument = async (collectionName, data) => {
             createAt: serverTimestamp(),
         });
 
-        return docRef.id; // Trả về documentID để sử dụng nếu cần
+        return docRef.id;
     } catch (error) {
         console.error("Error add document:", error);
     }
@@ -56,7 +56,7 @@ export const addSubDocument = async (collectionName, documentID, subcolection, d
             sendTime: serverTimestamp(),
         });
 
-        return docRef.id; // Trả về documentID để sử dụng nếu cần
+        return docRef.id;
     } catch (error) {
         console.error("Error add document:", error);
     }
@@ -93,7 +93,6 @@ export const updateContent = async (documentId, newContent, newSearchKeywords) =
             "post.content": newContent,
             "post.searchKeywords": newSearchKeywords,
         });
-        console.log("Content updated successfully!");
     } catch (error) {
         console.error("Error updating content: ", error);
     }
@@ -129,7 +128,6 @@ export const handleLikeReact = async (uid, blogId, like) => {
     try {
         const blogRef = doc(fireStore, "blogs", blogId);
 
-        // Lấy dữ liệu của bài viết
         const blogSnap = await getDoc(blogRef);
 
         if (!blogSnap.exists()) {
@@ -139,22 +137,20 @@ export const handleLikeReact = async (uid, blogId, like) => {
         const blogData = blogSnap.data();
         let updatedLiked = [];
 
-        // Kiểm tra xem UID của người dùng đã có trong mảng liked chưa
         if (blogData.liked && Array.isArray(blogData.liked)) {
-            updatedLiked = [...blogData.liked]; // Sao chép mảng để không ảnh hưởng đến dữ liệu gốc
+            updatedLiked = [...blogData.liked];
 
             if (like && !updatedLiked.includes(uid)) {
-                updatedLiked.push(uid); // Thêm UID vào mảng nếu like và UID chưa tồn tại
+                updatedLiked.push(uid);
             } else if (!like && updatedLiked.includes(uid)) {
-                updatedLiked = updatedLiked.filter((id) => id !== uid); // Xóa UID khỏi mảng nếu unlike và UID tồn tại
+                updatedLiked = updatedLiked.filter((id) => id !== uid);
             }
         } else {
             if (like) {
-                updatedLiked.push(uid); // Tạo mảng mới và thêm UID vào nếu mảng liked chưa tồn tại và là lần like đầu tiên
+                updatedLiked.push(uid);
             }
         }
 
-        // Cập nhật trường liked của bài viết
         await updateDoc(blogRef, { liked: updatedLiked });
         return updatedLiked.length;
     } catch (error) {
@@ -192,14 +188,6 @@ export const updateUserProfile = async (displayName, photo) => {
             console.error("Error update basic information :", error);
             return false;
         });
-    // const updateEmailAddress = updateEmail(auth.currentUser, Email)
-    //     .then(() => {
-    //         return true;
-    //     })
-    //     .catch((error) => {
-    //         console.error("Error update basic information :", error);
-    //         return false;
-    //     });
     if (basicProfile) {
         return true;
     }

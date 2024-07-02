@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useContext } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import RoomChat from "./RoomChat";
@@ -11,7 +11,8 @@ const ListRoomChat = () => {
     const [listRoomChat, setListRoomChat] = useState([]);
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(fireStore, "roomsChat"), (snapshot) => {
+        const q = query(collection(fireStore, "roomsChat"), orderBy("createAt", "desc"));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
             const docsWithUserUid = [];
             snapshot.forEach((doc) => {
                 const data = doc.data();

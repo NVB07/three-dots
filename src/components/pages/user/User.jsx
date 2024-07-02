@@ -3,7 +3,7 @@
 import { useRouter } from "next13-progressbar";
 import { useContext, useEffect, useState, memo, useCallback } from "react";
 import { collection, query, onSnapshot, orderBy, where, getCountFromServer, limit, getDocs } from "firebase/firestore";
-import { addDocument, snapshotDoc } from "@/firebase/services";
+import { addDocument, snapshotColection } from "@/firebase/services";
 import { fireStore } from "@/firebase/config";
 import Image from "next/image";
 
@@ -26,7 +26,7 @@ const User = ({ param }) => {
     const router = useRouter();
 
     useEffect(() => {
-        snapshotDoc("users", param.replace("%40", ""), (data) => {
+        snapshotColection("users", param.replace("%40", ""), (data) => {
             setIsMyAccount(data.uid === authUserData.uid);
             setUserData(data);
         });

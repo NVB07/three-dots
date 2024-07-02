@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { snapshotDocument } from "@/firebase/services";
+import { snapshotSubColection } from "@/firebase/services";
 
 const CountReact = ({ blogid, like }) => {
     const [countComment, setCountComment] = useState(0);
     useEffect(() => {
-        const unsubscribe = snapshotDocument("blogs", blogid, "interact", (data) => {
+        const unsubscribe = snapshotSubColection("blogs", blogid, "interact", (data) => {
             setCountComment(data?.length);
         });
 

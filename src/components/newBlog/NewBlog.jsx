@@ -5,7 +5,6 @@ import { useContext, useState, useRef, useCallback, useEffect } from "react";
 
 import { Dialog, DialogContent, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { AuthContext } from "@/context/AuthProvider";
@@ -14,6 +13,7 @@ import { addDocument, addFileToStorage, updateContent } from "@/firebase/service
 import ImageAddIcon from "@/components/icons/ImageAddIcon";
 import CloseIcon from "@/components/icons/CloseIcon";
 import CheckIcon from "@/components/icons/CheckIcon";
+import TextEditor from "../textEditor/TextEditor";
 
 const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onClick }) => {
     const { authUserData } = useContext(AuthContext);
@@ -22,11 +22,11 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
     const [dialogNewBlog, setDialogNewBlog] = useState();
     const [previewImageState, setPreviewImageState] = useState(false);
     const [imageFile, setImageFile] = useState();
-    const [postContent, setPostContent] = useState(blogid ? contentBlog : "");
     const [loading, setLoading] = useState(false);
+    const [content, setContent] = useState(blogid ? contentBlog : "");
+    const [plainText, setPlainText] = useState("");
 
     const textareaRef = useRef(null);
-
     const openTextArea = () => {
         const textarea = textareaRef.current;
         if (textarea) {
@@ -54,7 +54,8 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
     };
     const handleRefresh = () => {
         setDialogNewBlog();
-        setPostContent("");
+        setContent("");
+        setPlainText("");
         handleRemoveImage();
         setImageFile(null);
         setPreviewImageState(false);
@@ -78,17 +79,16 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
 
     const handleEditPostContent = async () => {
         setLoading(true);
-        const formattedContent = postContent.trim().replace(/\n/g, "|~n|");
-        const newSearchKeywords = postContent
+        const searchKeywords = plainText
             .trim()
             .toUpperCase()
             .split(/[ \n]+/);
-        await updateContent(blogid, formattedContent, newSearchKeywords).then(() => {
+        await updateContent(blogid, content, searchKeywords).then(() => {
             setLoading(false);
             onClick();
             setDialogNewBlog(false);
             toast("Đã sửa bài viết", {
-                description: postContent.trim().length < 40 ? `${postContent.trim()}` : `${postContent.trim().slice(0, 40)}...`,
+                description: plainText.trim().length < 40 ? `${plainText.trim()}` : `${plainText.trim().slice(0, 40)}...`,
                 cancel: {
                     label: <CloseIcon />,
                     onClick: () => {},
@@ -97,16 +97,10 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
             });
         });
     };
-    const handleInputText = (e) => {
-        e.target.style.height = "auto";
-        e.target.style.height = e.target.scrollHeight + "px";
-        setPostContent(e.target.value);
-    };
 
     const handleNewPost = async () => {
         setLoading(true);
-        const formattedContent = postContent.trim().replace(/\n/g, "|~n|");
-        const searchKeywords = postContent
+        const searchKeywords = plainText
             .trim()
             .toUpperCase()
             .split(/[ \n]+/);
@@ -115,7 +109,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                 uid: authUserData?.uid,
             },
             post: {
-                content: formattedContent,
+                content: content,
                 searchKeywords: searchKeywords,
                 imageURL: imageFile ? await addFileToStorage(imageFile.reader?.result, "imagePostBlogs/", imageFile.name) : "",
                 reaction: {
@@ -136,7 +130,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                 setLoading(false);
                 setDialogNewBlog(false);
                 toast("Đã đăng bài viết", {
-                    description: postContent.trim().length < 40 ? `${postContent.trim()}` : `${postContent.trim().slice(0, 40)}...`,
+                    description: plainText.trim().length < 40 ? `${plainText.trim()}` : `${plainText.trim().slice(0, 40)}...`,
                     cancel: {
                         label: <CloseIcon />,
                         onClick: () => {},
@@ -146,7 +140,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
             })
             .catch(() => {
                 toast.error("Lỗi !", {
-                    description: postContent.trim().length < 40 ? `${postContent.trim()}` : `${postContent.trim().slice(0, 40)}...`,
+                    description: plainText.trim().length < 40 ? `${plainText.trim()}` : `${plainText.trim().slice(0, 40)}...`,
                     cancel: {
                         label: <CloseIcon />,
                         onClick: () => {},
@@ -181,13 +175,14 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                     <div className="flex-1">
                         <p className="text-base font-semibold">{authUserData?.displayName}</p>
                         <div className="sm:max-h-[400px] max-h-[300px] overflow-auto p-2">
-                            <Textarea
+                            {/* <Textarea
                                 ref={textareaRef}
                                 value={postContent}
                                 onChange={handleInputText}
                                 className="outline-none min-h-20 max-h-64 text-base bg-[hsl(var(--foreground)/5%)]"
                                 placeholder={blogid ? "Sửa bài viết" : "Bắt đầu bài viết."}
-                            />
+                            /> */}
+                            <TextEditor content={content} setContent={setContent} setPlainText={setPlainText} />
                             {previewImageState ? (
                                 <div className="w-[300px] pt-3 pr-3 relative">
                                     <Button onClick={handleRemoveImage} variant="secondary" className="rounded-full w-8 h-8 p-1.5 mt-2 absolute top-0 right-0">
@@ -208,7 +203,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                 <DialogFooter>
                     <Button
                         onClick={!blogid ? handleNewPost : handleEditPostContent}
-                        disabled={loading || (!postContent.trim() && !imageFile)}
+                        disabled={loading || (!plainText.trim() && !imageFile)}
                         className="select-none"
                         type="submit"
                     >

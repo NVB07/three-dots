@@ -33,7 +33,7 @@ const SearchResults = ({ link, authorId, content }) => {
                 ) : (
                     <Skeleton className={"w-36 h-4 mb-1 rounded"} />
                 )}
-                {resultData ? <p className="text-sm opacity-80 line-clamp-1">{content.replaceAll("|~n|", "")}</p> : <Skeleton className={"w-80 h-4 rounded"} />}
+                {resultData ? <p className="text-sm opacity-80 line-clamp-1">{content.toLowerCase()}</p> : <Skeleton className={"w-80 h-4 rounded"} />}
             </div>
         </Link>
     );

@@ -1,13 +1,51 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { addSubDocument } from "@/firebase/services";
 import { Button } from "@/components/ui/button";
 import ShareIcon from "@/components/icons/ShareIcon";
 import { Textarea } from "@/components/ui/textarea";
 
-const ChatInput = ({ documentId, currentUserData }) => {
+const ChatInput = ({ documentId, currentUserData, messageData, scrollRef }) => {
     const [message, setMessage] = useState("");
+    const [scroll, setScroll] = useState(false);
     const textareaRef = useRef(null);
+
+    let firstScroll = messageData.length === 0;
+    useEffect(() => {
+        scrollToBottom();
+    }, [firstScroll]);
+
+    const scrollToBottom = () => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    };
+    const handleScroll = () => {
+        if (scrollRef.current) {
+            const { scrollTop, clientHeight, scrollHeight } = scrollRef.current;
+            if (scrollHeight - scrollTop === clientHeight) {
+                setScroll(true);
+            } else {
+                setScroll(false);
+            }
+        }
+    };
+
+    useEffect(() => {
+        const scrollRefCurrent = scrollRef.current;
+        if (scrollRefCurrent) {
+            scrollRefCurrent.addEventListener("scroll", handleScroll);
+            return () => {
+                if (scrollRefCurrent) {
+                    scrollRefCurrent.removeEventListener("scroll", handleScroll);
+                }
+            };
+        }
+    }, []);
+
+    useEffect(() => {
+        if (scroll) scrollToBottom();
+    }, [messageData]);
 
     const handleInput = (e) => {
         e.target.style.height = "auto";
@@ -20,6 +58,7 @@ const ChatInput = ({ documentId, currentUserData }) => {
             e.preventDefault();
             if (message.trim()) {
                 handleSendMessage();
+                setScroll(true);
             }
         }
     };
@@ -30,7 +69,6 @@ const ChatInput = ({ documentId, currentUserData }) => {
             uid: currentUserData.uid,
         });
         setMessage("");
-
         textareaRef.current.style.height = "40px";
     };
     return (

@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import Message from "./Message";
 import ChatInput from "./ChatInput";
 import OptionIcon from "@/components/icons/OptionIcon";
@@ -35,26 +34,17 @@ const ChatContent = ({ param, users }) => {
     const [messageData, setMessageData] = useState([]);
     const [friendData, setFriendData] = useState();
 
+    const scrollableRef = useRef(null);
+    const scrollBarStyle = `::-webkit-scrollbar {width: 7px;}::-webkit-scrollbar-track {background: transparent;}::-webkit-scrollbar-thumb {background: hsl(var(--border)); border-radius:9999px;}::-webkit-scrollbar-thumb:hover {}`;
+
     useEffect(() => {
         const q = query(collection(fireStore, "roomsChat", param, "chat"), orderBy("sendTime", "asc"));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            querySnapshot.docChanges().forEach((change) => {
-                const doc = change.doc;
-                const messageData = { data: doc.data(), id: doc.id };
-                switch (change.type) {
-                    case "added":
-                        setMessageData((prevData) => [messageData, ...prevData]);
-                        break;
-                    case "modified":
-                        setMessageData((prevData) => prevData.map((post) => (post.id === doc.id ? messageData : post)));
-                        break;
-                    case "removed":
-                        setMessageData((prevData) => prevData.filter((post) => post.id !== doc.id));
-                        break;
-                    default:
-                        break;
-                }
+            let messageArray = [];
+            querySnapshot.forEach((doc) => {
+                messageArray.push({ data: doc.data(), id: doc.id });
             });
+            setMessageData(messageArray);
         });
         return () => unsubscribe();
     }, []);
@@ -121,17 +111,13 @@ const ChatContent = ({ param, users }) => {
                     </Popover>
                 </div>
             </div>
-            <ScrollArea className="sm:h-[calc(100vh-194px)] h-[calc(100vh-260px)] w-full rounded-md  pl-3 ">
-                {messageData
-                    .slice()
-                    .reverse()
-                    .map((chat) => {
-                        return (
-                            <MemoizedMessage key={chat.id} message={chat.data.content} myMessage={chat.data.uid === authUserData.uid} photoURL={friendData?.photoURL} />
-                        );
-                    })}
-            </ScrollArea>
-            <ChatInput documentId={param} currentUserData={authUserData} />
+            <div ref={scrollableRef} className="h-[calc(100vh-260px)] sm:h-[calc(100vh-194px)] w-full rounded-md overflow-y-scroll pl-3 ">
+                <style>{scrollBarStyle}</style>
+                {messageData.slice().map((chat) => {
+                    return <MemoizedMessage key={chat.id} message={chat.data.content} myMessage={chat.data.uid === authUserData.uid} photoURL={friendData?.photoURL} />;
+                })}
+            </div>
+            <ChatInput documentId={param} currentUserData={authUserData} messageData={messageData} scrollRef={scrollableRef} />
         </>
     );
 };
