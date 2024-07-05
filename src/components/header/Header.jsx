@@ -1,4 +1,4 @@
-import Logo from "@/components/icons/logo";
+import Logo from "../icons/logo";
 
 import Link from "next/link";
 import Navigate from "./Navigate";
