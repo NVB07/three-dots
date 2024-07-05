@@ -1,4 +1,4 @@
-import Logo from "../icons/logo";
+import Logo from "../icons/Logo";
 
 import Link from "next/link";
 import Navigate from "./Navigate";
