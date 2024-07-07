@@ -174,17 +174,27 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                     </div>
                     <div className="flex-1">
                         <p className="text-base font-semibold">{authUserData?.displayName}</p>
-                        <div className="sm:max-h-[400px] max-h-[300px] overflow-auto p-2">
-                            {/* <Textarea
-                                ref={textareaRef}
-                                value={postContent}
-                                onChange={handleInputText}
-                                className="outline-none min-h-20 max-h-64 text-base bg-[hsl(var(--foreground)/5%)]"
-                                placeholder={blogid ? "Sửa bài viết" : "Bắt đầu bài viết."}
-                            /> */}
+                        {/* <ScrollArea className="sm:max-h-[400px] max-h-[300px] p-2">
                             <TextEditor content={content} setContent={setContent} setPlainText={setPlainText} />
                             {previewImageState ? (
-                                <div className="w-[300px] pt-3 pr-3 relative">
+                                <div className="w-full max-w-[300px] pt-3 pr-3 relative">
+                                    <Button onClick={handleRemoveImage} variant="secondary" className="rounded-full w-8 h-8 p-1.5 mt-2 absolute top-0 right-0">
+                                        <CloseIcon />
+                                    </Button>
+                                    <img className="w-full h-auto rounded" src="#" alt="preview-image" ref={imagePreviewRef} />
+                                </div>
+                            ) : null}
+                            {!blogid && (
+                                <Button onClick={handleSelectImage} variant="ghost" className="rounded-full w-8 h-8 p-1.5 mt-2">
+                                    <ImageAddIcon />
+                                </Button>
+                            )}
+                            <input ref={inputImageRef} type="file" accept="image/*" hidden onChange={previewImage} />
+                        </ScrollArea> */}
+                        <div className="sm:max-h-[400px] max-h-[300px] overflow-auto p-2">
+                            <TextEditor content={content} setContent={setContent} setPlainText={setPlainText} />
+                            {previewImageState ? (
+                                <div className="w-full max-w-[300px] pt-3 pr-3 relative">
                                     <Button onClick={handleRemoveImage} variant="secondary" className="rounded-full w-8 h-8 p-1.5 mt-2 absolute top-0 right-0">
                                         <CloseIcon />
                                     </Button>

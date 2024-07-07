@@ -20,7 +20,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
     return (
         <>
-            <html lang="en" suppressHydrationWarning>
+            <html lang="vi" suppressHydrationWarning>
                 <body className={inter.className}>
                     <ProgressBar>
                         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
