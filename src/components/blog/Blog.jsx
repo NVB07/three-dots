@@ -97,7 +97,7 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
     }, [authorid]);
 
     // lấy đường dẫn ảnh của blog
-    const getPathImage = useCallback(() => {
+    const getPathImage = () => {
         if (thisBlogData?.post.imageURL) {
             const startIndex = thisBlogData?.post.imageURL.lastIndexOf("/") + 1;
             const endIndex = thisBlogData?.post.imageURL.indexOf("?alt=");
@@ -106,7 +106,7 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
             return decodeURIComponent(encodedImagePath);
         }
         return null;
-    }, []);
+    };
 
     // xử lí like/unlike
     const handleLikePost = () => {
@@ -116,7 +116,9 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
 
     // xử lí xóa blog
     const handleDelete = async () => {
-        await deleteDocument("blogs", blogid, getPathImage())
+        const pathImage = getPathImage();
+
+        await deleteDocument("blogs", blogid, pathImage)
             .then(() => {
                 toast("Đã xóa bài viết", {
                     cancel: {
