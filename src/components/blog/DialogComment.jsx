@@ -74,13 +74,13 @@ const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, im
     }, []);
 
     return (
-        <Dialog className="h-[1000px]">
+        <Dialog>
             <DialogTrigger asChild>
                 <Button variant="ghost" className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1.5">
                     <CommentIcon width={22} height={22} />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="w-full max-w-[620px] h-[calc(100vh-20px)] md:max-h-[calc(100vh-20px)] p-0.5 flex flex-col justify-between">
+            <DialogContent className="w-full max-w-[620px] h-[calc(100vh-100px)] md:h-[calc(100vh-20px)] md:max-h-[calc(100vh-20px)] p-0.5 flex flex-col justify-between">
                 <DialogHeader>
                     <DialogTitle className="p-6 pt-3 pb-0 text-base">Bài viết của {authorData?.displayName}</DialogTitle>
                 </DialogHeader>

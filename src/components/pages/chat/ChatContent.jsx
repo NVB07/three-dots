@@ -68,7 +68,7 @@ const ChatContent = ({ param, users }) => {
     };
 
     return (
-        <>
+        <div className="flex-1 w-full h-[calc(100vh-140px)] sm:h-[calc(100vh-74px)] overflow-y-hidden">
             <div className="flex justify-between sticky top-0 h-14 z-10 bg-background border-b pt-2 px-3">
                 <div className="flex items-center h-fit">
                     <Avatar className="mr-2">
@@ -118,7 +118,7 @@ const ChatContent = ({ param, users }) => {
                 })}
             </div>
             <ChatInput documentId={param} currentUserData={authUserData} messageData={messageData} scrollRef={scrollableRef} />
-        </>
+        </div>
     );
 };
 const MemoizedMessage = memo(Message);

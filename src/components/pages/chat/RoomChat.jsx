@@ -24,7 +24,7 @@ const RoomChat = ({ room, authUserData }) => {
                 <AvatarImage src={friendData?.photoURL} alt="@shadcn" />
                 <AvatarFallback></AvatarFallback>
             </Avatar>
-            <div className="ml-2 hidden sm:block text-base line-clamp-2">{friendData ? friendData.displayName : <Skeleton className="h-4  w-28 rounded-lg" />}</div>
+            <div className="ml-2  text-base line-clamp-2">{friendData ? friendData.displayName : <Skeleton className="h-4  w-28 rounded-lg" />}</div>
         </Link>
     );
 };
