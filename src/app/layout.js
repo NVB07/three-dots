@@ -29,7 +29,7 @@ export const metadata = {
         siteName: "Three dots",
         images: [
             {
-                url: "https://raw.githubusercontent.com/NVB07/three-dots/master/public/logo320.png", // Must be an absolute URL
+                url: "https://raw.githubusercontent.com/NVB07/three-dots/master/public/logo128.png", // Must be an absolute URL
                 width: 320,
                 height: 320,
             },

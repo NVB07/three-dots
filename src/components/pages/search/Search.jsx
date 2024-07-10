@@ -3,6 +3,8 @@ import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import CloseIcon from "@/components/icons/CloseIcon";
 import SearchIcon from "@/components/icons/SearchIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 import { fireStore } from "@/firebase/config";
 import { collection, query, where, limit, getDocs } from "firebase/firestore";
@@ -13,6 +15,7 @@ const Search = () => {
     const [searchValue, setSearchValue] = useState("");
     const [searchBlogResults, setSearchBlogResults] = useState([]);
     const [searchUserResults, setSearchUserResults] = useState([]);
+    const [searchHistory, setSearchHistory] = useState(false);
     const inputRef = useRef();
     const handleInput = (e) => {
         setSearchValue(e.target.value);

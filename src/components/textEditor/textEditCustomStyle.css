@@ -27,3 +27,10 @@
     @apply list-none;
     @apply pl-7; /* hoặc bất kỳ kiểu list-style nào mày muốn */
 }
+p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: #888; /* Màu của placeholder */
+    float: left;
+    height: 0;
+    pointer-events: none;
+}

@@ -17,6 +17,7 @@ import History from "@tiptap/extension-history";
 import Underline from "@tiptap/extension-underline";
 import BulletList from "@tiptap/extension-bullet-list";
 import ListItem from "@tiptap/extension-list-item";
+import Placeholder from "@tiptap/extension-placeholder";
 import OrderedList from "@tiptap/extension-ordered-list";
 
 import { Button } from "../ui/button";
@@ -40,17 +41,21 @@ const TextEditor = ({ setContent, content, setPlainText }) => {
             TextStyle,
             History,
             Color,
+            Placeholder.configure({
+                placeholder: "Viết trạng thái ...",
+            }),
             Link.configure({
                 openOnClick: false,
                 autolink: true,
                 defaultProtocol: "https",
+                protocols: ["ftp", "mailto", "https"],
                 HTMLAttributes: {
                     target: "_blank",
                     rel: "noopener noreferrer",
                     class: "text-[#5aa7ff] hover:underline",
                 },
             }),
-            Highlight.configure({ multicolor: true }),
+            Highlight.configure({ multicolor: false }),
         ],
         content: content,
     });

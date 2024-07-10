@@ -19,6 +19,7 @@ const User = ({ param }) => {
 
     const [userData, setUserData] = useState();
     const [isMyAccount, setIsMyAccount] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [initialPosts, setInitialPosts] = useState([]);
     const [additionalPosts, setAdditionalPosts] = useState([]);
     const [lastVisible, setLastVisible] = useState(null);
@@ -29,6 +30,7 @@ const User = ({ param }) => {
         snapshotColection("users", param.replace("%40", ""), (data) => {
             setIsMyAccount(data.uid === authUserData.uid);
             setUserData(data);
+            setIsLoading(false);
         });
     }, []);
 
@@ -173,7 +175,7 @@ const User = ({ param }) => {
                 {isMyAccount ? (
                     <EditProfile authUserData={authUserData} setAuthUserData={setAuthUserData} />
                 ) : (
-                    <Button onClick={handleChat} variant="" className="w-full font-bold">
+                    <Button disabled={isLoading} onClick={handleChat} variant="" className="w-full font-bold">
                         Nhắn tin
                     </Button>
                 )}
