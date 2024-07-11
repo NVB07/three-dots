@@ -60,7 +60,7 @@ const Login = () => {
                     <GoogleIcon />
                     Đăng nhập bằng <b className="mx-1">Google</b>
                 </button>
-                <button
+                {/* <button
                     className="mb-2 relative  hover:shadow hover:scale-105 transition-transform w-full max-w-[300px] flex font-medium items-center justify-center border border-[#525252] border-solid rounded-full p-2"
                     onClick={handleGithubSignUp}
                 >
@@ -73,7 +73,7 @@ const Login = () => {
                 >
                     <FacebookIcon />
                     Đăng nhập bằng <b className="mx-1">Facebook</b>
-                </button>
+                </button> */}
                 {/* <div className="w-28">
                     <ToggleTheme />
                 </div> */}
