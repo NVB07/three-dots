@@ -5,7 +5,7 @@ import { snapshotSubColection } from "@/firebase/services";
 const CountReact = ({ blogid, like }) => {
     const [countComment, setCountComment] = useState(0);
     useEffect(() => {
-        const unsubscribe = snapshotSubColection("blogs", blogid, "interact", (data) => {
+        const unsubscribe = snapshotSubColection("blogs", blogid, "comments", (data) => {
             setCountComment(data?.length);
         });
 
