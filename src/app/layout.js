@@ -53,7 +53,7 @@ export default function RootLayout({ children }) {
                     <ProgressBar>
                         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
                             <AuthProvider>
-                                <Toaster />
+                                <Toaster richColors />
                                 <Header />
                                 <BlogProvider>{children}</BlogProvider>
                                 <div className="backdrop-blur-md bg-[hsl(var(--background)/87%)] sticky w-full flex justify-center bottom-0 z-50 left-0 sm:hidden">

@@ -28,9 +28,11 @@ const User = ({ param }) => {
 
     useEffect(() => {
         snapshotColection("users", param.replace("%40", ""), (data) => {
-            setIsMyAccount(data.uid === authUserData.uid);
-            setUserData(data);
-            setIsLoading(false);
+            if (data) {
+                setIsMyAccount(data?.uid === authUserData.uid);
+                setUserData(data);
+                setIsLoading(false);
+            }
         });
     }, []);
 
@@ -145,9 +147,14 @@ const User = ({ param }) => {
     });
     const allPosts = Array.from(uniquePostsMap.values());
 
-    if (!authUserData) {
-        router.push("/login");
-        return;
+    if (!userData) {
+        return (
+            <div className="w-full pt-24 flex items-center justify-center">
+                <div className=" p-8 border-border border border-solid rounded-md">
+                    <p className="font-bold">Người dùng không tồn tại</p>
+                </div>
+            </div>
+        );
     }
 
     return (

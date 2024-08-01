@@ -37,7 +37,7 @@ const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, im
     };
     const handleSendComment = () => {
         const formattedComment = commentValue.trim().replace(/\n/g, "|~n|");
-        addSubDocument("blogs", blogid, "interact", {
+        addSubDocument("blogs", blogid, "comments", {
             comment: formattedComment,
             uid: authCurrentUser?.uid,
             displayName: authCurrentUser?.displayName,
@@ -47,7 +47,7 @@ const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, im
         textareaRef.current.style.height = "40px";
     };
     useEffect(() => {
-        const q = query(collection(fireStore, "blogs", blogid, "interact"), orderBy("sendTime", "asc"));
+        const q = query(collection(fireStore, "blogs", blogid, "comments"), orderBy("sendTime", "asc"));
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             querySnapshot.docChanges().forEach((change) => {

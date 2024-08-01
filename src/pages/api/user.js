@@ -1,4 +1,4 @@
-import { auth } from "@/firebase/firebaseAdmin";
+import { auth } from "@/lib/firebaseAdmin";
 export default async function handler(req, res) {
     // Lấy uid từ query parameters
     const { uid } = req.query;

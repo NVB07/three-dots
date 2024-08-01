@@ -2,55 +2,44 @@
 import { auth } from "@/firebase/config";
 import { useState, useEffect, createContext } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { useRouter } from "next/navigation";
-import Login from "@/components/pages/login/Login";
+import { useRouter, useSearchParams } from "next/navigation";
 import Loading from "@/components/pages/loading/Loading";
 import { getDocument } from "@/firebase/services";
 
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-    const [authUserData, setAuthUserData] = useState({});
+    const [authUserData, setAuthUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-
     const router = useRouter();
+    const searchParams = useSearchParams().get("next");
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const getUserData = async () => {
-                    const docSnap = await getDocument("users", user.uid);
-                    if (docSnap.exists()) {
-                        setAuthUserData(docSnap.data());
-                        setIsLoading(false);
-                    } else {
-                        const { displayName, email, uid, photoURL } = user;
-                        setAuthUserData({ displayName, email, uid, photoURL });
-                        console.log("No such document!");
-                    }
-                };
-                getUserData();
+                const docSnap = await getDocument("users", user.uid);
+                if (docSnap.exists()) {
+                    setAuthUserData(docSnap.data());
+                } else {
+                    const { displayName, email, uid, photoURL } = user;
+                    setAuthUserData({ displayName, email, uid, photoURL });
+                    console.log("No such document!");
+                }
             } else {
-                setIsLoading(false);
                 setAuthUserData(null);
-                router.push("/", { scroll: false });
+                router.push(searchParams && searchParams !== "/" ? `/login?next=${searchParams}` : "/login");
             }
+            setIsLoading(false);
         });
-        return () => unsubscribe();
-    }, []);
 
-    return (
-        <AuthContext.Provider value={{ authUserData, setAuthUserData }}>
-            {isLoading ? (
-                <Loading />
-            ) : authUserData ? (
-                children
-            ) : (
-                //
-                <Login />
-            )}
-        </AuthContext.Provider>
-    );
+        return () => unsubscribe();
+    }, [router]);
+
+    if (isLoading) {
+        return <Loading />;
+    }
+
+    return <AuthContext.Provider value={{ authUserData, setAuthUserData }}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;

@@ -3,23 +3,22 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useContext } from "react";
 import ToggleTheme from "./ToggleTheme";
 import { Button } from "@/components/ui/button";
-import { signOut } from "firebase/auth";
-import { useRouter } from "next/navigation";
-import { auth } from "@/firebase/config";
 import { AuthContext } from "@/context/AuthProvider";
 import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import useAuth from "@/customHook/useAuth";
 const Options = () => {
     const { authUserData } = useContext(AuthContext);
-    const router = useRouter();
+    const { logout } = useAuth();
+
     const handleSignOut = async () => {
         try {
-            await signOut(auth);
-            router.push("/");
+            await logout();
         } catch (error) {
-            console.error("Lỗi khi đăng xuất", error);
+            console.error("Error during logout:", error);
         }
     };
+
     return (
         <div>
             <Popover>

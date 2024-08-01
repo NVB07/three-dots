@@ -1,9 +1,15 @@
+"use client";
+import { AuthContext } from "@/context/AuthProvider";
+import { useContext } from "react";
 import Logo from "../icons/Logo";
-
 import Link from "next/link";
 import Navigate from "./Navigate";
 import Options from "./Options";
 const Header = () => {
+    const { authUserData } = useContext(AuthContext);
+    if (!authUserData) {
+        return null;
+    }
     return (
         <header className="w-full h-[74px] flex justify-center  backdrop-blur-md sticky top-0 left-0 z-50 bg-[hsl(var(--background)/87%)]">
             <div className="flex items-center justify-between max-w-[1230px] px-7 w-full ">

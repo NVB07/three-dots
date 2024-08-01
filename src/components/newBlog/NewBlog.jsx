@@ -112,24 +112,12 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                 content: content,
                 searchKeywords: searchKeywords,
                 imageURL: imageFile ? await addFileToStorage(imageFile.reader?.result, "imagePostBlogs/", imageFile.name) : "",
-                reaction: {
-                    liked: 0,
-                    comments: [
-                        {
-                            displayName: "",
-                            uid: "",
-                            photoURL: "",
-                            comment: "",
-                            liked: false,
-                        },
-                    ],
-                },
             },
         })
             .then(() => {
                 setLoading(false);
                 setDialogNewBlog(false);
-                toast("Đã đăng bài viết", {
+                toast.success("Đã đăng bài viết", {
                     description: plainText.trim().length < 40 ? `${plainText.trim()}` : `${plainText.trim().slice(0, 40)}...`,
                     cancel: {
                         label: <CloseIcon />,
@@ -165,7 +153,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                                 height={40}
                                 alt="avatar"
                                 quality={60}
-                                className="rounded-full border-border border border-solid "
+                                className="rounded-full border-border border border-solid w-10 h-10 "
                             />
                         ) : (
                             <Skeleton className="h-10 w-10 rounded-full" />
