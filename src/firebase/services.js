@@ -13,7 +13,7 @@ export const snapshotSubColection = (collectionName, docId, subcollectionName, c
     });
 };
 
-export const snapshotColection = (collectionName, docId, callback) => {
+export const snapshotCollection = (collectionName, docId, callback) => {
     const unsub = onSnapshot(doc(fireStore, collectionName, docId), (doc) => {
         const data = doc.data();
         callback(data);
@@ -63,17 +63,26 @@ export const addSubDocument = async (collectionName, documentID, subcolection, d
 };
 export const deleteDocument = async (collectionName, documentID, pathImage) => {
     try {
-        await deleteDoc(doc(fireStore, collectionName, documentID));
-        if (pathImage) {
-            const desertRef = ref(storage, pathImage);
-            deleteObject(desertRef)
-                .then(() => {})
-                .catch((error) => {
-                    console.error("Error delete img:", error);
-                });
+        const response = await fetch("/api/deleteDocument", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                collectionName,
+                documentID,
+                pathImage,
+            }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            return true;
+        } else {
+            return false;
         }
     } catch (error) {
-        console.error("Error delete document:", error);
+        console.error("Unexpected error:", error);
     }
 };
 

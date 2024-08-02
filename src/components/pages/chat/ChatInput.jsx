@@ -12,22 +12,26 @@ const ChatInput = ({ documentId, currentUserData, messageData, scrollRef }) => {
 
     let firstScroll = messageData.length === 0;
     useEffect(() => {
-        scrollToBottom();
+        // scrollToBottom();
+        const timeoutId = setTimeout(scrollToBottom, 2000);
+
+        return () => clearTimeout(timeoutId);
     }, [firstScroll]);
 
     const scrollToBottom = () => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            scrollRef.current.scrollTo({
+                top: scrollRef.current.scrollHeight,
+                behavior: "smooth",
+            });
         }
     };
     const handleScroll = () => {
         if (scrollRef.current) {
             const { scrollTop, clientHeight, scrollHeight } = scrollRef.current;
-            if (scrollHeight - scrollTop === clientHeight) {
-                setScroll(true);
-            } else {
-                setScroll(false);
-            }
+            const isNearBottom = scrollHeight - scrollTop - clientHeight <= 20;
+            setScroll(isNearBottom);
         }
     };
 

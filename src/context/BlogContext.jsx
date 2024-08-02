@@ -2,7 +2,7 @@
 import { createContext, useEffect, useState } from "react";
 import { collection, query, onSnapshot, orderBy, limit, getCountFromServer } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
-import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Cookies from "js-cookie";
 
 export const BlogContext = createContext();
 
@@ -16,26 +16,28 @@ export const BlogProvider = ({ children }) => {
         const coll = collection(fireStore, "blogs");
         const initialQuery = query(coll, orderBy("createAt", "desc"), limit(20));
 
-        const unsubscribe = onSnapshot(initialQuery, (querySnapshot) => {
-            const initialDocs = [];
-            let lastVisibleDoc = null;
-            querySnapshot.forEach((doc) => {
-                initialDocs.push({ data: doc.data(), id: doc.id });
-                lastVisibleDoc = doc;
+        if (Cookies.get("token")) {
+            const unsubscribe = onSnapshot(initialQuery, (querySnapshot) => {
+                const initialDocs = [];
+                let lastVisibleDoc = null;
+                querySnapshot.forEach((doc) => {
+                    initialDocs.push({ data: doc.data(), id: doc.id });
+                    lastVisibleDoc = doc;
+                });
+                setInitialPosts(initialDocs);
+                setLastVisible(lastVisibleDoc);
             });
-            setInitialPosts(initialDocs);
-            setLastVisible(lastVisibleDoc);
-        });
 
-        const unsubscribeCount = onSnapshot(coll, async () => {
-            const snapshot = await getCountFromServer(coll);
-            setCountDocument(snapshot.data().count);
-        });
+            const unsubscribeCount = onSnapshot(coll, async () => {
+                const snapshot = await getCountFromServer(coll);
+                setCountDocument(snapshot.data().count);
+            });
 
-        return () => {
-            unsubscribe();
-            unsubscribeCount();
-        };
+            return () => {
+                unsubscribe();
+                unsubscribeCount();
+            };
+        }
     }, []);
 
     const uniquePostsMap = new Map();

@@ -4,9 +4,12 @@ import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import RoomChat from "./RoomChat";
+import { NotificationContext } from "@/context/NotificationProvider";
 import { AuthContext } from "@/context/AuthProvider";
 
 const ListRoomChat = () => {
+    const { notifications } = useContext(NotificationContext);
+
     const { authUserData } = useContext(AuthContext);
     const [listRoomChat, setListRoomChat] = useState([]);
 
@@ -31,7 +34,7 @@ const ListRoomChat = () => {
     return (
         <ScrollArea className="h-[calc(100vh-140px)] w-full rounded-md  sm:pl-3">
             {listRoomChat.map((room) => {
-                return <RoomChat room={room} key={room.id} authUserData={authUserData} />;
+                return <RoomChat room={room} key={room.id} authUserData={authUserData} newMessage={notifications} />;
             })}
         </ScrollArea>
     );

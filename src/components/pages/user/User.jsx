@@ -3,7 +3,7 @@
 import { useRouter } from "next13-progressbar";
 import { useContext, useEffect, useState, memo, useCallback } from "react";
 import { collection, query, onSnapshot, orderBy, where, getCountFromServer, limit, getDocs } from "firebase/firestore";
-import { addDocument, snapshotColection } from "@/firebase/services";
+import { addDocument, snapshotCollection } from "@/firebase/services";
 import { fireStore } from "@/firebase/config";
 import Image from "next/image";
 
@@ -13,6 +13,7 @@ import Blog from "../../blog/Blog";
 import { AuthContext } from "@/context/AuthProvider";
 import EditProfile from "./EditProfile";
 import LoadMore from "@/components/loadMore/LoadMore";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const User = ({ param }) => {
     const { authUserData, setAuthUserData } = useContext(AuthContext);
@@ -27,12 +28,12 @@ const User = ({ param }) => {
     const router = useRouter();
 
     useEffect(() => {
-        snapshotColection("users", param.replace("%40", ""), (data) => {
+        snapshotCollection("users", param.replace("%40", ""), (data) => {
             if (data) {
                 setIsMyAccount(data?.uid === authUserData.uid);
                 setUserData(data);
-                setIsLoading(false);
             }
+            setIsLoading(false);
         });
     }, []);
 
@@ -147,7 +148,7 @@ const User = ({ param }) => {
     });
     const allPosts = Array.from(uniquePostsMap.values());
 
-    if (!userData) {
+    if (!isLoading && !userData) {
         return (
             <div className="w-full pt-24 flex items-center justify-center">
                 <div className=" p-8 border-border border border-solid rounded-md">
@@ -162,31 +163,41 @@ const User = ({ param }) => {
             <div className="px-3 sm:px-0">
                 <div className="full flex items-start mb-6">
                     <div className="w-1/2">
-                        <h3 className="text-xl font-bold">{userData?.displayName}</h3>
+                        <h3 className="text-xl font-bold">{isLoading ? <Skeleton className={"w-40 h-7 rounded-md"} /> : userData?.displayName}</h3>
                         <h2 className="text-sm italic mt-2">{userData?.email}</h2>
                     </div>
                     <div className="w-1/2 flex justify-end">
-                        {userData && (
-                            <Image
-                                width={80}
-                                height={80}
-                                className="rounded-full min-w-20 min-h-20 max-h-20 max-w-20 object-cover"
-                                placeholder="blur"
-                                blurDataURL="/blur.png"
-                                src={userData?.photoURL}
-                                alt="avt"
-                            />
+                        {isLoading ? (
+                            <Skeleton className={"w-20 h-20 rounded-full"} />
+                        ) : (
+                            userData && (
+                                <Image
+                                    width={80}
+                                    height={80}
+                                    className="rounded-full min-w-20 min-h-20 max-h-20 max-w-20 object-cover"
+                                    placeholder="blur"
+                                    blurDataURL="/blur.png"
+                                    src={userData?.photoURL}
+                                    alt="avt"
+                                />
+                            )
                         )}
                     </div>
                 </div>
-                {isMyAccount ? (
+                {isLoading ? (
+                    <Skeleton className={"w-full h-10 rounded-md"} />
+                ) : isMyAccount ? (
                     <EditProfile authUserData={authUserData} setAuthUserData={setAuthUserData} />
                 ) : (
                     <Button disabled={isLoading} onClick={handleChat} variant="" className="w-full font-bold">
                         Nhắn tin
                     </Button>
                 )}
-                <div className="w-full mt-5  p-1 font-semibold">{isMyAccount ? "Bài viết của tôi" : "Bài viết của " + userData?.displayName}</div>
+                {isLoading ? (
+                    <Skeleton className={"w-96 h-8 rounded mt-5 "} />
+                ) : (
+                    <div className="w-full mt-5  p-1 font-semibold">{isMyAccount ? "Bài viết của tôi" : "Bài viết của " + userData?.displayName}</div>
+                )}
             </div>
             <div className="mt-2">
                 {allPosts.map((post) => {

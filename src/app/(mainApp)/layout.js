@@ -5,10 +5,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header/Header";
 import AuthProvider from "@/context/AuthProvider";
+import { BlogProvider } from "@/context/BlogContext";
+import NotificationProvider from "@/context/NotificationProvider";
 import Navigate from "@/components/header/Navigate";
 import ProgressBar from "@/components/progress/ProgressBar";
-
-import { BlogProvider } from "@/context/BlogContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -47,23 +47,23 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
     return (
-        <>
-            <html lang="vi" suppressHydrationWarning>
-                <body className={inter.className}>
-                    <ProgressBar>
-                        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                            <AuthProvider>
-                                <Toaster richColors />
+        <html lang="vi" suppressHydrationWarning>
+            <body className={inter.className}>
+                <ProgressBar>
+                    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                        <AuthProvider>
+                            <Toaster richColors />
+                            <NotificationProvider>
                                 <Header />
                                 <BlogProvider>{children}</BlogProvider>
                                 <div className="backdrop-blur-md bg-[hsl(var(--background)/87%)] sticky w-full flex justify-center bottom-0 z-50 left-0 sm:hidden">
                                     <Navigate />
                                 </div>
-                            </AuthProvider>
-                        </ThemeProvider>
-                    </ProgressBar>
-                </body>
-            </html>
-        </>
+                            </NotificationProvider>
+                        </AuthProvider>
+                    </ThemeProvider>
+                </ProgressBar>
+            </body>
+        </html>
     );
 }

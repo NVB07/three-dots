@@ -1,7 +1,7 @@
 import { useSearchParams } from "next/navigation";
 import { signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut } from "firebase/auth";
-import { auth } from "../firebase/config"; // Đảm bảo đường dẫn chính xác
-import Cookies from "js-cookie"; // Sử dụng Cookies thay vì cookie
+import { auth } from "../firebase/config";
+import Cookies from "js-cookie";
 import { addUser } from "@/firebase/services";
 
 const useAuth = () => {
@@ -32,7 +32,11 @@ const useAuth = () => {
             }
 
             // Lưu token vào cookie
-            Cookies.set("token", token, { expires: 1 });
+            Cookies.set("token", token, {
+                expires: 1,
+                secure: process.env.NODE_ENV === "production", // Chỉ gửi cookie qua HTTPS
+                sameSite: "Strict", // Ngăn chặn CSRF
+            });
 
             // Chuyển hướng về trang đích hoặc trang chủ
             // router.push(next);
@@ -67,7 +71,11 @@ const useAuth = () => {
             }
 
             // Lưu token vào cookie
-            Cookies.set("token", token, { expires: 1 });
+            Cookies.set("token", token, {
+                expires: 1,
+                secure: process.env.NODE_ENV === "production", // Chỉ gửi cookie qua HTTPS
+                sameSite: "Strict", // Ngăn chặn CSRF
+            });
 
             window.location.href = next || "/";
         } catch (error) {
@@ -81,7 +89,7 @@ const useAuth = () => {
             // Xóa token khỏi cookie
             Cookies.remove("token");
 
-            window.location.href = "/login";
+            // window.location.href = "/login";
         } catch (error) {
             console.error("Error signing out:", error);
         }

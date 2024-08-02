@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getDocument } from "@/firebase/services";
-const RoomChat = ({ room, authUserData }) => {
+const RoomChat = ({ room, authUserData, newMessage = [] }) => {
+    const notification = newMessage.find((id) => id === room.id);
     const [friendData, setFriendData] = useState();
     useEffect(() => {
         const getFriend = async () => {
@@ -24,7 +25,12 @@ const RoomChat = ({ room, authUserData }) => {
                 <AvatarImage src={friendData?.photoURL} alt="@shadcn" />
                 <AvatarFallback></AvatarFallback>
             </Avatar>
-            <div className="ml-2  text-base line-clamp-2">{friendData ? friendData.displayName : <Skeleton className="h-4  w-28 rounded-lg" />}</div>
+            <div className="ml-2  text-base line-clamp-2 flex-1">
+                <div className={`${notification ? "font-bold" : "font-normal"}`}>
+                    {friendData ? friendData.displayName : <Skeleton className="h-4  w-28 rounded-lg" />}
+                </div>
+                <div className="italic text-xs text-amber-600"> {notification && "Có tin nhắn mới"}</div>
+            </div>
         </Link>
     );
 };

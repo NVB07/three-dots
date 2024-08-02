@@ -19,7 +19,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteDocument, handleLikeReact } from "@/firebase/services";
+import { handleLikeReact } from "@/firebase/services";
+import useDeleteDoc from "@/customHook/useDeleteDoc";
 
 import NewBlog from "../newBlog/NewBlog";
 
@@ -35,18 +36,25 @@ import { fireStore } from "@/firebase/config";
 import { onSnapshot, doc } from "firebase/firestore";
 import { AuthContext } from "@/context/AuthProvider";
 import DialogComment from "./DialogComment";
+import { useQuery } from "@tanstack/react-query";
 
 const Blog = ({ blogDetails = false, blogid, authorid }) => {
+    // const { data, error, isLoading } = useQuery({
+    //     queryKey: ["blogData"],
+    //     queryFn: getTodos,
+    //     staleTime: Infinity,
+    // });
+
     const { authUserData } = useContext(AuthContext);
     const [openOption, setOpenOption] = useState(); // Mở đóng dialog
     const [authorData, setAuthorData] = useState(); // dữ liệu cá nhân tác giả
 
-    const [imageLoading, setImageLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [thisBlogData, setThisBlogData] = useState(); // dữ liệu blog
     const [likePost, setLikePost] = useState(false); // trạng thái like của người dùng hiện tại
 
     const router = useRouter();
-
+    const { deleteDocument } = useDeleteDoc();
     // định dạng thời gian
     const handleConvertDate = useCallback((timestamp) => {
         if (timestamp) {
@@ -75,7 +83,7 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                 setThisBlogData(blogData);
                 setLikePost(
                     blogData?.liked?.find((uid) => {
-                        return uid === authUserData.uid;
+                        return uid === authUserData?.uid;
                     })
                 );
             });
@@ -110,33 +118,34 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
 
     // xử lí like/unlike
     const handleLikePost = () => {
-        handleLikeReact(authUserData.uid, blogid, !likePost);
+        handleLikeReact(authUserData?.uid, blogid, !likePost);
         setLikePost((prev) => !prev);
     };
 
     // xử lí xóa blog
     const handleDelete = async () => {
+        setLoading(true);
+        setOpenOption(false);
         const pathImage = getPathImage();
-
-        await deleteDocument("blogs", blogid, pathImage)
-            .then(() => {
-                toast("Đã xóa bài viết", {
-                    cancel: {
-                        label: <CloseIcon />,
-                        onClick: () => {},
-                    },
-                    icon: <TrashIcon />,
-                });
-                blogDetails && router.push("/");
-            })
-            .catch(() => {
-                toast.error("Lỗi khi xóa bài", {
-                    action: {
-                        label: <CloseIcon />,
-                        onClick: () => {},
-                    },
-                });
+        const success = await deleteDocument("blogs", blogid, pathImage);
+        if (success) {
+            toast.success("Đã xóa bài viết", {
+                cancel: {
+                    label: <CloseIcon />,
+                    onClick: () => {},
+                },
+                icon: <TrashIcon />,
             });
+        } else {
+            toast.error("Lỗi khi xóa bài", {
+                action: {
+                    label: <CloseIcon />,
+                    onClick: () => {},
+                },
+            });
+            setOpenOption();
+            setLoading(false);
+        }
     };
 
     // xử lí sao chép liên kết blog
@@ -180,7 +189,8 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
     };
 
     return (
-        <div className="p-3  border-t border-solid border-[#8a8a8a3f] flex">
+        <div className="p-3  border-t border-solid border-[#8a8a8a3f] flex relative">
+            {loading ? <Skeleton className="w-full absolute opacity-80 h-full rounded-md z-50 top-0 left-0"></Skeleton> : null}
             <div className="min-w-12 w-12 max-w-12 flex flex-col">
                 <Link href={"/user/@" + authorData?.uid}>
                     <div className="{style.modalCard}">
@@ -214,7 +224,7 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                     </div>
                     <div className="flex items-center">
                         <>
-                            {thisBlogData?.author.uid === authUserData.uid ? (
+                            {thisBlogData?.author.uid === authUserData?.uid ? (
                                 <Popover onOpenChange={setOpenOption} open={openOption}>
                                     <PopoverTrigger asChild>
                                         <Button variant="ghost" size="icon" className="rounded-full w-7 h-7">

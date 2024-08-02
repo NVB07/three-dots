@@ -6,27 +6,29 @@ import { fireStore } from "@/firebase/config";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+// import {
+//     AlertDialog,
+//     AlertDialogAction,
+//     AlertDialogCancel,
+//     AlertDialogContent,
+//     AlertDialogDescription,
+//     AlertDialogFooter,
+//     AlertDialogHeader,
+//     AlertDialogTitle,
+//     AlertDialogTrigger,
+// } from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
 import Message from "./Message";
 import ChatInput from "./ChatInput";
 import OptionIcon from "@/components/icons/OptionIcon";
-import CloseIcon from "@/components/icons/CloseIcon";
-import TrashIcon from "@/components/icons/TrashIcon";
-import { AuthContext } from "@/context/AuthProvider";
+// import CloseIcon from "@/components/icons/CloseIcon";
+// import TrashIcon from "@/components/icons/TrashIcon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getDocument } from "@/firebase/services";
+//context
+
+import { AuthContext } from "@/context/AuthProvider";
 
 const ChatContent = ({ param, users }) => {
     const router = useRouter();
@@ -44,6 +46,7 @@ const ChatContent = ({ param, users }) => {
             querySnapshot.forEach((doc) => {
                 messageArray.push({ data: doc.data(), id: doc.id });
             });
+            // setNotifications(messageArray.slice(-1)[0]?.data.uid !== authUserData.uid);
             setMessageData(messageArray);
         });
         return () => unsubscribe();

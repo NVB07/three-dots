@@ -6,17 +6,13 @@ import Logo from "@/components/icons/Logo";
 import GithubIcon from "@/components/icons/GithubIcon";
 import FacebookIcon from "@/components/icons/FacebookIcon";
 import useAuth from "@/customHook/useAuth";
-import { AuthContext } from "@/context/AuthProvider";
 
 const Login = () => {
     const { loginWithGoogle, loginWithGithub } = useAuth();
-    const { authUserData } = useContext(AuthContext);
     const handleFacebookSignUp = async () => {
         toast.info("chức năng đang được phát triển");
     };
-    if (authUserData) {
-        return null;
-    }
+
     return (
         <div className="w-full h-screen flex items-center justify-center">
             <Toaster position="top-center" richColors />
