@@ -3,12 +3,13 @@ import { createContext, useState, useEffect, useContext } from "react";
 import { collection, query, onSnapshot, orderBy, where, limit } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
 import { AuthContext } from "@/context/AuthProvider";
+import useAlarm from "@/customHook/useAlarm";
 export const NotificationContext = createContext();
 
 const NotificationProvider = ({ children }) => {
     const { authUserData } = useContext(AuthContext);
     const [notifications, setNotifications] = useState([]);
-    const audio = new Audio("/ping.mp3");
+    const { audioPlay, audioPause } = useAlarm();
 
     useEffect(() => {
         const coll = collection(fireStore, "roomsChat");
@@ -25,11 +26,17 @@ const NotificationProvider = ({ children }) => {
                         const chatData = chatDoc.data();
                         if (chatData.uid !== authUserData.uid) {
                             notificationArray.push(chatRoomId);
-                            audio.play();
+                            const localAllow = JSON.parse(localStorage.getItem("ping"));
+                            if (localAllow) {
+                                audioPlay();
+                            } else {
+                                audioPause();
+                            }
                         } else {
                             notificationArray = notificationArray.filter((id) => id !== chatRoomId);
                         }
                     });
+
                     setNotifications([...new Set(notificationArray)]);
                 });
             });

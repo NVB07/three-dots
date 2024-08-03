@@ -1,4 +1,4 @@
-import { addDoc, collection, serverTimestamp, deleteDoc, doc, updateDoc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, deleteDoc, doc, updateDoc, getDoc, getDocs, onSnapshot, setDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
 import { fireStore, storage, auth } from "./config";
 import { updateProfile } from "firebase/auth";
@@ -61,28 +61,100 @@ export const addSubDocument = async (collectionName, documentID, subcolection, d
         console.error("Error add document:", error);
     }
 };
-export const deleteDocument = async (collectionName, documentID, pathImage) => {
-    try {
-        const response = await fetch("/api/deleteDocument", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                collectionName,
-                documentID,
-                pathImage,
-            }),
-        });
+// export const deleteDocument = async (collectionName, documentID, pathImage) => {
+//     try {
+//         const response = await fetch("/api/deleteDocument", {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json",
+//             },
+//             body: JSON.stringify({
+//                 collectionName,
+//                 documentID,
+//                 pathImage,
+//             }),
+//         });
 
-        const data = await response.json();
-        if (response.ok) {
-            return true;
+//         const data = await response.json();
+//         if (response.ok) {
+//             return true;
+//         } else {
+//             return false;
+//         }
+//     } catch (error) {
+//         console.error("Unexpected error:", error);
+//     }
+// };
+const deleteSubcollections = async (fireStore, documentRef) => {
+    const subcollectionsSnapshot = await getDocs(collection(documentRef, "comments")); // thay 'subcollectionName' bằng tên subcollection của mày
+    const promises = subcollectionsSnapshot.docs.map((subDoc) => deleteDoc(subDoc.ref));
+    await Promise.all(promises);
+};
+const restoreDocument = async (collectionName, documentID, data) => {
+    const documentRef = doc(fireStore, collectionName, documentID);
+    try {
+        await setDoc(documentRef, data);
+    } catch (error) {
+        console.error("Error restoring document:", error);
+    }
+};
+export const deleteDocument = async (collectionName, documentID, pathImage) => {
+    const documentRef = doc(fireStore, collectionName, documentID);
+    let data = null; // Dữ liệu của tài liệu
+
+    let errorOccurred = false; // Biến cờ để theo dõi lỗi
+
+    // Lấy dữ liệu tài liệu trước khi xóa
+    try {
+        const docSnapshot = await getDoc(documentRef);
+        if (docSnapshot.exists()) {
+            data = docSnapshot.data();
         } else {
+            console.error("Document does not exist.");
             return false;
         }
     } catch (error) {
-        console.error("Unexpected error:", error);
+        console.error("Error getting document data:", error);
+        return false;
+    }
+
+    try {
+        // Xóa tất cả các subcollections
+        await deleteSubcollections(fireStore, documentRef);
+    } catch (error) {
+        console.error("Error deleting subcollections:", error);
+        errorOccurred = true;
+    }
+
+    if (!errorOccurred) {
+        try {
+            // Xóa document chính
+            await deleteDoc(documentRef);
+        } catch (error) {
+            console.error("Error deleting document:", error);
+            errorOccurred = true;
+        }
+    }
+
+    if (pathImage && !errorOccurred) {
+        const desertRef = ref(storage, pathImage);
+        try {
+            // Xóa ảnh nếu có
+            await deleteObject(desertRef);
+        } catch (error) {
+            console.error("Error deleting image:", error);
+            errorOccurred = true;
+        }
+    }
+
+    if (errorOccurred) {
+        // Nếu có lỗi xảy ra, khôi phục tài liệu đã xóa
+        console.log("Errors occurred during the deletion process. Restoring document.");
+        await restoreDocument(collectionName, documentID, data);
+        return false; // Trả về false nếu có lỗi
+    } else {
+        console.log("Document and related data deleted successfully.");
+        return true; // Trả về true nếu mọi thứ thành công
     }
 };
 

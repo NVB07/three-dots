@@ -1,8 +1,6 @@
 "use client";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
-import CommentIcon from "../icons/CommentIcon";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
 import HeartIcon from "../icons/HeartIcon";
@@ -15,10 +13,10 @@ import CommentItem from "../pages/comment/CommentItem";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
 import { addSubDocument } from "@/firebase/services";
-import { Fragment, useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, imageLoader, blogid, handleLikePost, handleConvertDate, handleCopyLink }) => {
+const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, imageLoader, blogid, handleLikePost, handleCopyLink, children }) => {
     const [commentValue, setCommentValue] = useState("");
     const [commentArray, setCommentArray] = useState([]);
     const textareaRef = useRef(null);
@@ -34,6 +32,24 @@ const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, im
                 handleSendComment();
             }
         }
+    };
+    const handleConvertDate = (timestamp) => {
+        if (timestamp) {
+            const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+
+            const time = `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes} | ${day < 10 ? "0" + day : day}/${
+                month < 10 ? "0" + month : month
+            }/${year}`;
+
+            return time;
+        }
+        return "?";
     };
     const handleSendComment = () => {
         const formattedComment = commentValue.trim().replace(/\n/g, "|~n|");
@@ -76,9 +92,7 @@ const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, im
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1.5">
-                    <CommentIcon width={22} height={22} />
-                </Button>
+                <div>{children}</div>
             </DialogTrigger>
             <DialogContent className="w-full max-w-[620px] h-[calc(100vh-100px)] md:h-[calc(100vh-20px)] md:max-h-[calc(100vh-20px)] p-0.5 flex flex-col justify-between">
                 <DialogHeader>
@@ -157,7 +171,7 @@ const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, im
                             </Button>
                         </div>
                     </div>
-                    <CountReact blogid={blogid} like={thisBlogData?.liked?.length || 0} />
+                    <CountReact blogid={blogid} like={thisBlogData?.liked?.length || 0} openDialog />
                     <div className="w-full h-fit border-t border-border mt-3 pt-2">
                         {commentArray.map((data) => {
                             return (

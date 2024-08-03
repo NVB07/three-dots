@@ -10,21 +10,22 @@ const ChatInput = ({ documentId, currentUserData, messageData, scrollRef }) => {
     const [scroll, setScroll] = useState(false);
     const textareaRef = useRef(null);
 
-    let firstScroll = messageData.length === 0;
+    let firstScroll = messageData.length < 10;
     useEffect(() => {
-        // scrollToBottom();
-        const timeoutId = setTimeout(scrollToBottom, 2000);
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
 
-        return () => clearTimeout(timeoutId);
+        // scrollToBottom();
+        // const timeoutId = setTimeout(scrollToBottom, 2000);
+        // return () => clearTimeout(timeoutId);
     }, [firstScroll]);
 
     const scrollToBottom = () => {
         if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
             scrollRef.current.scrollTo({
                 top: scrollRef.current.scrollHeight,
                 behavior: "smooth",
             });
+            // scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     };
     const handleScroll = () => {
@@ -77,7 +78,7 @@ const ChatInput = ({ documentId, currentUserData, messageData, scrollRef }) => {
     };
     return (
         <div className="sticky  bottom-0 z-20 bg-background pl-3 h-fit pt-2 pb-1 ">
-            <div className="flex pr-3 items-center w-full border-border border-2 overflow-hidden  rounded-3xl">
+            <div className="flex pr-0.5 items-center w-full border-border border-2 overflow-hidden  rounded-3xl">
                 <Textarea
                     ref={textareaRef}
                     rows={1}
@@ -89,8 +90,13 @@ const ChatInput = ({ documentId, currentUserData, messageData, scrollRef }) => {
                     className="outline-none rounded-2xl resize-none h-10 min-h-10 max-h-20 text-base "
                 />
                 {message.trim() ? (
-                    <Button onClick={handleSendMessage} variant="ghost" size="icon" className="rounded-full w-7 h-7 hover:bg-transparent rotate-[25deg]">
-                        <ShareIcon color="#0095f6" />
+                    <Button
+                        onClick={handleSendMessage}
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full max-w-9 max-h-9 w-full h-full min-w-9 min-h-9  bg-[#0042f6] sm:hover:bg-[#0087f6] rotate-[25deg]"
+                    >
+                        <ShareIcon color="#ffffff" />
                     </Button>
                 ) : null}
             </div>

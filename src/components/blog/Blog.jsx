@@ -2,7 +2,7 @@
 import Link from "next/link";
 // import { useRouter } from "next/navigation";
 import { useRouter } from "next13-progressbar";
-import { useState, Fragment, useCallback, useEffect, useContext } from "react";
+import { useState, useCallback, useEffect, useContext } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,8 +19,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { handleLikeReact } from "@/firebase/services";
-import useDeleteDoc from "@/customHook/useDeleteDoc";
+import { handleLikeReact, deleteDocument } from "@/firebase/services";
+// import useDeleteDoc from "@/customHook/useDeleteDoc";
 
 import NewBlog from "../newBlog/NewBlog";
 
@@ -36,7 +36,7 @@ import { fireStore } from "@/firebase/config";
 import { onSnapshot, doc } from "firebase/firestore";
 import { AuthContext } from "@/context/AuthProvider";
 import DialogComment from "./DialogComment";
-import { useQuery } from "@tanstack/react-query";
+// import { useQuery } from "@tanstack/react-query";
 
 const Blog = ({ blogDetails = false, blogid, authorid }) => {
     // const { data, error, isLoading } = useQuery({
@@ -54,7 +54,7 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
     const [likePost, setLikePost] = useState(false); // trạng thái like của người dùng hiện tại
 
     const router = useRouter();
-    const { deleteDocument } = useDeleteDoc();
+    // const { deleteDocument } = useDeleteDoc();
     // định dạng thời gian
     const handleConvertDate = useCallback((timestamp) => {
         if (timestamp) {
@@ -129,23 +129,46 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
         const pathImage = getPathImage();
         const success = await deleteDocument("blogs", blogid, pathImage);
         if (success) {
-            toast.success("Đã xóa bài viết", {
-                cancel: {
-                    label: <CloseIcon />,
-                    onClick: () => {},
-                },
-                icon: <TrashIcon />,
-            });
+            toast.success("Đã xóa bài viết");
         } else {
-            toast.error("Lỗi khi xóa bài", {
-                action: {
-                    label: <CloseIcon />,
-                    onClick: () => {},
-                },
-            });
+            toast.error("Lỗi khi xóa bài");
             setOpenOption();
             setLoading(false);
         }
+        // .then(() => {
+        //     toast.success("Đã xóa bài viết", {
+        //         cancel: {
+        //             label: <CloseIcon />,
+        //             onClick: () => {},
+        //         },
+        //         icon: <TrashIcon />,
+        //     });
+        //     blogDetails && router.push("/");
+        // })
+        // .catch(() => {
+        //     setOpenOption();
+        //     setLoading(false);
+        //     toast.error("Lỗi khi xóa bài");
+        // });
+        // const success = await deleteDocument("blogs", blogid, pathImage);
+        // if (success) {
+        //     toast.success("Đã xóa bài viết", {
+        //         cancel: {
+        //             label: <CloseIcon />,
+        //             onClick: () => {},
+        //         },
+        //         icon: <TrashIcon />,
+        //     });
+        // } else {
+        //     toast.error("Lỗi khi xóa bài", {
+        //         action: {
+        //             label: <CloseIcon />,
+        //             onClick: () => {},
+        //         },
+        //     });
+        //     setOpenOption();
+        //     setLoading(false);
+        // }
     };
 
     // xử lí sao chép liên kết blog
@@ -331,14 +354,17 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                             <DialogComment
                                 thisBlogData={thisBlogData}
                                 authorData={authorData}
-                                handleConvertDate={handleConvertDate}
                                 handleCopyLink={handleCopyLink}
                                 handleLikePost={handleLikePost}
                                 blogid={blogid}
                                 imageLoader={imageLoader}
                                 likePost={likePost}
                                 authCurrentUser={authUserData}
-                            ></DialogComment>
+                            >
+                                <Button variant="ghost" className="flex items-center justify-center rounded-full w-full h-full bg-transparent text-2xl p-1.5">
+                                    <CommentIcon width={22} height={22} />
+                                </Button>
+                            </DialogComment>
                         </div>
                     )}
                     <div className="w-9 h-9 mr-1">
@@ -352,7 +378,17 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                         </Button>
                     </div>
                 </div>
-                <CountReact blogid={blogid} like={thisBlogData?.liked?.length || 0} />
+                <CountReact
+                    blogid={blogid}
+                    like={thisBlogData?.liked?.length || 0}
+                    thisBlogData={thisBlogData}
+                    authorData={authorData}
+                    handleCopyLink={handleCopyLink}
+                    handleLikePost={handleLikePost}
+                    imageLoader={imageLoader}
+                    likePost={likePost}
+                    authCurrentUser={authUserData}
+                />
             </div>
         </div>
     );

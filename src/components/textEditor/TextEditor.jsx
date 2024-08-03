@@ -79,7 +79,7 @@ const TextEditor = ({ setContent, content, setPlainText }) => {
                 <Button variant="outline" className="w-8 h-8 min-w-8 p-1.5 border-border" onClick={() => editor.chain().focus().toggleUnderline().run()}>
                     <UnderLineIcon color={editor.isActive("underline") ? "#007bff" : "currentColor"} />
                 </Button>
-                <Button variant="ghost" className="w-8 h-8 min-w-8 p-0" onClick={() => editor.chain().focus().toggleHighlight({ color: "#ffc107" }).run()}>
+                <Button variant="ghost" className="w-8 h-8 min-w-8 p-0" onClick={() => editor.chain().focus().toggleHighlight().run()}>
                     <HighlightColorIcon color={editor.isActive("highlight") ? "#ffc107" : "currentColor"} />
                 </Button>
                 <Button variant="ghost" className="w-8 h-8 min-w-8 p-2" onClick={handleToggleTextColor}>

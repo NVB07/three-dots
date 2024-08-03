@@ -10,7 +10,12 @@ export default function ToggleTheme({ variant = "ghost" }) {
     return (
         <Popover onOpenChange={setOpenMenuTheme} open={openMenuTheme}>
             <PopoverTrigger asChild>
-                <Button onClick={() => setOpenMenuTheme(true)} variant={variant} size="icon" className="px-2 flex items-center w-full rounded-none rounded-t-md ">
+                <Button
+                    onClick={() => setOpenMenuTheme(true)}
+                    variant={variant}
+                    size="icon"
+                    className="px-2 flex items-center justify-start w-full rounded-none rounded-t-md "
+                >
                     <div className="mr-2 text-base">Giao diện</div>
                     <div className="flex items-center">
                         <Sun style="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
