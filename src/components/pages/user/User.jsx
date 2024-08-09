@@ -8,12 +8,14 @@ import { fireStore } from "@/firebase/config";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-
-import Blog from "../../blog/Blog";
-import { AuthContext } from "@/context/AuthProvider";
-import EditProfile from "./EditProfile";
-import LoadMore from "@/components/loadMore/LoadMore";
 import { Skeleton } from "@/components/ui/skeleton";
+import GmailIcon from "@/components/icons/GmailIcon";
+import FacebookIcon from "@/components/icons/FacebookIcon";
+
+import LoadMore from "@/components/loadMore/LoadMore";
+import Blog from "../../blog/Blog";
+import EditSocial from "./EditSocial";
+import { AuthContext } from "@/context/AuthProvider";
 
 const User = ({ param }) => {
     const { authUserData, setAuthUserData } = useContext(AuthContext);
@@ -99,30 +101,6 @@ const User = ({ param }) => {
         return "?";
     }, []);
 
-    // useEffect(() => {
-    //     const q = query(collection(fireStore, "blogs"), where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "asc"));
-    //     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    //         querySnapshot.docChanges().forEach((change) => {
-    //             const doc = change.doc;
-    //             const blogData = { data: doc.data(), id: doc.id };
-    //             switch (change.type) {
-    //                 case "added":
-    //                     setPosts((prevPosts) => [blogData, ...prevPosts]);
-    //                     break;
-    //                 case "modified":
-    //                     setPosts((prevPosts) => prevPosts.map((post) => (post.id === doc.id ? blogData : post)));
-    //                     break;
-    //                 case "removed":
-    //                     setPosts((prevPosts) => prevPosts.filter((post) => post.id !== doc.id));
-    //                     break;
-    //                 default:
-    //                     break;
-    //             }
-    //         });
-    //     });
-    //     return () => unsubscribe();
-    // }, []);
-
     useEffect(() => {
         const initialQuery = query(collection(fireStore, "blogs"), where("author.uid", "==", param.replace("%40", "")), orderBy("createAt", "desc"), limit(20));
 
@@ -164,7 +142,38 @@ const User = ({ param }) => {
                 <div className="full flex items-start mb-6">
                     <div className="w-1/2">
                         <h3 className="text-xl font-bold">{isLoading ? <Skeleton className={"w-40 h-7 rounded-md"} /> : userData?.displayName}</h3>
-                        <h2 className="text-sm italic mt-2">{userData?.email}</h2>
+                        <div className="flex pt-2 items-center gap-1">
+                            {userData?.email && (
+                                <a href={`mailto:${userData?.email}`} className="rounded-full flex items-center justify-center w-8 h-8  hover:bg-accent p-1">
+                                    <GmailIcon width={22} height={22} />
+                                </a>
+                            )}
+                            {userData?.facebook && (
+                                <a href={`https://facebook.com`} className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1">
+                                    <FacebookIcon width={20} height={20} />
+                                </a>
+                            )}
+                            {userData?.email && (
+                                <a href={`mailto:${userData?.email}`} className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1">
+                                    <GmailIcon width={22} height={22} />
+                                </a>
+                            )}
+                            {userData?.email && (
+                                <a href={`mailto:${userData?.email}`} className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1">
+                                    <GmailIcon width={22} height={22} />
+                                </a>
+                            )}
+                            {userData?.email && (
+                                <a href={`mailto:${userData?.email}`} className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1">
+                                    <GmailIcon width={22} height={22} />
+                                </a>
+                            )}
+
+                            {/* <h2 className="text-sm italic mt-2">{userData?.email}</h2>
+                            <h2 className="text-sm italic mt-2">{userData?.email}</h2>
+                            <h2 className="text-sm italic mt-2">{userData?.email}</h2>
+                            <h2 className="text-sm italic mt-2">{userData?.email}</h2> */}
+                        </div>
                     </div>
                     <div className="w-1/2 flex justify-end">
                         {isLoading ? (
@@ -187,9 +196,10 @@ const User = ({ param }) => {
                 {isLoading ? (
                     <Skeleton className={"w-full h-10 rounded-md"} />
                 ) : isMyAccount ? (
-                    <EditProfile authUserData={authUserData} setAuthUserData={setAuthUserData} />
+                    <EditSocial authUserData={authUserData} setAuthUserData={setAuthUserData} />
                 ) : (
-                    <Button disabled={isLoading} onClick={handleChat} variant="" className="w-full font-bold">
+                    // <EditProfile authUserData={authUserData} setAuthUserData={setAuthUserData} />
+                    <Button onClick={handleChat} variant="" className="w-full font-bold">
                         Nhắn tin
                     </Button>
                 )}
@@ -222,7 +232,7 @@ const User = ({ param }) => {
                     );
                 })}
                 <div className="w-full flex justify-center py-10">
-                    {allPosts.length < countDocument ? (
+                    {allPosts.length < countDocument && countDocument > 20 ? (
                         <LoadMore
                             lastVisible={lastVisible}
                             setAdditionalPosts={setAdditionalPosts}

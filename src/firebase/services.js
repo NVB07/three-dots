@@ -251,57 +251,44 @@ export const getUser = async (uid, option = null) => {
         return null;
     }
 };
-export const updateUserProfile = async (displayName, photo) => {
-    let dataUpdated = {};
-    if (photo) {
-        const url = await addFileToStorage(photo.reader?.result, "imagePostBlogs/", photo.name);
-        dataUpdated = {
-            displayName: displayName,
-            photoURL: url,
-        };
-    } else dataUpdated = { displayName: displayName };
 
-    const basicProfile = updateProfile(auth.currentUser, dataUpdated)
-        .then(() => {
-            return true;
-        })
-        .catch((error) => {
-            console.error("Error update basic information :", error);
-            return false;
-        });
-    if (basicProfile) {
-        return true;
-    }
-};
-export const updateInformation = async (documentId, name, email, newPhoto, currentPhotoURL) => {
+export const updateUserName = async (authUserData, name) => {
     try {
-        const docRef = doc(fireStore, "users", documentId);
-        let dataUpdated = {};
-        if (newPhoto) {
-            const pathImage = getPathImage(currentPhotoURL);
-            if (pathImage.includes("photoUsers/")) deleteObject(ref(storage, pathImage));
-            const url = await addFileToStorage(newPhoto.reader?.result, "photoUsers/", newPhoto.name);
-            dataUpdated = {
-                displayName: name,
-                email: email,
-                photoURL: url,
-                uid: documentId,
-            };
-        } else {
-            dataUpdated = {
-                displayName: name,
-                email: email,
-                photoURL: currentPhotoURL,
-                uid: documentId,
-            };
-        }
-
+        const dataUpdated = { ...authUserData, displayName: name };
+        const docRef = doc(fireStore, "users", authUserData.uid);
         await updateDoc(docRef, dataUpdated);
-
-        console.log("Content updated successfully!");
         return dataUpdated;
     } catch (error) {
         console.error("Error updating content: ", error);
+        return false;
+    }
+};
+export const updateAvatar = async (authUserData, currentPhotoURL, newPhoto) => {
+    try {
+        const docRef = doc(fireStore, "users", authUserData.uid);
+        const pathImage = getPathImage(currentPhotoURL);
+        if (pathImage.includes("photoUsers/")) deleteObject(ref(storage, pathImage));
+        const url = await addFileToStorage(newPhoto.reader?.result, "photoUsers/", newPhoto.name);
+        const dataUpdated = { ...authUserData, photoURL: url };
+        await updateDoc(docRef, dataUpdated);
+        return dataUpdated;
+    } catch (error) {
+        console.error("Error updating avatar: ", error);
+        return false;
+    }
+};
+
+export const updateSocialLink = async (authUserData, email, facebook, instagram, threads, tiktok, x) => {
+    try {
+        const docRef = doc(fireStore, "users", authUserData.uid);
+        const dataUpdated = { ...authUserData, email: email, facebook: facebook, instagram: instagram, threads: threads, tiktok: tiktok, x: x };
+        console.log(dataUpdated);
+        await updateDoc(docRef, dataUpdated);
+        console.log("Social updated successfully!");
+        return dataUpdated;
+    } catch (error) {
+        console.error("Error updating social: ", error);
+        return false;
     }
 };
 

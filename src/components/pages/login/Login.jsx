@@ -42,7 +42,7 @@ const Login = () => {
                     className="mb-2 relative  hover:shadow hover:scale-105 transition-transform w-full max-w-[300px] flex font-medium items-center justify-center border border-[#525252] border-solid rounded-full p-2"
                     onClick={handleFacebookSignUp}
                 >
-                    <FacebookIcon />
+                    <FacebookIcon style="absolute top1/2 left-2" />
                     Đăng nhập bằng <b className="mx-1">Facebook</b>
                 </button>
 

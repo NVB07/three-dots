@@ -1,10 +1,11 @@
-const FacebookIcon = () => {
+const FacebookIcon = ({ width = 18, height = 18, style = "" }) => {
     return (
         <svg
-            className="absolute top1/2 left-2"
+            // className="absolute top1/2 left-2"
+            className={style}
             xmlns="http://www.w3.org/2000/svg"
-            width={18}
-            height={18}
+            width={width}
+            height={height}
             enableBackground="new 0 0 100 100"
             viewBox="0 0 100 100"
             id="facebook"
