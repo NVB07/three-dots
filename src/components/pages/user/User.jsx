@@ -19,7 +19,7 @@ import LoadMore from "@/components/loadMore/LoadMore";
 import Blog from "../../blog/Blog";
 import EditSocial from "./EditSocial";
 import { AuthContext } from "@/context/AuthProvider";
-import UserName from "./userName";
+import UserName from "./UserName";
 
 const User = ({ param }) => {
     const { authUserData, setAuthUserData } = useContext(AuthContext);
