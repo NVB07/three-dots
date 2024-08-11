@@ -7,7 +7,7 @@ import PenIcon from "@/components/icons/PenIcon";
 import { updateUserName } from "@/firebase/services";
 import { toast } from "sonner";
 
-const userName = ({ authUserData, isMyAccount, isLoading, setAuthUserData }) => {
+const UserName = ({ authUserData, isMyAccount, isLoading, setAuthUserData }) => {
     const [editAble, setEditAble] = useState(false);
     const [newName, setNewName] = useState(authUserData?.displayName);
 
@@ -54,4 +54,4 @@ const userName = ({ authUserData, isMyAccount, isLoading, setAuthUserData }) => 
     );
 };
 
-export default userName;
+export default UserName;
