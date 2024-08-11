@@ -15,34 +15,34 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
     title: "Three dots",
     description: "Mạng xã hội Three dost",
-    twitter: {
-        card: "summary",
-        title: "Three dots",
-        description: "Mạng xã hội Three dost",
-        creator: "@Nbzznbv",
-        images: ["https://raw.githubusercontent.com/NVB07/three-dots/master/public/logo128.png"], // Must be an absolute URL
-    },
-    openGraph: {
-        title: "Three dots",
-        description: "Mạng xã hội Three dost",
-        url: "https://three-dots.vercel.app/",
-        siteName: "Three dots",
-        images: [
-            {
-                url: "https://raw.githubusercontent.com/NVB07/three-dots/master/public/logo128.png", // Must be an absolute URL
-                width: 320,
-                height: 320,
-            },
-            {
-                url: "https://raw.githubusercontent.com/NVB07/three-dots/master/public/logo320.png", // Must be an absolute URL
-                width: 800,
-                height: 800,
-                alt: "Three dost logo",
-            },
-        ],
-        locale: "vi_VN",
-        type: "website",
-    },
+    // twitter: {
+    //     card: "summary",
+    //     title: "Three dots",
+    //     description: "Mạng xã hội Three dost",
+    //     creator: "@Nbzznbv",
+    //     images: ["https://raw.githubusercontent.com/NVB07/three-dots/master/public/logo128.png"], // Must be an absolute URL
+    // },
+    // openGraph: {
+    //     title: "Three dots",
+    //     description: "Mạng xã hội Three dost",
+    //     url: "https://three-dots.vercel.app/",
+    //     siteName: "Three dots",
+    //     images: [
+    //         {
+    //             url: "https://raw.githubusercontent.com/NVB07/three-dots/master/public/logo128.png", // Must be an absolute URL
+    //             width: 320,
+    //             height: 320,
+    //         },
+    //         {
+    //             url: "https://raw.githubusercontent.com/NVB07/three-dots/master/public/logo320.png", // Must be an absolute URL
+    //             width: 800,
+    //             height: 800,
+    //             alt: "Three dost logo",
+    //         },
+    //     ],
+    //     locale: "vi_VN",
+    //     type: "website",
+    // },
 };
 
 export default function RootLayout({ children }) {

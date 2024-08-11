@@ -1,5 +1,4 @@
 "use client";
-// import { useRouter } from "next/navigation";
 import { useRouter } from "next13-progressbar";
 import { useContext, useEffect, useState, memo, useCallback } from "react";
 import { collection, query, onSnapshot, orderBy, where, getCountFromServer, limit, getDocs } from "firebase/firestore";
@@ -11,11 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import GmailIcon from "@/components/icons/GmailIcon";
 import FacebookIcon from "@/components/icons/FacebookIcon";
+import InstagramIcon from "@/components/icons/InstagramIcon";
+import ThreadsIcon from "@/components/icons/ThreadsIcon";
+import TikTokIcon from "@/components/icons/TikTokIcon";
+import XIcon from "@/components/icons/XIcon";
 
 import LoadMore from "@/components/loadMore/LoadMore";
 import Blog from "../../blog/Blog";
 import EditSocial from "./EditSocial";
 import { AuthContext } from "@/context/AuthProvider";
+import UserName from "./userName";
 
 const User = ({ param }) => {
     const { authUserData, setAuthUserData } = useContext(AuthContext);
@@ -141,38 +145,58 @@ const User = ({ param }) => {
             <div className="px-3 sm:px-0">
                 <div className="full flex items-start mb-6">
                     <div className="w-1/2">
-                        <h3 className="text-xl font-bold">{isLoading ? <Skeleton className={"w-40 h-7 rounded-md"} /> : userData?.displayName}</h3>
+                        <UserName isMyAccount={isMyAccount} authUserData={authUserData} setAuthUserData={setAuthUserData} isLoading={isLoading} />
                         <div className="flex pt-2 items-center gap-1">
                             {userData?.email && (
                                 <a href={`mailto:${userData?.email}`} className="rounded-full flex items-center justify-center w-8 h-8  hover:bg-accent p-1">
-                                    <GmailIcon width={22} height={22} />
+                                    <GmailIcon width={23} height={23} />
                                 </a>
                             )}
                             {userData?.facebook && (
-                                <a href={`https://facebook.com`} className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1">
+                                <a
+                                    href={`https://facebook.com/${userData?.facebook}`}
+                                    target="_blank"
+                                    className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1"
+                                >
                                     <FacebookIcon width={20} height={20} />
                                 </a>
                             )}
-                            {userData?.email && (
-                                <a href={`mailto:${userData?.email}`} className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1">
-                                    <GmailIcon width={22} height={22} />
+                            {userData?.instagram && (
+                                <a
+                                    href={`https://www.instagram.com/${userData?.instagram}`}
+                                    target="_blank"
+                                    className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1"
+                                >
+                                    <InstagramIcon width={19} height={19} />
                                 </a>
                             )}
-                            {userData?.email && (
-                                <a href={`mailto:${userData?.email}`} className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1">
-                                    <GmailIcon width={22} height={22} />
+                            {userData?.threads && (
+                                <a
+                                    href={`https://threads.net/${userData?.threads}`}
+                                    target="_blank"
+                                    className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1"
+                                >
+                                    <ThreadsIcon width={20} height={20} />
                                 </a>
                             )}
-                            {userData?.email && (
-                                <a href={`mailto:${userData?.email}`} className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1">
-                                    <GmailIcon width={22} height={22} />
+                            {userData?.tiktok && (
+                                <a
+                                    href={`https://tiktok.com/${userData?.tiktok}`}
+                                    target="_blank"
+                                    className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1"
+                                >
+                                    <TikTokIcon width={22} height={22} />
                                 </a>
                             )}
-
-                            {/* <h2 className="text-sm italic mt-2">{userData?.email}</h2>
-                            <h2 className="text-sm italic mt-2">{userData?.email}</h2>
-                            <h2 className="text-sm italic mt-2">{userData?.email}</h2>
-                            <h2 className="text-sm italic mt-2">{userData?.email}</h2> */}
+                            {userData?.x && (
+                                <a
+                                    href={`https://x.com/${userData?.x}`}
+                                    target="_blank"
+                                    className="rounded-full flex items-center justify-center w-8 h-8 hover:bg-accent p-1"
+                                >
+                                    <XIcon width={22} height={22} />
+                                </a>
+                            )}
                         </div>
                     </div>
                     <div className="w-1/2 flex justify-end">

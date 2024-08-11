@@ -7,6 +7,14 @@ import { addUser } from "@/firebase/services";
 const useAuth = () => {
     const searchParams = useSearchParams();
 
+    const updateAuthCookie = (token, day) => {
+        Cookies.set("token", token, {
+            expires: day,
+            secure: process.env.NODE_ENV === "production", // Chỉ gửi cookie qua HTTPS
+            sameSite: "Strict", // Ngăn chặn CSRF
+        });
+    };
+
     const loginWithGoogle = async () => {
         const next = searchParams.get("next"); // Lấy giá trị của tham số `next` từ URL
         try {
@@ -32,14 +40,7 @@ const useAuth = () => {
             }
 
             // Lưu token vào cookie
-            Cookies.set("token", token, {
-                expires: 1,
-                secure: process.env.NODE_ENV === "production", // Chỉ gửi cookie qua HTTPS
-                sameSite: "Strict", // Ngăn chặn CSRF
-            });
-
-            // Chuyển hướng về trang đích hoặc trang chủ
-            // router.push(next);
+            updateAuthCookie(token, 3);
             window.location.href = next || "/";
         } catch (error) {
             console.error("Error logging in with Google:", error);
@@ -71,12 +72,7 @@ const useAuth = () => {
             }
 
             // Lưu token vào cookie
-            Cookies.set("token", token, {
-                expires: 1,
-                secure: process.env.NODE_ENV === "production", // Chỉ gửi cookie qua HTTPS
-                sameSite: "Strict", // Ngăn chặn CSRF
-            });
-
+            updateAuthCookie(token, 3);
             window.location.href = next || "/";
         } catch (error) {
             console.error("Error logging in with GitHub:", error);
@@ -95,7 +91,7 @@ const useAuth = () => {
         }
     };
 
-    return { loginWithGoogle, loginWithGithub, logout };
+    return { loginWithGoogle, loginWithGithub, logout, updateAuthCookie };
 };
 
 export default useAuth;
