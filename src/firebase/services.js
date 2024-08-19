@@ -173,7 +173,7 @@ export const updateContent = async (documentId, newContent, newSearchKeywords, n
         await updateDoc(docRef, {
             "post.content": newContent,
             "post.searchKeywords": newSearchKeywords,
-            "post.normalText": newSearchKeywords,
+            "post.normalText": normalText,
         });
     } catch (error) {
         console.error("Error updating content: ", error);

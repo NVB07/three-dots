@@ -24,7 +24,7 @@ const CommentItem = ({ content = "", displayName = "", photoURL = "", uid = "", 
     ));
 
     const handleDeleteComment = async () => {
-        await deleteSubDocument("blogs", blogId, "interact", commentId)
+        await deleteSubDocument("blogs", blogId, "comments", commentId)
             .then(() => {
                 toast("Đã xóa bình luận", {
                     cancel: {
