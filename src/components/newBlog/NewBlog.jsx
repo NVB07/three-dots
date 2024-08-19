@@ -83,7 +83,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
             .trim()
             .toUpperCase()
             .split(/[ \n]+/);
-        await updateContent(blogid, content, searchKeywords).then(() => {
+        await updateContent(blogid, content, searchKeywords, plainText.trim()).then(() => {
             setLoading(false);
             onClick();
             setDialogNewBlog(false);
@@ -109,6 +109,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                 uid: authUserData?.uid,
             },
             post: {
+                normalText: plainText.trim(),
                 content: content,
                 searchKeywords: searchKeywords,
                 imageURL: imageFile ? await addFileToStorage(imageFile.reader?.result, "imagePostBlogs/", imageFile.name) : "",

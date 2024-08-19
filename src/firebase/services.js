@@ -166,13 +166,14 @@ export const deleteSubDocument = async (collectionName, documentID, subcolection
     }
 };
 
-export const updateContent = async (documentId, newContent, newSearchKeywords) => {
+export const updateContent = async (documentId, newContent, newSearchKeywords, normalText) => {
     const docRef = doc(fireStore, "blogs", documentId);
 
     try {
         await updateDoc(docRef, {
             "post.content": newContent,
             "post.searchKeywords": newSearchKeywords,
+            "post.normalText": newSearchKeywords,
         });
     } catch (error) {
         console.error("Error updating content: ", error);
