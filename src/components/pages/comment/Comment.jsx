@@ -49,7 +49,7 @@ const Comment = ({ currentUser, blogId }) => {
 
     const handleSendComment = () => {
         const formattedComment = commentValue.trim().replace(/\n/g, "|~n|");
-        addSubDocument("blogs", blogId, "interact", {
+        addSubDocument("blogs", blogId, "comments", {
             comment: formattedComment,
             uid: currentUser?.uid,
             displayName: currentUser.displayName,
@@ -60,7 +60,7 @@ const Comment = ({ currentUser, blogId }) => {
     };
 
     useEffect(() => {
-        const q = query(collection(fireStore, "blogs", blogId, "interact"), orderBy("sendTime", "asc"));
+        const q = query(collection(fireStore, "blogs", blogId, "comments"), orderBy("sendTime", "asc"));
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             querySnapshot.docChanges().forEach((change) => {

@@ -7,7 +7,7 @@ import PenIcon from "@/components/icons/PenIcon";
 import { updateUserName } from "@/firebase/services";
 import { toast } from "sonner";
 
-const UserName = ({ authUserData, isMyAccount, isLoading, setAuthUserData }) => {
+const UserName = ({ authUserData, isMyAccount, isLoading, setAuthUserData, userData }) => {
     const [editAble, setEditAble] = useState(false);
     const [newName, setNewName] = useState(authUserData?.displayName);
 
@@ -30,7 +30,7 @@ const UserName = ({ authUserData, isMyAccount, isLoading, setAuthUserData }) => 
         <div className="md:flex items-center">
             <div className="flex items-center">
                 {!editAble ? (
-                    <h3 className="text-xl font-bold">{isLoading ? <Skeleton className={"w-40 h-7 rounded-md"} /> : authUserData?.displayName}</h3>
+                    <h3 className="text-xl font-bold">{isLoading ? <Skeleton className={"w-40 h-7 rounded-md"} /> : userData?.displayName}</h3>
                 ) : (
                     <Input className=" text-xl font-bold px-1" defaultValue={authUserData?.displayName} onChange={(e) => setNewName(e.target.value.trim())} />
                 )}

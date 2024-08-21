@@ -145,7 +145,7 @@ const User = ({ param }) => {
             <div className="px-3 sm:px-0">
                 <div className="full flex items-start mb-6">
                     <div className="w-1/2">
-                        <UserName isMyAccount={isMyAccount} authUserData={authUserData} setAuthUserData={setAuthUserData} isLoading={isLoading} />
+                        <UserName isMyAccount={isMyAccount} authUserData={authUserData} setAuthUserData={setAuthUserData} isLoading={isLoading} userData={userData} />
                         <div className="flex pt-2 items-center gap-1">
                             {userData?.email && (
                                 <a href={`mailto:${userData?.email}`} className="rounded-full flex items-center justify-center w-8 h-8  hover:bg-accent p-1">
