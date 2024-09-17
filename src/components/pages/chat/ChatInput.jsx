@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { addSubDocument } from "@/firebase/services";
+import { addSubDocument, sendMessage } from "@/firebase/services";
 import { Button } from "@/components/ui/button";
 import ShareIcon from "@/components/icons/ShareIcon";
 import { Textarea } from "@/components/ui/textarea";
@@ -69,7 +69,7 @@ const ChatInput = ({ documentId, currentUserData, messageData, scrollRef }) => {
     };
     const handleSendMessage = () => {
         const formattedMessage = message.trim().replace(/\n/g, "|~n|");
-        addSubDocument("roomsChat", documentId, "chat", {
+        sendMessage(documentId, {
             content: formattedMessage,
             uid: currentUserData.uid,
         });

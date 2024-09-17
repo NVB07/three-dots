@@ -49,6 +49,23 @@ export const addDocument = async (collectionName, data) => {
         console.error("Error add document:", error);
     }
 };
+
+export const sendMessage = async (documentId, data) => {
+    try {
+        const docRef = await addDoc(collection(fireStore, "roomsChat", documentId, "chat"), {
+            ...data,
+            sendTime: serverTimestamp(),
+        });
+
+        await updateDoc(doc(fireStore, "roomsChat", documentId), {
+            createAt: serverTimestamp(),
+        });
+
+        return docRef.id;
+    } catch (error) {
+        console.error("Error add document:", error);
+    }
+};
 export const addSubDocument = async (collectionName, documentID, subcolection, data) => {
     try {
         const docRef = await addDoc(collection(fireStore, collectionName, documentID, subcolection), {
