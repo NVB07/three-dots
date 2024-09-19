@@ -1,6 +1,7 @@
 "use client";
-import { Fragment, useContext, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Fragment, useState, useEffect } from "react";
+import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,18 @@ import OptionIcon from "@/components/icons/OptionIcon";
 import CloseIcon from "@/components/icons/CloseIcon";
 import TrashIcon from "@/components/icons/TrashIcon";
 
-import { deleteSubDocument } from "@/firebase/services";
-import { AuthContext } from "@/context/AuthProvider";
+import { deleteSubDocument, snapshotCollection } from "@/firebase/services";
 
-const CommentItem = ({ content = "", displayName = "", photoURL = "", uid = "", time = "", commentId = "", blogId = "", currentUser }) => {
-    const { authUserData } = useContext(AuthContext);
+const CommentItem = ({ content = "", uid = "", time = "", commentId = "", blogId = "", currentUser }) => {
+    const [userComment, setUserComment] = useState();
+
+    useEffect(() => {
+        snapshotCollection("users", uid, (data) => {
+            if (data) {
+                setUserComment(data);
+            }
+        });
+    }, []);
 
     const parts = content.split("|~n|");
     const elements = parts.map((part, index) => (
@@ -48,15 +56,23 @@ const CommentItem = ({ content = "", displayName = "", photoURL = "", uid = "", 
         <div className="h-fit w-full px-3 py-2 flex items-start">
             <div className="mr-2">
                 <Link href={"/user/@" + uid}>
-                    <Avatar className="w-8 h-8 ">
-                        <AvatarImage src={photoURL} alt={displayName} />
-                        <AvatarFallback>X</AvatarFallback>
-                    </Avatar>
+                    {userComment?.photoURL ? (
+                        <Image
+                            src={userComment.photoURL}
+                            width={36}
+                            height={36}
+                            alt={"Ảnh đại diện của " + userComment.displayName}
+                            className="w-9 h-9 rounded-full "
+                            quality={50}
+                        />
+                    ) : (
+                        <Skeleton className="h-9 w-9 rounded-full" />
+                    )}
                 </Link>
             </div>
             <div className="flex flex-col justify-start bg-[hsl(var(--foreground)/5%)] p-3 py-1  rounded-2xl">
                 <Link href={"/user/@" + uid} className="hover:underline text-sm font-semibold">
-                    {displayName}
+                    {userComment?.displayName}
                 </Link>
                 <p style={{ wordBreak: "break-word" }} className="pb-1 text-sm ">
                     {elements}

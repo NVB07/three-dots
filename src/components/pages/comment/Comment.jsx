@@ -6,6 +6,8 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 import ShareIcon from "@/components/icons/ShareIcon";
 import CommentItem from "./CommentItem";
 
@@ -59,30 +61,42 @@ const Comment = ({ currentUser, blogId }) => {
         textareaRef.current.style.height = "40px";
     };
 
+    // useEffect(() => {
+    //     const q = query(collection(fireStore, "blogs", blogId, "comments"), orderBy("sendTime", "asc"));
+
+    //     const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    //         querySnapshot.docChanges().forEach((change) => {
+    //             const doc = change.doc;
+    //             const commentData = { data: doc.data(), id: doc.id };
+
+    //             switch (change.type) {
+    //                 case "added":
+    //                     setCommentArray((prev) => [commentData, ...prev]);
+    //                     break;
+    //                 case "modified":
+    //                     setCommentArray((prev) => prev.map((post) => (post.id === doc.id ? commentData : post)));
+    //                     break;
+    //                 case "removed":
+    //                     setCommentArray((prev) => prev.filter((post) => post.id !== doc.id));
+    //                     break;
+    //                 default:
+    //                     break;
+    //             }
+    //         });
+    //     });
+
+    //     return () => unsubscribe();
+    // }, []);
+
     useEffect(() => {
-        const q = query(collection(fireStore, "blogs", blogId, "comments"), orderBy("sendTime", "asc"));
-
+        const q = query(collection(fireStore, "blogs", blogId, "comments"), orderBy("sendTime", "desc"));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            querySnapshot.docChanges().forEach((change) => {
-                const doc = change.doc;
-                const commentData = { data: doc.data(), id: doc.id };
-
-                switch (change.type) {
-                    case "added":
-                        setCommentArray((prev) => [commentData, ...prev]);
-                        break;
-                    case "modified":
-                        setCommentArray((prev) => prev.map((post) => (post.id === doc.id ? commentData : post)));
-                        break;
-                    case "removed":
-                        setCommentArray((prev) => prev.filter((post) => post.id !== doc.id));
-                        break;
-                    default:
-                        break;
-                }
+            let commentArrayTemp = [];
+            querySnapshot.forEach((doc) => {
+                commentArrayTemp.push({ data: doc.data(), id: doc.id });
             });
+            setCommentArray(commentArrayTemp);
         });
-
         return () => unsubscribe();
     }, []);
 
@@ -90,10 +104,22 @@ const Comment = ({ currentUser, blogId }) => {
         <div className="w-full pt-2">
             <div className="w-full flex items-start px-3 pb-3">
                 <div className="w-12 pt-0.5">
-                    <Avatar className="w-9  h-9 ">
+                    {/* <Avatar className="w-9  h-9 ">
                         <AvatarImage src={currentUser?.photoURL} alt="@shadcn" />
                         <AvatarFallback>TD</AvatarFallback>
-                    </Avatar>
+                    </Avatar> */}
+                    {currentUser?.photoURL ? (
+                        <Image
+                            src={currentUser?.photoURL}
+                            width={36}
+                            height={36}
+                            alt={"Ảnh đại diện của " + currentUser?.displayName}
+                            className="w-9 h-9 rounded-full "
+                            quality={50}
+                        />
+                    ) : (
+                        <Skeleton className="h-9 w-9 rounded-full" />
+                    )}
                 </div>
                 <div className="flex relative flex-1 rounded-2xl bg-[hsl(var(--foreground)/5%)]">
                     <Textarea
