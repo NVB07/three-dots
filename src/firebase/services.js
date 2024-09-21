@@ -59,6 +59,7 @@ export const sendMessage = async (documentId, data) => {
 
         await updateDoc(doc(fireStore, "roomsChat", documentId), {
             createAt: serverTimestamp(),
+            lastMessage: data,
         });
 
         return docRef.id;
