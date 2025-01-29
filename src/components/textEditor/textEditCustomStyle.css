@@ -1,0 +1,36 @@
+.tiptap {
+    min-height: 80px;
+    max-height: 256px;
+    overflow: auto;
+    width: 100%;
+    padding: 4px;
+    border-radius: 4px;
+}
+.tiptap a {
+    color: #5aa7ff;
+}
+.tiptap * {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+.list-custom-text ul {
+    @apply list-disc;
+    @apply pl-7;
+}
+
+.list-custom-text ol {
+    @apply list-decimal;
+    @apply pl-7;
+}
+
+.list-custom-text menu {
+    @apply list-none;
+    @apply pl-7; /* hoặc bất kỳ kiểu list-style nào mày muốn */
+}
+p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: #888; /* Màu của placeholder */
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
