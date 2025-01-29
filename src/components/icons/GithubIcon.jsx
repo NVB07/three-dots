@@ -1,6 +1,6 @@
 const GithubIcon = () => {
     return (
-        <svg fill="hsl(var(--foreground))" className="absolute top1/2 left-2" width={18} height={18} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" id="github">
+        <svg fill="hsl(var(--foreground))" className="" width={18} height={18} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" id="github">
             <g fill="hsl(var(--foreground))">
                 <path
                     fillRule="evenodd"

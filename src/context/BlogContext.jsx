@@ -16,7 +16,7 @@ export const BlogProvider = ({ children }) => {
         const coll = collection(fireStore, "blogs");
         const initialQuery = query(coll, orderBy("createAt", "desc"), limit(20));
 
-        if (Cookies.get("token")) {
+        if (Cookies.get("accessToken")) {
             const unsubscribe = onSnapshot(initialQuery, (querySnapshot) => {
                 const initialDocs = [];
                 let lastVisibleDoc = null;
