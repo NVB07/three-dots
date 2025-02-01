@@ -81,7 +81,13 @@ const ChatContent = ({ param, users }) => {
                     {loading ? (
                         <Skeleton className={"w-10 h-10 rounded-full mr-2"} />
                     ) : (
-                        <Image src={friendData?.photoURL} width={40} height={40} className="max-w-10 mr-2 max-h-10 rounded-full object-cover" alt="@shadcn" />
+                        <Image
+                            src={friendData?.photoURL || "/avatarDefault.svg"}
+                            width={40}
+                            height={40}
+                            className="max-w-10 mr-2 max-h-10 rounded-full object-cover"
+                            alt="@shadcn"
+                        />
                     )}
 
                     <div className="text-lg">{friendData?.displayName ? friendData?.displayName : <Skeleton className={"w-52 h-6 rounded-3xl"} />}</div>

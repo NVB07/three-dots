@@ -15,6 +15,9 @@ import { addUser } from "@/firebase/services";
 const useAuth = () => {
     const searchParams = useSearchParams();
 
+    const deleteCookie = (key) => {
+        Cookies.remove(key);
+    };
     const updateAuthCookie = (key, value, time) => {
         Cookies.set(key, value, {
             expires: time,
@@ -38,8 +41,7 @@ const useAuth = () => {
                 instagram: "",
                 tiktok: "",
                 x: "",
-                photoURL:
-                    "https://firebasestorage.googleapis.com/v0/b/social-chat-d2b4e.appspot.com/o/photoUsers%2Fdefault%20(1).jpg?alt=media&token=8123e758-0629-4866-8250-85ed85ab0066",
+                photoURL: "",
                 uid: user.uid,
             });
 
@@ -55,10 +57,9 @@ const useAuth = () => {
         try {
             const account = await signInWithEmailAndPassword(auth, email, password);
             const user = account.user;
-            const expirationDate = new Date(user.stsTokenManager.expirationTime);
 
-            updateAuthCookie("accessToken", user.stsTokenManager.accessToken, expirationDate);
-            updateAuthCookie("refreshToken", user.stsTokenManager.refreshToken, expirationDate);
+            updateAuthCookie("accessToken", user.stsTokenManager.accessToken, 360);
+            updateAuthCookie("refreshToken", user.stsTokenManager.refreshToken, 360);
             window.location.href = next || "/";
             return user;
         } catch (error) {
@@ -71,11 +72,7 @@ const useAuth = () => {
         try {
             const googleProvider = new GoogleAuthProvider();
             const result = await signInWithPopup(auth, googleProvider);
-
             const user = result.user;
-
-            const expirationDate = new Date(user.stsTokenManager.expirationTime);
-
             // Kiểm tra nếu là người dùng mới
             if (result._tokenResponse?.isNewUser) {
                 await addUser("users", user.uid, {
@@ -93,8 +90,8 @@ const useAuth = () => {
             }
 
             // Lưu token vào cookie
-            updateAuthCookie("accessToken", user.stsTokenManager.accessToken, expirationDate);
-            updateAuthCookie("refreshToken", user.stsTokenManager.refreshToken, expirationDate);
+            updateAuthCookie("accessToken", user.stsTokenManager.accessToken, 360);
+            updateAuthCookie("refreshToken", user.stsTokenManager.refreshToken, 360);
             window.location.href = next || "/";
         } catch (error) {
             console.error("Error logging in with Google:", error);
@@ -107,7 +104,6 @@ const useAuth = () => {
             const githubProvider = new GithubAuthProvider();
             const result = await signInWithPopup(auth, githubProvider);
             const user = result.user;
-            const expirationDate = new Date(user.stsTokenManager.expirationTime);
             // Kiểm tra nếu là người dùng mới
             if (result._tokenResponse?.isNewUser) {
                 await addUser("users", user.uid, {
@@ -125,8 +121,8 @@ const useAuth = () => {
             }
 
             // Lưu token vào cookie
-            updateAuthCookie("accessToken", user.stsTokenManager.accessToken, expirationDate);
-            updateAuthCookie("refreshToken", user.stsTokenManager.refreshToken, expirationDate);
+            updateAuthCookie("accessToken", user.stsTokenManager.accessToken, 360);
+            updateAuthCookie("refreshToken", user.stsTokenManager.refreshToken, 360);
             window.location.href = next || "/";
         } catch (error) {
             console.error("Error logging in with GitHub:", error);
@@ -137,8 +133,8 @@ const useAuth = () => {
         try {
             await signOut(auth);
             // Xóa token khỏi cookie
-            Cookies.remove("accessToken");
-            Cookies.remove("refreshToken");
+            deleteCookie("accessToken");
+            deleteCookie("refreshToken");
 
             // window.location.href = "/login";
         } catch (error) {
@@ -146,7 +142,7 @@ const useAuth = () => {
         }
     };
 
-    return { loginWithGoogle, loginWithGithub, logout, updateAuthCookie, sigUpEmail, signinEmail };
+    return { loginWithGoogle, loginWithGithub, logout, updateAuthCookie, deleteCookie, sigUpEmail, signinEmail };
 };
 
 export default useAuth;

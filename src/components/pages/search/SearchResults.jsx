@@ -22,7 +22,7 @@ const SearchResults = ({ link, authorId, content }) => {
             {resultData ? (
                 <Image src={resultData?.photoURL} width={36} height={36} className="rounded-full max-h-9 max-w-9 mr-1" alt="img" />
             ) : (
-                <Skeleton className={"w-9 h-9 min-w-9 min-h-9 rounded-full"} />
+                <Image src={"/avatarDefault.svg"} width={36} height={36} className="rounded-full max-h-9 max-w-9 mr-1" alt="img" />
             )}
 
             <div className="felx flex-col items-start">

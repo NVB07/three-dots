@@ -66,7 +66,14 @@ const CommentItem = ({ content = "", uid = "", time = "", commentId = "", blogId
                             quality={50}
                         />
                     ) : (
-                        <Skeleton className="h-9 w-9 rounded-full" />
+                        <Image
+                            src="/avatarDefault.svg"
+                            width={36}
+                            height={36}
+                            alt={"Ảnh đại diện của " + userComment?.displayName}
+                            className="w-9 h-9 rounded-full "
+                            quality={50}
+                        />
                     )}
                 </Link>
             </div>

@@ -25,16 +25,20 @@ const AuthProvider = ({ children }) => {
 
                 if (docSnap && docSnap.exists()) {
                     setAuthUserData(docSnap.data());
-                    const expirationDate = new Date(user.auth.currentUser.stsTokenManager.expirationTime);
-                    updateAuthCookie("accessToken", user.auth.currentUser.stsTokenManager.accessToken, expirationDate);
-                    updateAuthCookie("refreshToken", user.auth.currentUser.stsTokenManager.refreshToken, expirationDate);
-                    router.push("/");
+                    updateAuthCookie("accessToken", user.auth.currentUser.stsTokenManager.accessToken, 360);
+                    updateAuthCookie("refreshToken", user.auth.currentUser.stsTokenManager.refreshToken, 360);
+                    searchParams && router.push("/" + searchParams);
                 } else {
                     await logout();
                 }
             } else {
                 setAuthUserData(null);
-                router.push(searchParams && searchParams !== "/" ? `/login?next=${searchParams}` : "/login");
+                await logout();
+                if (searchParams && searchParams !== "/") {
+                    router.push(`/login?next=${searchParams}`);
+                } else {
+                    router.push("/login");
+                }
             }
             setIsLoading(false);
         });

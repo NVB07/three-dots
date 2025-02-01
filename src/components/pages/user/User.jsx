@@ -210,7 +210,7 @@ const User = ({ param }) => {
                                     className="rounded-full min-w-20 min-h-20 max-h-20 max-w-20 object-cover"
                                     placeholder="blur"
                                     blurDataURL="/blur.png"
-                                    src={userData?.photoURL}
+                                    src={userData?.photoURL || "/avatarDefault.svg"}
                                     alt="avt"
                                 />
                             )

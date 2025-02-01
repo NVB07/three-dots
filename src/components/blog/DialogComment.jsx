@@ -112,7 +112,13 @@ const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, im
                                             className="w-9 h-9 rounded-full "
                                         />
                                     ) : (
-                                        <Skeleton className="h-9 w-9 rounded-full" />
+                                        <Image
+                                            src={"/avatarDefault.svg"}
+                                            width={36}
+                                            height={36}
+                                            alt={"Ảnh đại diện của " + authorData?.displayName}
+                                            className="w-9 h-9 rounded-full "
+                                        />
                                     )}
                                 </div>
                             </Link>
@@ -181,9 +187,7 @@ const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, im
                                     commentId={data?.id}
                                     blogId={blogid}
                                     content={data?.data.comment}
-                                    displayName={data?.data.displayName}
                                     time={handleConvertDate(data?.data.sendTime)}
-                                    photoURL={data?.data.photoURL}
                                     uid={data?.data.uid}
                                 />
                             );
@@ -194,8 +198,10 @@ const DialogComment = ({ thisBlogData, authorData, authCurrentUser, likePost, im
                     <div className="w-full flex items-start px-3 pb-3">
                         <div className="w-12 pt-0.5">
                             <Avatar className="w-9  h-9 ">
-                                <AvatarImage src={authCurrentUser?.photoURL} alt="@shadcn" />
-                                <AvatarFallback>TD</AvatarFallback>
+                                <AvatarImage src={authCurrentUser?.photoURL} alt={authCurrentUser?.displayName} />
+                                <AvatarFallback>
+                                    <Image src="/avatarDefault.svg" alt={authCurrentUser?.displayName} width={36} height={36} className="w-9 h-9 rounded-full " />
+                                </AvatarFallback>
                             </Avatar>
                         </div>
                         <div className="flex relative flex-1 rounded-2xl bg-[hsl(var(--foreground)/5%)]">

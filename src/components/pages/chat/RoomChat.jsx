@@ -23,7 +23,9 @@ const RoomChat = ({ room, authUserData, newMessage = [] }) => {
         <Link href={"/chat/" + room?.id} className="w-full my-1 h-16 cursor-pointer hover:bg-accent p-2 pr-5  flex items-center rounded-s-lg">
             <Avatar>
                 <AvatarImage src={friendData?.photoURL} alt="@shadcn" />
-                <AvatarFallback></AvatarFallback>
+                <AvatarFallback>
+                    <img src="/avatarDefault.svg" alt="" />
+                </AvatarFallback>
             </Avatar>
             <div className="ml-2  text-base line-clamp-2 flex-1">
                 <div className={`${notification ? "font-bold" : "font-normal"}`}>

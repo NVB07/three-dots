@@ -85,3 +85,6 @@ body {
 main {
     flex-grow: 1; /* Đẩy footer xuống cuối trang */
 }
+input:-webkit-autofill {
+    -webkit-background-clip: text;
+}

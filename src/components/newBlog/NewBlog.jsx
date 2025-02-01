@@ -157,7 +157,14 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                                 className="rounded-full border-border border border-solid w-10 h-10 "
                             />
                         ) : (
-                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <Image
+                                src={"/avatarDefault.svg"}
+                                width={40}
+                                height={40}
+                                alt="avatar"
+                                quality={60}
+                                className="rounded-full border-border border border-solid w-10 h-10 "
+                            />
                         )}
                         <div className="w-[1px] h-full bg-[#8a8a8a3f] relative after:absolute after:rounded-full after:left-1/2 after:-translate-x-1/2 after:w-[11px] after:h-[11px] after:bg-[#8a8a8a3f] after:top-full"></div>
                     </div>
