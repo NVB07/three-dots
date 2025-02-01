@@ -4,7 +4,7 @@ import { toast, Toaster } from "sonner";
 import GoogleIcon from "@/components/icons/GoogleIcon";
 import Logo from "@/components/icons/Logo";
 import GithubIcon from "@/components/icons/GithubIcon";
-import FacebookIcon from "@/components/icons/FacebookIcon";
+import Image from "next/image";
 import useAuth from "@/customHook/useAuth";
 import Eye from "@/components/icons/Eye";
 import CloseEye from "@/components/icons/CloseEye";
@@ -87,9 +87,12 @@ const Login = () => {
         setLoading1(false);
     };
     return (
-        <div className="w-full h-screen flex items-center justify-center">
+        <div className="w-full h-screen flex items-center ">
             <Toaster position="top-center" richColors />
-            <div className="W-full max-w-[500px] p-4 pb-6 flex flex-col items-center rounded-2xl ">
+            <div className="md:w-1/2 md:block hidden h-screen">
+                <img className="w-full h-screen object-cover" src="/wlop.jpg" alt="anh login" />
+            </div>
+            <div className="md:w-1/2 w-full  h-fit bg-white p-4 pb-6 flex flex-col items-center justify-center rounded-2xl ">
                 <div className="flex flex-col items-center pb-7">
                     <Logo color="hsl(var(--foreground))" width="100" height="100" />
                     <h2 className="text-3xl font-semibold  text-center">
