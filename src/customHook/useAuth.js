@@ -29,7 +29,7 @@ const useAuth = () => {
             const user = account.user;
             console.log(account);
 
-            // await sendEmailVerification(user);
+            await sendEmailVerification(user);
             await addUser("users", user.uid, {
                 displayName: displayName,
                 email: email,
@@ -42,6 +42,7 @@ const useAuth = () => {
                     "https://firebasestorage.googleapis.com/v0/b/social-chat-d2b4e.appspot.com/o/photoUsers%2Fdefault%20(1).jpg?alt=media&token=8123e758-0629-4866-8250-85ed85ab0066",
                 uid: user.uid,
             });
+
             return user;
         } catch (error) {
             console.error("Error signing up:", error);
@@ -49,10 +50,17 @@ const useAuth = () => {
         }
     };
     const signinEmail = async (email, password) => {
+        const next = searchParams.get("next"); // Lấy giá trị của tham số `next` từ URL
+
         try {
             const account = await signInWithEmailAndPassword(auth, email, password);
             const user = account.user;
+            const expirationDate = new Date(user.stsTokenManager.expirationTime);
+
+            updateAuthCookie("accessToken", user.stsTokenManager.accessToken, expirationDate);
+            updateAuthCookie("refreshToken", user.stsTokenManager.refreshToken, expirationDate);
             window.location.href = next || "/";
+            return user;
         } catch (error) {
             console.error("Error signing up:", error);
         }
@@ -65,7 +73,7 @@ const useAuth = () => {
             const result = await signInWithPopup(auth, googleProvider);
 
             const user = result.user;
-            console.log(user.stsTokenManager);
+
             const expirationDate = new Date(user.stsTokenManager.expirationTime);
 
             // Kiểm tra nếu là người dùng mới

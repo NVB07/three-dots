@@ -14,20 +14,23 @@ const AuthProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
     const searchParams = useSearchParams().get("next");
-    const { updateAuthCookie } = useAuth();
+    const { updateAuthCookie, logout } = useAuth();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
+                console.log(user);
+
                 const docSnap = await getDocument("users", user.uid);
-                if (docSnap.exists()) {
+
+                if (docSnap && docSnap.exists()) {
                     setAuthUserData(docSnap.data());
                     const expirationDate = new Date(user.auth.currentUser.stsTokenManager.expirationTime);
                     updateAuthCookie("accessToken", user.auth.currentUser.stsTokenManager.accessToken, expirationDate);
                     updateAuthCookie("refreshToken", user.auth.currentUser.stsTokenManager.refreshToken, expirationDate);
+                    router.push("/");
                 } else {
-                    const { displayName, email, uid, photoURL } = user;
-                    setAuthUserData({ displayName, email, uid, photoURL });
+                    await logout();
                 }
             } else {
                 setAuthUserData(null);
