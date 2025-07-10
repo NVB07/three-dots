@@ -31,10 +31,12 @@ const AuthProvider = ({ children }) => {
                     searchParams && router.push("/" + searchParams);
                 } else {
                     await logout();
+                    Cookies.remove("privateKey");
                 }
             } else {
                 setAuthUserData(null);
                 await logout();
+                Cookies.remove("privateKey");
                 if (searchParams && searchParams !== "/") {
                     router.push(`/login?next=${searchParams}`);
                 } else {

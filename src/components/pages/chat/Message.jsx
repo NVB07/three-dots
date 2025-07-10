@@ -6,23 +6,23 @@ import aesjs from "aes-js";
 import sha256 from "js-sha256";
 import Image from "next/image";
 
-const Message = ({ rsaKey, data, message = "", myMessage = false, photoURL }) => {
+const Message = ({ rsaKey, data, myMessage = false, photoURL }) => {
     const [decryptMessage, setDecryptMessage] = useState("");
     const [loading, setLoading] = useState(true);
-
+    // console.log(data);
     const getSha256Bytes = (text) => {
-        const hashHex = sha256(text); // chuỗi hex dài 64 ký tự (256 bit)
+        const hashHex = sha256(text);
         const bytes = [];
         for (let i = 0; i < hashHex.length; i += 2) {
             bytes.push(parseInt(hashHex.substr(i, 2), 16));
         }
-        return Uint8Array.from(bytes); // Trả về 32 byte
+        return Uint8Array.from(bytes);
     };
 
     const decryptKeyAesWithRsa = () => {
         try {
-            const key = new NodeRSA(rsaKey); // Khóa ở định dạng PEM
-            key.setOptions({ encryptionScheme: "pkcs1" }); // dùng "pkcs1" để tương thích với mặc định
+            const key = new NodeRSA(rsaKey);
+            key.setOptions({ encryptionScheme: "pkcs1" });
             if (myMessage) {
                 const encryptedBuffer = Buffer.from(data?.aesKeySenderEncrypted, "base64");
                 const decrypted = key.decrypt(encryptedBuffer, "utf8");
@@ -33,22 +33,27 @@ const Message = ({ rsaKey, data, message = "", myMessage = false, photoURL }) =>
                 return decrypted;
             }
         } catch (error) {
-            console.error("Giải mã RSA thất bại:", error);
+            console.error("Lỗi khi giải mã tin nhắn", error);
             return null;
         }
     };
 
     const decryptMessageWithAes = () => {
-        const aesKeyString = decryptKeyAesWithRsa();
-        const encryptedBytes = Uint8Array.from(atob(data?.content), (c) => c.charCodeAt(0));
-        const keyBytes = aesjs.utils.hex.toBytes(aesKeyString);
-        const ivBytes = aesjs.utils.hex.toBytes(data?.iv);
-        const aesCbc = new aesjs.ModeOfOperation.cbc(keyBytes, ivBytes);
-        const decryptedBytes = aesCbc.decrypt(encryptedBytes);
-        const unpadded = aesjs.padding.pkcs7.strip(decryptedBytes);
-        const decryptedText = aesjs.utils.utf8.fromBytes(unpadded);
-        setDecryptMessage(decryptedText);
-        setLoading(false);
+        try {
+            const aesKeyString = decryptKeyAesWithRsa();
+            const encryptedBytes = Uint8Array.from(atob(data?.content), (c) => c.charCodeAt(0));
+            const keyBytes = aesjs.utils.hex.toBytes(aesKeyString);
+            const ivBytes = aesjs.utils.hex.toBytes(data?.iv);
+            const aesCbc = new aesjs.ModeOfOperation.cbc(keyBytes, ivBytes);
+            const decryptedBytes = aesCbc.decrypt(encryptedBytes);
+            const unpadded = aesjs.padding.pkcs7.strip(decryptedBytes);
+            const decryptedText = aesjs.utils.utf8.fromBytes(unpadded);
+            setDecryptMessage(decryptedText);
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+            setDecryptMessage(null);
+        }
     };
 
     useEffect(() => {
@@ -58,7 +63,7 @@ const Message = ({ rsaKey, data, message = "", myMessage = false, photoURL }) =>
 
         runDecrypt();
     }, []);
-
+    if (decryptMessage === null || decryptMessage === "") return null;
     const parts = decryptMessage.split("|~n|");
     const elements = parts.map((part, index) => (
         <Fragment key={index}>

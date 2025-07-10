@@ -11,7 +11,7 @@ const Header = () => {
         return null;
     }
     return (
-        <header className="w-full h-[74px] flex justify-center bg-  backdrop-blur-md sticky top-0 left-0 z-50 bg-[#1f1f1f9f]">
+        <header className="w-full h-[74px] flex justify-center bg-  backdrop-blur-md sticky top-0 left-0 z-50 bg-[hsl(var(--background)/87%)]">
             <div className="flex items-center justify-between max-w-[1230px] px-7 w-full ">
                 <div className="w-[74px] sm:hidden"></div>
                 <div className="w-[74px] h-[74px] flex items-center justify-center">

@@ -20,7 +20,7 @@ export const snapshotCollection = (collectionName, docId, callback) => {
     });
     return unsub;
 };
-const addPrivateKey = async (documentId, key, uid) => {
+export const addPrivateKey = async (documentId, key, uid) => {
     try {
         const docRef = doc(fireStore, "secretKeyEncrypted", documentId);
 
@@ -298,6 +298,16 @@ export const updateSocialLink = async (authUserData, email, facebook, instagram,
     } catch (error) {
         console.error("Error updating social: ", error);
         return false;
+    }
+};
+
+export const addPublicKey = async (documentId, publicKey) => {
+    try {
+        const docRef = doc(fireStore, "users", documentId);
+        await updateDoc(docRef, { publicKey });
+        console.log(`PublicKey updated for user: ${documentId}`);
+    } catch (error) {
+        console.error("Error updating publicKey:", error);
     }
 };
 

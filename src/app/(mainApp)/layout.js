@@ -51,8 +51,8 @@ export default function RootLayout({ children }) {
             <body className={inter.className}>
                 <ProgressBar>
                     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                        <Toaster richColors />
                         <AuthProvider>
-                            <Toaster richColors />
                             <NotificationProvider>
                                 <Header />
                                 <BlogProvider>{children}</BlogProvider>

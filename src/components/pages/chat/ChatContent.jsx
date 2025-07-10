@@ -161,7 +161,7 @@ const ChatContent = ({ param, users }) => {
                     })
                 )}
             </div>
-            <ChatInput documentId={param} currentUserData={authUserData} messageData={messageData} scrollRef={scrollableRef} />
+            <ChatInput documentId={param} currentUserData={authUserData} messageData={messageData} scrollRef={scrollableRef} friendData={friendData} />
         </div>
     );
 };
