@@ -3,15 +3,19 @@ import { auth } from "@/firebase/config";
 import { useState, useEffect, createContext } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter, useSearchParams } from "next/navigation";
-import Loading from "@/components/pages/loading/Loading";
-import useAuth from "@/customHook/useAuth";
+import Cookies from "js-cookie";
 import { getDocument } from "@/firebase/services";
+
+import Loading from "@/components/pages/loading/Loading";
+import HandleKey from "@/components/handleKey/HandleKey";
+import useAuth from "@/customHook/useAuth";
 
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
     const [authUserData, setAuthUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [privateKey, setPrivateKey] = useState(Cookies.get("privateKey"));
     const router = useRouter();
     const searchParams = useSearchParams().get("next");
     const { updateAuthCookie, logout } = useAuth();
@@ -19,10 +23,7 @@ const AuthProvider = ({ children }) => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                console.log(user);
-
                 const docSnap = await getDocument("users", user.uid);
-
                 if (docSnap && docSnap.exists()) {
                     setAuthUserData(docSnap.data());
                     updateAuthCookie("accessToken", user.auth.currentUser.stsTokenManager.accessToken, 360);
@@ -48,6 +49,9 @@ const AuthProvider = ({ children }) => {
 
     if (isLoading) {
         return <Loading />;
+    }
+    if (!privateKey && authUserData) {
+        return <HandleKey setPrivateKey={setPrivateKey} uid={authUserData?.uid} />;
     }
 
     return <AuthContext.Provider value={{ authUserData, setAuthUserData }}>{authUserData && children}</AuthContext.Provider>;

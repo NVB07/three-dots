@@ -3,7 +3,7 @@ import { useContext, useEffect, useState, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
-
+import Cookies from "js-cookie";
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 // import {
@@ -149,7 +149,14 @@ const ChatContent = ({ param, users }) => {
                 ) : (
                     messageData.slice().map((chat) => {
                         return (
-                            <MemoizedMessage key={chat.id} message={chat.data.content} myMessage={chat.data.uid === authUserData.uid} photoURL={friendData?.photoURL} />
+                            <MemoizedMessage
+                                key={chat.id}
+                                data={chat.data}
+                                message={chat.data.content}
+                                myMessage={chat.data.uid === authUserData.uid}
+                                photoURL={friendData?.photoURL}
+                                rsaKey={Cookies.get("privateKey")}
+                            />
                         );
                     })
                 )}

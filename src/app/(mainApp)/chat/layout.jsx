@@ -6,8 +6,10 @@ export const metadata = {
 };
 export default function ChatLayout({ children }) {
     return (
-        <>
-            <Chat>{children}</Chat>
-        </>
+        <div className="w-full flex justify-center ">
+            <div className="max-w-[1230px] w-full">
+                <Chat>{children}</Chat>
+            </div>
+        </div>
     );
 }

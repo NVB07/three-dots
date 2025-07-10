@@ -20,8 +20,21 @@ export const snapshotCollection = (collectionName, docId, callback) => {
     });
     return unsub;
 };
+const addPrivateKey = async (documentId, key, uid) => {
+    try {
+        const docRef = doc(fireStore, "secretKeyEncrypted", documentId);
 
-export const addUser = async (collectionName, documentId, data) => {
+        await setDoc(docRef, {
+            key,
+            uid,
+        });
+
+        console.log(`Document added with ID: ${documentId}`);
+    } catch (error) {
+        console.error("Error adding document:", error);
+    }
+};
+export const addUser = async (collectionName, documentId, data, privateKeyEncrypted) => {
     try {
         const docRef = doc(fireStore, collectionName, documentId);
 
@@ -30,7 +43,7 @@ export const addUser = async (collectionName, documentId, data) => {
 
             createAt: serverTimestamp(),
         });
-
+        await addPrivateKey(documentId, privateKeyEncrypted, documentId);
         console.log(`Document added with ID: ${documentId}`);
     } catch (error) {
         console.error("Error adding document:", error);
@@ -79,30 +92,7 @@ export const addSubDocument = async (collectionName, documentID, subcolection, d
         console.error("Error add document:", error);
     }
 };
-// export const deleteDocument = async (collectionName, documentID, pathImage) => {
-//     try {
-//         const response = await fetch("/api/deleteDocument", {
-//             method: "POST",
-//             headers: {
-//                 "Content-Type": "application/json",
-//             },
-//             body: JSON.stringify({
-//                 collectionName,
-//                 documentID,
-//                 pathImage,
-//             }),
-//         });
 
-//         const data = await response.json();
-//         if (response.ok) {
-//             return true;
-//         } else {
-//             return false;
-//         }
-//     } catch (error) {
-//         console.error("Unexpected error:", error);
-//     }
-// };
 const deleteSubcollections = async (fireStore, documentRef) => {
     const subcollectionsSnapshot = await getDocs(collection(documentRef, "comments")); // thay 'subcollectionName' bằng tên subcollection của mày
     const promises = subcollectionsSnapshot.docs.map((subDoc) => deleteDoc(subDoc.ref));
