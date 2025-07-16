@@ -15,7 +15,7 @@ import CloseIcon from "@/components/icons/CloseIcon";
 import CheckIcon from "@/components/icons/CheckIcon";
 import TextEditor from "../textEditor/TextEditor";
 
-const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onClick }) => {
+const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", privacy = "public", onClick }) => {
     const { authUserData } = useContext(AuthContext);
     const inputImageRef = useRef();
     const imagePreviewRef = useRef();
@@ -25,6 +25,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
     const [loading, setLoading] = useState(false);
     const [content, setContent] = useState(blogid ? contentBlog : "");
     const [plainText, setPlainText] = useState("");
+    const [privacyValue, setPrivacyValue] = useState(privacy);
 
     const textareaRef = useRef(null);
     const openTextArea = () => {
@@ -82,6 +83,9 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
         const searchKeywords = plainText
             .trim()
             .toUpperCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/Đ/g, "D")
             .split(/[ \n]+/);
         await updateContent(blogid, content, searchKeywords, plainText.trim()).then(() => {
             setLoading(false);
@@ -103,6 +107,9 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
         const searchKeywords = plainText
             .trim()
             .toUpperCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/Đ/g, "D")
             .split(/[ \n]+/);
         await addDocument("blogs", {
             author: {
@@ -114,6 +121,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                 searchKeywords: searchKeywords,
                 imageURL: imageFile ? await addFileToStorage(imageFile.reader?.result, "imagePostBlogs/", imageFile.name) : "",
             },
+            privacyValue: privacyValue,
         })
             .then(() => {
                 setLoading(false);
@@ -170,25 +178,15 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", onCl
                     </div>
                     <div className="flex-1">
                         <p className="text-base font-semibold">{authUserData?.displayName}</p>
-                        {/* <ScrollArea className="sm:max-h-[400px] max-h-[300px] p-2">
-                            <TextEditor content={content} setContent={setContent} setPlainText={setPlainText} />
-                            {previewImageState ? (
-                                <div className="w-full max-w-[300px] pt-3 pr-3 relative">
-                                    <Button onClick={handleRemoveImage} variant="secondary" className="rounded-full w-8 h-8 p-1.5 mt-2 absolute top-0 right-0">
-                                        <CloseIcon />
-                                    </Button>
-                                    <img className="w-full h-auto rounded" src="#" alt="preview-image" ref={imagePreviewRef} />
-                                </div>
-                            ) : null}
-                            {!blogid && (
-                                <Button onClick={handleSelectImage} variant="ghost" className="rounded-full w-8 h-8 p-1.5 mt-2">
-                                    <ImageAddIcon />
-                                </Button>
-                            )}
-                            <input ref={inputImageRef} type="file" accept="image/*" hidden onChange={previewImage} />
-                        </ScrollArea> */}
+
                         <div className="sm:max-h-[400px] max-h-[300px] overflow-auto p-2">
-                            <TextEditor content={content} setContent={setContent} setPlainText={setPlainText} />
+                            <TextEditor
+                                content={content}
+                                setContent={setContent}
+                                setPlainText={setPlainText}
+                                privacyValue={privacyValue}
+                                setPrivacyValue={setPrivacyValue}
+                            />
                             {previewImageState ? (
                                 <div className="w-full max-w-[300px] pt-3 pr-3 relative">
                                     <Button onClick={handleRemoveImage} variant="secondary" className="rounded-full w-8 h-8 p-1.5 mt-2 absolute top-0 right-0">

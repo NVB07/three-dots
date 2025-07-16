@@ -274,6 +274,7 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                                             contentBlog={thisBlogData?.post.content}
                                             buttonTitle={"Sửa bài viết"}
                                             styleButton="w-full rounded-none border-b border-solid border-[#8a8a8a3f]"
+                                            privacy={thisBlogData?.privacyValue}
                                         />
 
                                         <AlertDialog>
