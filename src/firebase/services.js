@@ -174,7 +174,7 @@ export const deleteSubDocument = async (collectionName, documentID, subcolection
     }
 };
 
-export const updateContent = async (documentId, newContent, newSearchKeywords, normalText) => {
+export const updateContent = async (documentId, newContent, newSearchKeywords, normalText, privacyValue) => {
     const docRef = doc(fireStore, "blogs", documentId);
 
     try {
@@ -182,6 +182,7 @@ export const updateContent = async (documentId, newContent, newSearchKeywords, n
             "post.content": newContent,
             "post.searchKeywords": newSearchKeywords,
             "post.normalText": normalText,
+            privacyValue: privacyValue,
         });
     } catch (error) {
         console.error("Error updating content: ", error);

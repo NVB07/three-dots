@@ -87,7 +87,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", priv
             .replace(/[\u0300-\u036f]/g, "")
             .replace(/Đ/g, "D")
             .split(/[ \n]+/);
-        await updateContent(blogid, content, searchKeywords, plainText.trim()).then(() => {
+        await updateContent(blogid, content, searchKeywords, plainText.trim(), privacyValue).then(() => {
             setLoading(false);
             onClick();
             setDialogNewBlog(false);
