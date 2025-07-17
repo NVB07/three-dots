@@ -10,28 +10,57 @@ import { cn } from "@/lib/utils";
 import LoadMore from "@/components/loadMore/LoadMore";
 
 const HomePage = () => {
-    const { allPosts, countDocument, lastVisible, setAdditionalPosts, setLastVisible } = useContext(BlogContext);
+    const {
+        allPosts,
+        allFollwPosts,
+        countDocument,
+        countDocumentFollow,
+        lastVisible,
+        lastVisibleFollow,
+        setAdditionalPosts,
+        setAdditionalFollowPosts,
+        setLastVisible,
+        setLastVisibleFollow,
+    } = useContext(BlogContext);
     const [viewMode, setViewMode] = useState("all"); // "all" | "following"
 
     return (
         <div className="w-full flex justify-center">
-            <div className="w-full max-w-[620px] px-0 sm:px-6">
-                {allPosts.map((post) => (
-                    <Blog key={post.id} blogid={post.id} authorid={post?.data.author.uid} />
-                ))}
-                <div className="w-full flex justify-center py-10">
-                    {allPosts.length < countDocument ? (
-                        <LoadMore
-                            lastVisible={lastVisible}
-                            setAdditionalPosts={setAdditionalPosts}
-                            setLastVisible={setLastVisible}
-                            collectionName={"blogs"}
-                            queryParam={[orderBy("createAt", "desc")]}
-                        />
-                    ) : null}
+            {viewMode === "all" ? (
+                <div className="w-full max-w-[620px] px-0 sm:px-6">
+                    {allPosts.map((post) => (
+                        <Blog key={post.id} blogid={post.id} authorid={post?.data.author.uid} />
+                    ))}
+                    <div className="w-full flex justify-center py-10">
+                        {allPosts.length < countDocument ? (
+                            <LoadMore
+                                lastVisible={lastVisible}
+                                setAdditionalPosts={setAdditionalPosts}
+                                setLastVisible={setLastVisible}
+                                collectionName={"blogs"}
+                                queryParam={[orderBy("createAt", "desc")]}
+                            />
+                        ) : null}
+                    </div>
                 </div>
-            </div>
-
+            ) : (
+                <div className="w-full max-w-[620px] px-0 sm:px-6">
+                    {allFollwPosts.map((post) => (
+                        <Blog key={post.id} blogid={post.id} authorid={post?.data.author.uid} />
+                    ))}
+                    <div className="w-full flex justify-center py-10">
+                        {allFollwPosts.length < countDocumentFollow ? (
+                            <LoadMore
+                                lastVisible={lastVisibleFollow}
+                                setAdditionalPosts={setAdditionalFollowPosts}
+                                setLastVisible={setLastVisibleFollow}
+                                collectionName={"blogs"}
+                                queryParam={[orderBy("createAt", "desc")]}
+                            />
+                        ) : null}
+                    </div>
+                </div>
+            )}
             {/* Floating button */}
             <Button
                 onClick={() => setViewMode(viewMode === "all" ? "following" : "all")}
@@ -41,15 +70,21 @@ const HomePage = () => {
                     "flex items-center gap-2 px-4"
                 )}
             >
-                {viewMode === "all" ? (
+                {viewMode === "following" ? (
                     <>
                         <Users className="w-5 h-5" />
-                        <span className="hidden sm:inline">Người theo dõi</span>
+                        <div className="flex flex-col justify-start">
+                            <span className="hidden sm:block text-xs text-accent text-left">Đang xem</span>
+                            <span className="hidden sm:block">Người theo dõi</span>
+                        </div>
                     </>
                 ) : (
                     <>
                         <Globe className="w-5 h-5" />
-                        <span className="hidden sm:inline">Tất cả</span>
+                        <div className="flex flex-col justify-start">
+                            <span className="hidden sm:block text-xs text-accent text-left">Đang xem</span>
+                            <span className="hidden sm:block">Mọi người</span>
+                        </div>
                     </>
                 )}
             </Button>
