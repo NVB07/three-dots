@@ -1,35 +1,20 @@
 "use client";
 import { useContext, useEffect, useState, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
-import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import { collection, query, orderBy, limit, startAfter, getDocs, onSnapshot } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
 import Cookies from "js-cookie";
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-// import {
-//     AlertDialog,
-//     AlertDialogAction,
-//     AlertDialogCancel,
-//     AlertDialogContent,
-//     AlertDialogDescription,
-//     AlertDialogFooter,
-//     AlertDialogHeader,
-//     AlertDialogTitle,
-//     AlertDialogTrigger,
-// } from "@/components/ui/alert-dialog";
-
 import { Button } from "@/components/ui/button";
 import Message from "./Message";
 import ChatInput from "./ChatInput";
 import OptionIcon from "@/components/icons/OptionIcon";
-// import CloseIcon from "@/components/icons/CloseIcon";
-// import TrashIcon from "@/components/icons/TrashIcon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getDocument } from "@/firebase/services";
-//context
-
 import { AuthContext } from "@/context/AuthProvider";
 import Image from "next/image";
+import NodeRSA from "node-rsa";
+import aesjs from "aes-js";
 
 const ChatContent = ({ param, users }) => {
     const router = useRouter();
@@ -37,32 +22,124 @@ const ChatContent = ({ param, users }) => {
     const [messageData, setMessageData] = useState([]);
     const [friendData, setFriendData] = useState();
     const [loading, setLoading] = useState(true);
-
+    const [loadingOlderMessages, setLoadingOlderMessages] = useState(false);
+    const [lastVisible, setLastVisible] = useState(null);
     const scrollableRef = useRef(null);
+    const [hasMore, setHasMore] = useState(true);
     const scrollBarStyle = `::-webkit-scrollbar {width: 7px;}::-webkit-scrollbar-track {background: transparent;}::-webkit-scrollbar-thumb {background: hsl(var(--border)); border-radius:9999px;}::-webkit-scrollbar-thumb:hover {}`;
 
-    useEffect(() => {
-        const q = query(collection(fireStore, "roomsChat", param, "chat"), orderBy("sendTime", "asc"));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            let messageArray = [];
-            querySnapshot.forEach((doc) => {
-                messageArray.push({ data: doc.data(), id: doc.id });
-            });
-            // setLoading(false);
-            // setNotifications(messageArray.slice(-1)[0]?.data.uid !== authUserData.uid);
-            setMessageData(messageArray);
+    const scrollToBottom = () => {
+        scrollableRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    const decryptMessage = (chat, rsaKey, myUid) => {
+        try {
+            const key = new NodeRSA(rsaKey);
+            key.setOptions({ encryptionScheme: "pkcs1" });
+
+            const aesKeyEncrypted = chat.uid === myUid ? chat.aesKeySenderEncrypted : chat.aesKeyReceiverEncrypted;
+            const encryptedBuffer = Buffer.from(aesKeyEncrypted, "base64");
+            const aesKeyString = key.decrypt(encryptedBuffer, "utf8");
+
+            const encryptedBytes = Uint8Array.from(atob(chat.content), (c) => c.charCodeAt(0));
+            const keyBytes = aesjs.utils.hex.toBytes(aesKeyString);
+            const ivBytes = aesjs.utils.hex.toBytes(chat.iv);
+            const aesCbc = new aesjs.ModeOfOperation.cbc(keyBytes, ivBytes);
+            const decryptedBytes = aesCbc.decrypt(encryptedBytes);
+            const unpadded = aesjs.padding.pkcs7.strip(decryptedBytes);
+            const decryptedText = aesjs.utils.utf8.fromBytes(unpadded);
+
+            return decryptedText;
+        } catch (e) {
+            console.error("Giải mã lỗi", e);
+            return null;
+        }
+    };
+
+    const loadMessages = async (isInitial = false) => {
+        if (!isInitial) setLoadingOlderMessages(true);
+
+        const q = isInitial
+            ? query(collection(fireStore, "roomsChat", param, "chat"), orderBy("sendTime", "desc"), limit(15))
+            : query(collection(fireStore, "roomsChat", param, "chat"), orderBy("sendTime", "desc"), startAfter(lastVisible), limit(15));
+
+        const querySnapshot = await getDocs(q);
+        const docs = querySnapshot.docs;
+
+        const newMessages = docs.map((doc) => ({
+            id: doc.id,
+            data: doc.data(),
+            decryptedContent: decryptMessage(doc.data(), Cookies.get("privateKey"), authUserData.uid),
+        }));
+
+        const sortedMessages = [...newMessages].sort((a, b) => a.data.sendTime - b.data.sendTime);
+
+        setMessageData((prev) => {
+            if (isInitial) {
+                return sortedMessages;
+            } else {
+                return [...sortedMessages, ...prev];
+            }
         });
+        if (docs.length < 15) {
+            setHasMore(false); // Hết tin nhắn để load thêm
+        }
+        if (docs.length > 0) {
+            setLastVisible(docs[docs.length - 1]);
+        }
+
+        setLoading(false);
+        setLoadingOlderMessages(false);
+
+        if (isInitial) {
+            setTimeout(() => scrollToBottom(), 0); // Scroll ngay sau khi render
+        }
+    };
+
+    // Load lần đầu
+    useEffect(() => {
+        loadMessages(true);
+    }, []);
+
+    // Lắng nghe tin nhắn mới
+    useEffect(() => {
+        const q = query(collection(fireStore, "roomsChat", param, "chat"), orderBy("sendTime", "desc"), limit(1));
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            querySnapshot.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    const doc = change.doc;
+                    const decrypted = decryptMessage(doc.data(), Cookies.get("privateKey"), authUserData.uid);
+
+                    setMessageData((prev) => {
+                        if (prev.some((m) => m.id === doc.id)) return prev;
+
+                        return [
+                            ...prev,
+                            {
+                                id: doc.id,
+                                data: doc.data(),
+                                decryptedContent: decrypted,
+                            },
+                        ];
+                    });
+
+                    scrollToBottom();
+                }
+            });
+        });
+
         return () => unsubscribe();
     }, []);
 
+    // Lấy thông tin bạn chat
     useEffect(() => {
         const getFriend = async () => {
             if (users) {
-                const uidFriend = users.filter((uid) => uid !== authUserData.uid);
-                const docSnap = await getDocument("users", uidFriend[0]);
+                const uidFriend = users.find((uid) => uid !== authUserData.uid);
+                const docSnap = await getDocument("users", uidFriend);
                 if (docSnap.exists()) {
                     setFriendData(docSnap.data());
-                    setLoading(false);
                     document.title = "Nhắn tin với " + docSnap.data().displayName;
                 }
             }
@@ -86,11 +163,10 @@ const ChatContent = ({ param, users }) => {
                             width={40}
                             height={40}
                             className="max-w-10 mr-2 max-h-10 rounded-full object-cover"
-                            alt="@shadcn"
+                            alt="@friend"
                         />
                     )}
-
-                    <div className="text-lg">{friendData?.displayName ? friendData?.displayName : <Skeleton className={"w-52 h-6 rounded-3xl"} />}</div>
+                    <div className="text-lg">{friendData?.displayName || <Skeleton className={"w-52 h-6 rounded-3xl"} />}</div>
                 </div>
                 <div>
                     <Popover>
@@ -99,71 +175,50 @@ const ChatContent = ({ param, users }) => {
                                 <OptionIcon width={24} height={24} />
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-full  flex flex-col p-0">
-                            <Button onClick={viewProfile} variant="ghost" className=" rounded-b-none">
+                        <PopoverContent className="w-full flex flex-col p-0">
+                            <Button onClick={viewProfile} variant="ghost" className="rounded-b-none">
                                 Xem trang cá nhân
                             </Button>
-                            {/* <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="ghost" className="text-[#f14b5c] hover:text-[#f14b5c] rounded-t-none text-left">
-                                        <span className="w-full block text-base">Xóa đoạn chat</span>
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>bạn có muốn xóa đoạn chat này ?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Việc xóa đoạn chat sẽ không thể khôi phục trong tương lai.<br></br> Hãy cân nhắc trước khi xác nhận xóa.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Hủy</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleDelete}>Xóa</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog> */}
                         </PopoverContent>
                     </Popover>
                 </div>
             </div>
-            <div ref={scrollableRef} className="h-[calc(100vh-260px)] sm:h-[calc(100vh-194px)] w-full rounded-md overflow-y-scroll pl-3 ">
+
+            <div className="h-[calc(100vh-260px)] sm:h-[calc(100vh-194px)] w-full rounded-md overflow-y-scroll pl-3 ">
                 <style>{scrollBarStyle}</style>
+
+                {hasMore && !loadingOlderMessages && lastVisible && messageData.length > 0 && (
+                    <div className="flex justify-center my-3">
+                        <button onClick={() => loadMessages(false)} className="text-xs text-blue-500">
+                            Tải thêm tin nhắn trước đó
+                        </button>
+                    </div>
+                )}
+
+                {loadingOlderMessages && (
+                    <div className="flex justify-center my-3">
+                        <Skeleton className="w-10 h-10 rounded-full" />
+                    </div>
+                )}
+
                 {loading ? (
                     <div>
-                        <div className="flex items-center justify-start my-3 mr-4">
-                            <Skeleton className={"w-7 h-7 rounded-full"} />
-                            <Skeleton className={"w-1/2 h-7 ml-1.5 rounded-2xl"} />
-                        </div>
-                        <div className="flex items-center justify-start my-3 mr-4">
-                            <Skeleton className={"w-7 h-7 rounded-full"} />
-                            <Skeleton className={"w-1/3 h-7 ml-1.5 rounded-2xl"} />
-                        </div>
-                        <div className="flex items-center justify-end my-3 mr-4">
-                            <Skeleton className={"w-1/2 h-7  rounded-2xl"} />
-                        </div>
-                        <div className="flex items-center justify-start my-3 mr-4">
-                            <Skeleton className={"w-7 h-7 rounded-full"} />
-                            <Skeleton className={"w-2/3 h-7 ml-1.5 rounded-2xl"} />
-                        </div>
+                        <Skeleton className={"w-7 h-7 rounded-full my-3"} />
+                        <Skeleton className={"w-1/2 h-7 ml-1.5 rounded-2xl my-3"} />
                     </div>
                 ) : (
-                    messageData.slice().map((chat) => {
-                        return (
-                            <MemoizedMessage
-                                key={chat.id}
-                                data={chat.data}
-                                message={chat.data.content}
-                                myMessage={chat.data.uid === authUserData.uid}
-                                photoURL={friendData?.photoURL}
-                                rsaKey={Cookies.get("privateKey")}
-                            />
-                        );
-                    })
+                    messageData.map((chat) => (
+                        <MemoizedMessage key={chat.id} message={chat.decryptedContent} myMessage={chat.data.uid === authUserData.uid} photoURL={friendData?.photoURL} />
+                    ))
                 )}
+
+                <div ref={scrollableRef} className="w-1 h-0"></div>
             </div>
-            <ChatInput documentId={param} currentUserData={authUserData} messageData={messageData} scrollRef={scrollableRef} friendData={friendData} />
+
+            <ChatInput documentId={param} currentUserData={authUserData} messageData={messageData} scrollToBottom={scrollToBottom} friendData={friendData} />
         </div>
     );
 };
+
 const MemoizedMessage = memo(Message);
 export default ChatContent;

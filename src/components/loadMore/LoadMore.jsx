@@ -1,10 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { query, collection, startAfter, limit, getDocs } from "firebase/firestore";
 import { fireStore } from "@/firebase/config";
-import { Button } from "../ui/button";
 import LoadingIcon from "../icons/LoadingIcon";
-import ChevronRight from "../icons/ChevronRight";
 
 const LoadMore = ({ lastVisible, setAdditionalPosts, setLastVisible, collectionName, queryParam }) => {
     const [loading, setLoading] = useState(false);
@@ -27,18 +25,31 @@ const LoadMore = ({ lastVisible, setAdditionalPosts, setLastVisible, collectionN
         }
     };
 
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollPosition = window.innerHeight + window.scrollY;
+            const threshold = document.body.offsetHeight - 200;
+
+            if (scrollPosition >= threshold && !loading) {
+                loadMore();
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, [loading, lastVisible]);
+
     return (
-        <Button variant="link" className="w-10 h-10  border border-[] outline-none" onClick={loadMore}>
-            {loading ? (
-                <p className="">
+        <div>
+            {loading && (
+                <div className="flex justify-center mt-4">
                     <LoadingIcon width={20} height={20} />
-                </p>
-            ) : (
-                <p className="underline  rotate-90">
-                    <ChevronRight width={20} height={20} />
-                </p>
+                </div>
             )}
-        </Button>
+        </div>
     );
 };
 

@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Globe, Users } from "lucide-react";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -248,7 +249,12 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                         <Link href={"/user/@" + authorData?.uid} className="font-semibold hover:underline">
                             {authorData?.displayName ? authorData?.displayName : <Skeleton className="h-5 mb-1 w-32 rounded-lg" />}
                         </Link>
-                        <div className="text-[#acacac] text-xs ">
+                        <div className="text-[#acacac] text-xs flex items-center gap-1.5">
+                            {thisBlogData?.privacyValue === "public" ? (
+                                <Globe className="w-3.5 h-3.5 text-foreground" />
+                            ) : (
+                                <Users className="w-3.5 h-3.5 text-foreground" />
+                            )}
                             {authorData && thisBlogData?.createAt ? handleConvertDate(thisBlogData?.createAt) : <Skeleton className="h-4  w-28 rounded-lg" />}
                         </div>
                     </div>

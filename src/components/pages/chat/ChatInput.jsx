@@ -8,48 +8,48 @@ import NodeRSA from "node-rsa";
 import aesjs from "aes-js";
 import { toast } from "sonner";
 
-const ChatInput = ({ documentId, currentUserData, messageData, scrollRef, friendData }) => {
+const ChatInput = ({ documentId, currentUserData, messageData, scrollToBottom, friendData }) => {
     const [message, setMessage] = useState("");
     const [scroll, setScroll] = useState(false);
     const textareaRef = useRef(null);
 
     let firstScroll = messageData.length < 10;
-    useEffect(() => {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }, [firstScroll]);
+    // useEffect(() => {
+    //     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    // }, [firstScroll]);
 
-    const scrollToBottom = () => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTo({
-                top: scrollRef.current.scrollHeight,
-                behavior: "smooth",
-            });
-        }
-    };
+    // const scrollToBottom = () => {
+    //     if (scrollRef.current) {
+    //         scrollRef.current.scrollTo({
+    //             top: scrollRef.current.scrollHeight,
+    //             behavior: "smooth",
+    //         });
+    //     }
+    // };
 
-    const handleScroll = () => {
-        if (scrollRef.current) {
-            const { scrollTop, clientHeight, scrollHeight } = scrollRef.current;
-            const isNearBottom = scrollHeight - scrollTop - clientHeight <= 20;
-            setScroll(isNearBottom);
-        }
-    };
+    // const handleScroll = () => {
+    //     if (scrollRef.current) {
+    //         const { scrollTop, clientHeight, scrollHeight } = scrollRef.current;
+    //         const isNearBottom = scrollHeight - scrollTop - clientHeight <= 20;
+    //         setScroll(isNearBottom);
+    //     }
+    // };
 
-    useEffect(() => {
-        const scrollRefCurrent = scrollRef.current;
-        if (scrollRefCurrent) {
-            scrollRefCurrent.addEventListener("scroll", handleScroll);
-            return () => {
-                if (scrollRefCurrent) {
-                    scrollRefCurrent.removeEventListener("scroll", handleScroll);
-                }
-            };
-        }
-    }, []);
+    // useEffect(() => {
+    //     const scrollRefCurrent = scrollRef.current;
+    //     if (scrollRefCurrent) {
+    //         scrollRefCurrent.addEventListener("scroll", handleScroll);
+    //         return () => {
+    //             if (scrollRefCurrent) {
+    //                 scrollRefCurrent.removeEventListener("scroll", handleScroll);
+    //             }
+    //         };
+    //     }
+    // }, []);
 
-    useEffect(() => {
-        if (scroll) scrollToBottom();
-    }, [messageData]);
+    // useEffect(() => {
+    //     if (scroll) scrollToBottom();
+    // }, [messageData]);
 
     const handleInput = (e) => {
         e.target.style.height = "auto";
@@ -62,7 +62,6 @@ const ChatInput = ({ documentId, currentUserData, messageData, scrollRef, friend
             e.preventDefault();
             if (message.trim()) {
                 handleSendMessage();
-                setScroll(true);
             }
         }
     };
@@ -146,7 +145,7 @@ const ChatInput = ({ documentId, currentUserData, messageData, scrollRef, friend
                 iv: uint8ArrayToHex(iv),
             };
             await sendMessage(documentId, messageData);
-
+            scrollToBottom();
             if (textareaRef.current) {
                 textareaRef.current.style.height = "40px";
             }

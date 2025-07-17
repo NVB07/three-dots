@@ -34,7 +34,7 @@ const Options = () => {
             <Popover>
                 <PopoverTrigger asChild>
                     <Button variant="secondary" size="default" className="active:scale-95 transition-transform rounded-full pr-1 pl-2   ">
-                        {authUserData?.displayName.slice(0, 5) + "..." || "User"}
+                        {authUserData?.displayName.length > 25 ? authUserData?.displayName.slice(0, 25) + "..." : authUserData?.displayName}
                         <Image src={authUserData?.photoURL || "/avatarDefault.svg"} width={32} height={32} className=" ml-1 rounded-full max-w-8 max-h-8" alt="user" />
                     </Button>
                 </PopoverTrigger>

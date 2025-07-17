@@ -26,6 +26,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", priv
     const [content, setContent] = useState(blogid ? contentBlog : "");
     const [plainText, setPlainText] = useState("");
     const [privacyValue, setPrivacyValue] = useState(privacy);
+    const [initialPrivacy, setInitialPrivacy] = useState(privacy);
 
     const textareaRef = useRef(null);
     const openTextArea = () => {
@@ -207,7 +208,7 @@ const NewBlog = ({ buttonTitle, styleButton = "", blogid, contentBlog = "", priv
                 <DialogFooter>
                     <Button
                         onClick={!blogid ? handleNewPost : handleEditPostContent}
-                        disabled={loading || (!plainText.trim() && !imageFile)}
+                        disabled={loading || (blogid ? !plainText.trim() && !imageFile && privacyValue === initialPrivacy : !plainText.trim() && !imageFile)}
                         className="select-none"
                         type="submit"
                     >
