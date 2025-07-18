@@ -8,6 +8,7 @@ export const BlogContext = createContext();
 
 export const BlogProvider = ({ children }) => {
     const { authUserData } = useContext(AuthContext);
+
     const [initialPosts, setInitialPosts] = useState([]);
     const [initialFollowPosts, setInitialFollowPosts] = useState([]);
 
@@ -19,7 +20,6 @@ export const BlogProvider = ({ children }) => {
 
     const [countDocument, setCountDocument] = useState(null);
     const [countDocumentFollow, setCountDocumentFollow] = useState(null);
-    // Sử dụng useEffect để fetch dữ liệu ban đầu từ Firestore
     useEffect(() => {
         const coll = collection(fireStore, "blogs");
         const initialQuery = query(coll, where("privacyValue", "==", "public"), orderBy("createAt", "desc"), limit(20));
@@ -36,8 +36,10 @@ export const BlogProvider = ({ children }) => {
                 setLastVisible(lastVisibleDoc);
             });
 
-            const unsubscribeCount = onSnapshot(coll, async () => {
-                const snapshot = await getCountFromServer(coll);
+            const countQuery = query(coll, where("privacyValue", "==", "public"));
+
+            const unsubscribeCount = onSnapshot(countQuery, async () => {
+                const snapshot = await getCountFromServer(countQuery);
                 setCountDocument(snapshot.data().count);
             });
 
@@ -49,30 +51,34 @@ export const BlogProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        const coll = collection(fireStore, "blogs");
-        const initialQuery = query(coll, where("author.uid", "in", authUserData?.following), orderBy("createAt", "desc"), limit(20));
+        if (Array.isArray(authUserData?.following) && authUserData?.following.length > 0) {
+            const coll = collection(fireStore, "blogs");
+            const initialQuery = query(coll, where("author.uid", "in", authUserData?.following), orderBy("createAt", "desc"), limit(20));
 
-        if (Cookies.get("accessToken")) {
-            const unsubscribe = onSnapshot(initialQuery, (querySnapshot) => {
-                const initialDocs = [];
-                let lastVisibleDoc = null;
-                querySnapshot.forEach((doc) => {
-                    initialDocs.push({ data: doc.data(), id: doc.id });
-                    lastVisibleDoc = doc;
+            if (Cookies.get("accessToken")) {
+                const unsubscribe = onSnapshot(initialQuery, (querySnapshot) => {
+                    const initialDocs = [];
+                    let lastVisibleDoc = null;
+                    querySnapshot.forEach((doc) => {
+                        initialDocs.push({ data: doc.data(), id: doc.id });
+                        lastVisibleDoc = doc;
+                    });
+                    setInitialFollowPosts(initialDocs);
+                    setLastVisibleFollow(lastVisibleDoc);
                 });
-                setInitialFollowPosts(initialDocs);
-                setLastVisibleFollow(lastVisibleDoc);
-            });
 
-            const unsubscribeCount = onSnapshot(coll, async () => {
-                const snapshot = await getCountFromServer(coll);
-                setCountDocumentFollow(snapshot.data().count);
-            });
+                const countQuery = query(coll, where("author.uid", "in", authUserData?.following));
 
-            return () => {
-                unsubscribe();
-                unsubscribeCount();
-            };
+                const unsubscribeCount = onSnapshot(countQuery, async () => {
+                    const snapshot = await getCountFromServer(countQuery);
+                    setCountDocumentFollow(snapshot.data().count);
+                });
+
+                return () => {
+                    unsubscribe();
+                    unsubscribeCount();
+                };
+            }
         }
     }, []);
 

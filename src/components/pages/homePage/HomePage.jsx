@@ -3,7 +3,7 @@ import { useContext, useState } from "react";
 import { BlogContext } from "@/context/BlogContext";
 import Blog from "../../blog/Blog";
 import { orderBy } from "firebase/firestore";
-import { Globe, Users } from "lucide-react";
+import { Globe, Users, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -45,9 +45,16 @@ const HomePage = () => {
                 </div>
             ) : (
                 <div className="w-full max-w-[620px] px-0 sm:px-6">
-                    {allFollwPosts.map((post) => (
-                        <Blog key={post.id} blogid={post.id} authorid={post?.data.author.uid} />
-                    ))}
+                    {allFollwPosts.length > 0 ? (
+                        allFollwPosts.map((post) => <Blog key={post.id} blogid={post.id} authorid={post?.data.author.uid} />)
+                    ) : (
+                        <div className="w-full flex flex-col pt-14 justify-center items-center">
+                            <Newspaper className="w-12 h-12 mb-2" />
+                            <div className="text-xl font-bold">Không có bài viết</div>
+                            <div className="text-sm text-[#acacac]">Không có bài viết nào ở đây hoặc có thể bạn chưa theo dõi người dùng nào.</div>
+                        </div>
+                    )}
+
                     <div className="w-full flex justify-center py-10">
                         {allFollwPosts.length < countDocumentFollow ? (
                             <LoadMore

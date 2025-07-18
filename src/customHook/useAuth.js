@@ -43,6 +43,7 @@ const useAuth = () => {
                 x: "",
                 photoURL: "",
                 uid: user.uid,
+                following: [],
             });
 
             return user;
@@ -86,6 +87,7 @@ const useAuth = () => {
                     photoURL: user.photoURL || "",
                     uid: user.uid,
                     providerId: result._tokenResponse.providerId,
+                    following: [],
                 });
             }
 
@@ -117,6 +119,7 @@ const useAuth = () => {
                     photoURL: user.photoURL || "",
                     uid: user.uid,
                     providerId: result._tokenResponse.providerId,
+                    following: [],
                 });
             }
 
