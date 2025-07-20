@@ -17,7 +17,7 @@ const UserName = ({ authUserData, isMyAccount, isLoading, setAuthUserData, userD
     };
     useEffect(() => {
         if (editAble && inputRef.current) {
-            inputRef.current.focus(); // Focus chỉ được gọi sau khi UI đã cập nhật
+            inputRef.current.focus();
         }
     }, [editAble]);
 
@@ -43,8 +43,9 @@ const UserName = ({ authUserData, isMyAccount, isLoading, setAuthUserData, userD
                     <h3 className="text-xl font-bold">{isLoading ? <Skeleton className={"w-40 h-7 rounded-md"} /> : userData?.displayName}</h3>
                 ) : (
                     <Input
+                        maxLength={25}
                         ref={inputRef}
-                        className=" text-xl font-bold px-0 py-0 border-x-0 border-t-0 rounded-none border-b border-b-slate-400 h-fit"
+                        className=" text-lg font-bold px-0 py-0 border-x-0 border-t-0 rounded-none border-b border-b-slate-400 h-fit"
                         defaultValue={authUserData?.displayName}
                         onChange={(e) => setNewName(e.target.value.trim())}
                     />

@@ -333,3 +333,59 @@ export const getDocument = async (collectionName, docId) => {
         console.error("Error fetching user data:", error);
     }
 };
+export async function followUser(myUid, friendUid) {
+    const myUserRef = doc(fireStore, "users", myUid);
+    const friendUserRef = doc(fireStore, "users", friendUid);
+
+    try {
+        const [userDoc, friendDoc] = await Promise.all([getDoc(myUserRef), getDoc(friendUserRef)]);
+
+        if (!userDoc.exists() || !friendDoc.exists()) {
+            throw new Error("User or friend document does not exist");
+        }
+
+        const userData = userDoc.data();
+        const friendData = friendDoc.data();
+
+        // Initialize arrays if they don't exist
+        const following = userData.following || [];
+        const followers = friendData.followers || [];
+
+        const isFollowing = following.includes(friendUid);
+
+        if (isFollowing) {
+            // Unfollow: Remove from both arrays
+            const newFollowing = following.filter((id) => id !== friendUid);
+            const newFollowers = followers.filter((id) => id !== myUid);
+
+            await Promise.all([
+                updateDoc(myUserRef, {
+                    following: newFollowing,
+                }),
+                updateDoc(friendUserRef, {
+                    followers: newFollowers,
+                }),
+            ]);
+
+            return "Theo dõi";
+        } else {
+            // Follow: Add to both arrays
+            const newFollowing = [...following, friendUid];
+            const newFollowers = [...followers, myUid];
+
+            await Promise.all([
+                updateDoc(myUserRef, {
+                    following: newFollowing,
+                }),
+                updateDoc(friendUserRef, {
+                    followers: newFollowers,
+                }),
+            ]);
+
+            return "Đang theo dõi";
+        }
+    } catch (error) {
+        console.error("Error in followUser:", error);
+        throw error;
+    }
+}

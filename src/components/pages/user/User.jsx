@@ -2,10 +2,10 @@
 import { useRouter } from "next13-progressbar";
 import { useContext, useEffect, useState, memo, useCallback } from "react";
 import { collection, query, onSnapshot, orderBy, where, getCountFromServer, limit, getDocs } from "firebase/firestore";
-import { addDocument, snapshotCollection } from "@/firebase/services";
+import { addDocument, snapshotCollection, followUser } from "@/firebase/services";
 import { fireStore } from "@/firebase/config";
 import Image from "next/image";
-
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import GmailIcon from "@/components/icons/GmailIcon";
@@ -30,17 +30,37 @@ const User = ({ param }) => {
     const [initialPosts, setInitialPosts] = useState([]);
     const [additionalPosts, setAdditionalPosts] = useState([]);
     const [lastVisible, setLastVisible] = useState(null);
-
+    const [followTitleButton, setFollowTitleButton] = useState("---");
+    const [countFollowing, setCountFollowing] = useState([]);
+    const [countFollower, setCountFollower] = useState([]);
     const router = useRouter();
 
+    const handleFollow = async () => {
+        setFollowTitleButton("...");
+        const title = await followUser(authUserData.uid, param.replace("%40", ""));
+        setFollowTitleButton(title);
+    };
+
     useEffect(() => {
-        snapshotCollection("users", param.replace("%40", ""), (data) => {
+        const snapShotUser = snapshotCollection("users", param.replace("%40", ""), (data) => {
             if (data) {
                 setIsMyAccount(data?.uid === authUserData.uid);
                 setUserData(data);
+                setFollowTitleButton(() => {
+                    if (data.followers?.includes(authUserData.uid)) {
+                        return "Đang theo dõi";
+                    } else {
+                        return "Theo dõi";
+                    }
+                });
+                setCountFollower(data.followers);
+                setCountFollowing(data.following);
             }
             setIsLoading(false);
         });
+        () => {
+            snapShotUser();
+        };
     }, []);
 
     const [countDocument, setCountDocument] = useState(null);
@@ -217,15 +237,54 @@ const User = ({ param }) => {
                         )}
                     </div>
                 </div>
+                <div className="w-full my-3">
+                    {isLoading ? (
+                        <Skeleton className={"w-full h-4 rounded-md"} />
+                    ) : (
+                        <div className="flex items-center justify-between ">
+                            <p className="text-sm ">{countDocument} bài viết</p>
+                            <Dialog>
+                                <DialogTrigger>
+                                    <p className="text-sm ">{countFollower.length} người theo dõi</p>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>comming soon !</DialogTitle>
+                                        <DialogDescription>comming soon</DialogDescription>
+                                    </DialogHeader>
+                                </DialogContent>
+                            </Dialog>
+                            <Dialog>
+                                <DialogTrigger>
+                                    <p className="text-sm ">Đang theo dõi {countFollowing.length} người</p>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>comming soon !</DialogTitle>
+                                        <DialogDescription>comming soon</DialogDescription>
+                                    </DialogHeader>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
+                    )}
+                </div>
                 {isLoading ? (
                     <Skeleton className={"w-full h-10 rounded-md"} />
                 ) : isMyAccount ? (
                     <EditSocial authUserData={authUserData} setAuthUserData={setAuthUserData} />
                 ) : (
-                    // <EditProfile authUserData={authUserData} setAuthUserData={setAuthUserData} />
-                    <Button onClick={handleChat} variant="" className="w-full font-bold">
-                        Nhắn tin
-                    </Button>
+                    <div className="w-full flex items-center gap-2">
+                        <Button
+                            onClick={handleFollow}
+                            variant=""
+                            className="w-full font-bold bg-[#ccc] text-black hover:bg-[#ddd] dark:bg-[#25292e] dark:hover:bg-[#40464e] dark:text-white"
+                        >
+                            {followTitleButton}
+                        </Button>
+                        <Button onClick={handleChat} variant="" className="w-full font-bold bg-blue-500 text-white hover:bg-blue-400">
+                            Nhắn tin
+                        </Button>
+                    </div>
                 )}
                 {isLoading ? (
                     <Skeleton className={"w-96 h-8 rounded mt-5 "} />
