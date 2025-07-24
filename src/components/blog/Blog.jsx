@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-// import { useRouter } from "next/navigation";
 import { useRouter } from "next13-progressbar";
 import { useState, useCallback, useEffect, useContext } from "react";
 import { toast } from "sonner";
@@ -21,7 +20,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { handleLikeReact, deleteDocument } from "@/firebase/services";
-// import useDeleteDoc from "@/customHook/useDeleteDoc";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 
 import NewBlog from "../newBlog/NewBlog";
 
@@ -37,15 +36,8 @@ import { fireStore } from "@/firebase/config";
 import { onSnapshot, doc } from "firebase/firestore";
 import { AuthContext } from "@/context/AuthProvider";
 import DialogComment from "./DialogComment";
-// import { useQuery } from "@tanstack/react-query";
 
 const Blog = ({ blogDetails = false, blogid, authorid }) => {
-    // const { data, error, isLoading } = useQuery({
-    //     queryKey: ["blogData"],
-    //     queryFn: getTodos,
-    //     staleTime: Infinity,
-    // });
-
     const { authUserData } = useContext(AuthContext);
     const [openOption, setOpenOption] = useState(); // Mở đóng dialog
     const [authorData, setAuthorData] = useState(); // dữ liệu cá nhân tác giả
@@ -76,7 +68,6 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
         return "?";
     }, []);
 
-    // real time dữ liệu document(blog)
     useEffect(() => {
         if (blogid) {
             const unsub = onSnapshot(doc(fireStore, "blogs", blogid), (doc) => {
@@ -136,40 +127,6 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
             setOpenOption();
             setLoading(false);
         }
-        // .then(() => {
-        //     toast.success("Đã xóa bài viết", {
-        //         cancel: {
-        //             label: <CloseIcon />,
-        //             onClick: () => {},
-        //         },
-        //         icon: <TrashIcon />,
-        //     });
-        //     blogDetails && router.push("/");
-        // })
-        // .catch(() => {
-        //     setOpenOption();
-        //     setLoading(false);
-        //     toast.error("Lỗi khi xóa bài");
-        // });
-        // const success = await deleteDocument("blogs", blogid, pathImage);
-        // if (success) {
-        //     toast.success("Đã xóa bài viết", {
-        //         cancel: {
-        //             label: <CloseIcon />,
-        //             onClick: () => {},
-        //         },
-        //         icon: <TrashIcon />,
-        //     });
-        // } else {
-        //     toast.error("Lỗi khi xóa bài", {
-        //         action: {
-        //             label: <CloseIcon />,
-        //             onClick: () => {},
-        //         },
-        //     });
-        //     setOpenOption();
-        //     setLoading(false);
-        // }
     };
 
     // xử lí sao chép liên kết blog
@@ -251,9 +208,27 @@ const Blog = ({ blogDetails = false, blogid, authorid }) => {
                         </Link>
                         <div className="text-[#acacac] text-xs flex items-center gap-1.5">
                             {thisBlogData?.privacyValue === "public" ? (
-                                <Globe className="w-3.5 h-3.5 text-foreground" />
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Globe className="w-3.5 h-3.5 text-foreground" />
+                                        </TooltipTrigger>
+                                        <TooltipContent side="bottom">
+                                            <p>Được chia sẻ: Công khai</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                             ) : (
-                                <Users className="w-3.5 h-3.5 text-foreground" />
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Users className="w-3.5 h-3.5 text-foreground" />
+                                        </TooltipTrigger>
+                                        <TooltipContent side="bottom">
+                                            <p>Được chia sẻ: Người theo dõi</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                             )}
                             {authorData && thisBlogData?.createAt ? handleConvertDate(thisBlogData?.createAt) : <Skeleton className="h-4  w-28 rounded-lg" />}
                         </div>

@@ -53,8 +53,8 @@ const User = ({ param }) => {
                         return "Theo dõi";
                     }
                 });
-                setCountFollower(data.followers);
-                setCountFollowing(data.following);
+                setCountFollower(data.followers ? data.followers : []);
+                setCountFollowing(data.following ? data.following : []);
             }
             setIsLoading(false);
         });
@@ -254,17 +254,21 @@ const User = ({ param }) => {
                                     </DialogHeader>
                                 </DialogContent>
                             </Dialog>
-                            <Dialog>
-                                <DialogTrigger>
-                                    <p className="text-sm ">Đang theo dõi {countFollowing.length} người</p>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>comming soon !</DialogTitle>
-                                        <DialogDescription>comming soon</DialogDescription>
-                                    </DialogHeader>
-                                </DialogContent>
-                            </Dialog>
+                            {authUserData.uid === param.replace("%40", "") ? (
+                                <Dialog>
+                                    <DialogTrigger>
+                                        <p className="text-sm ">Đang theo dõi {countFollowing?.length}</p>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>comming soon !</DialogTitle>
+                                            <DialogDescription>comming soon</DialogDescription>
+                                        </DialogHeader>
+                                    </DialogContent>
+                                </Dialog>
+                            ) : (
+                                <p className="text-sm ">Đang theo dõi {countFollowing?.length}</p>
+                            )}
                         </div>
                     )}
                 </div>

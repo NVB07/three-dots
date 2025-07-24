@@ -87,12 +87,12 @@ const Login = () => {
         setLoading1(false);
     };
     return (
-        <div className="w-full h-screen flex items-center ">
+        <div className="w-full flex items-center justify-center bg-white min-[480px]:bg-[url('/bgn.png')] bg-cover bg-opacity-50 bg-center h-screen p-2 ">
             <Toaster position="top-center" richColors />
-            <div className="md:w-1/2 md:block hidden h-screen">
+            {/* <div className="md:w-1/2 md:block hidden h-screen">
                 <img className="w-full h-screen object-cover" src="/wlop.jpg" alt="anh login" />
-            </div>
-            <div className="md:w-1/2 w-full  h-fit bg-white p-4 pb-6 flex flex-col items-center justify-center rounded-2xl ">
+            </div> */}
+            <div className=" max-w-[500px] w-full backdrop-blur-md bg-white  h-fit  p-4 pb-6 flex flex-col items-center justify-center rounded-2xl ">
                 <div className="flex flex-col items-center pb-7">
                     <Logo color="hsl(var(--foreground))" width="100" height="100" />
                     <h2 className="text-3xl font-semibold  text-center">
@@ -168,7 +168,7 @@ const Login = () => {
                             </button>
                         </div>
                         <div className="w-full max-w-[300px] flex justify-end items-center mb-3">
-                            <button className="text-[#ec520b] text-xs hover:underline">Quên mật khẩu?</button>
+                            {/* <button className="text-[#ec520b] text-xs hover:underline">Quên mật khẩu?</button> */}
                         </div>
                         <button
                             onClick={handleSignin}
